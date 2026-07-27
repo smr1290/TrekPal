@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP
+from sqlalchemy import Boolean, Column, Integer, String, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.sql import func
 from db import Base
 
@@ -49,6 +49,8 @@ class Gear(Base):
     category = Column(String(50))
     photo_url = Column(Text)
     description = Column(Text)
+   
+
 
 
 class TrekGearRecommendation(Base):
@@ -57,3 +59,21 @@ class TrekGearRecommendation(Base):
     id = Column(Integer, primary_key=True, index=True)
     history_id = Column(Integer, ForeignKey("user_trek_history.id", ondelete="CASCADE"))
     gear_id = Column(Integer, ForeignKey("gear.id"))
+
+
+class KnowledgeArticle(Base):
+    """TrekPal knowledge base — guides, permits, safety, etc. (RAG-ready text)."""
+
+    __tablename__ = "knowledge_articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    slug = Column(String(220), unique=True, nullable=False, index=True)
+    category = Column(String(50), nullable=False, index=True)
+    summary = Column(String(500), nullable=False)
+    content = Column(Text, nullable=False)
+    trek_id = Column(Integer, ForeignKey("treks.id", ondelete="SET NULL"), nullable=True)
+    source_url = Column(Text, nullable=True)
+    is_published = Column(Boolean, default=True, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

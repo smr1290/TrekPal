@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Input from '@/components/Input';
@@ -9,10 +8,19 @@ import Select from '@/components/Select';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
+import PageContainer from '@/components/PageContainer';
+import { PageHeader, EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
+import type { TrekPreparationResponse } from '@/lib/types';
+import { getRiskVariant } from '@/lib/badgeHelpers';
+
+type FormErrors = {
+    altitude?: string;
+    duration?: string;
+    general?: string;
+};
 
 export default function PrepareTrekPage() {
-    const router = useRouter();
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         trek_type: 'Easy',
@@ -20,9 +28,9 @@ export default function PrepareTrekPage() {
         season: 'Spring',
         duration: '',
     });
-    const [errors, setErrors] = useState<any>({});
+    const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<TrekPreparationResponse | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,35 +38,22 @@ export default function PrepareTrekPage() {
     };
 
     const validateForm = () => {
-        const newErrors: any = {};
-
-        if (!formData.altitude) {
-            newErrors.altitude = 'Altitude is required';
-        } else if (parseInt(formData.altitude) < 0) {
-            newErrors.altitude = 'Altitude must be positive';
-        }
-
-        if (!formData.duration) {
-            newErrors.duration = 'Duration is required';
-        } else if (parseInt(formData.duration) < 1) {
-            newErrors.duration = 'Duration must be at least 1 day';
-        }
-
+        const newErrors: FormErrors = {};
+        if (!formData.altitude) newErrors.altitude = 'Please enter the target altitude';
+        else if (parseInt(formData.altitude) < 0) newErrors.altitude = 'Altitude cannot be negative';
+        if (!formData.duration) newErrors.duration = 'Please enter trek duration';
+        else if (parseInt(formData.duration) < 1) newErrors.duration = 'Min duration is 1 day';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validateForm() || !user) return;
-
         setIsLoading(true);
         setErrors({});
-
         try {
             const response = await trekApi.prepareTrek(
-                user.id,
                 formData.trek_type,
                 user.experience_level,
                 parseInt(formData.altitude),
@@ -66,187 +61,204 @@ export default function PrepareTrekPage() {
                 parseInt(formData.duration)
             );
             setResult(response);
-        } catch (error: any) {
-            setErrors({ general: error.message || 'Failed to prepare trek. Please try again.' });
+        } catch {
+            setErrors({ general: 'Failed to generate your list. Please try again.' });
         } finally {
             setIsLoading(false);
         }
     };
 
-    const getRiskBadgeVariant = (risk: string) => {
-        switch (risk.toLowerCase()) {
-            case 'low': return 'success';
-            case 'moderate': return 'warning';
-            case 'high': return 'danger';
-            default: return 'default';
-        }
-    };
-
-    const trekTypes = [
-        { value: 'Easy', label: 'Easy' },
-        { value: 'Moderate', label: 'Moderate' },
-        { value: 'Hard', label: 'Hard' },
-    ];
-
-    const seasons = [
-        { value: 'Spring', label: 'Spring' },
-        { value: 'Summer', label: 'Summer' },
-        { value: 'Autumn', label: 'Autumn' },
-        { value: 'Winter', label: 'Winter' },
-    ];
-
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-4xl font-bold mb-2 text-[var(--foreground)]">Prepare Your Trek</h1>
-                        <p className="text-xl text-[var(--muted)]">
-                            Get personalized gear recommendations and risk assessment
-                        </p>
-                    </div>
+            <PageContainer className="pb-16">
+                <PageHeader
+                    title="Prepare your trek"
+                    description="Tell us about the route — we’ll return a risk level and gear checklist."
+                    action={
+                        result ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    setResult(null);
+                                    setFormData({
+                                        trek_type: 'Easy',
+                                        altitude: '',
+                                        season: 'Spring',
+                                        duration: '',
+                                    });
+                                }}
+                            >
+                                Start over
+                            </Button>
+                        ) : undefined
+                    }
+                />
 
-                    <div className="grid lg:grid-cols-2 gap-8">
-                        {/* Form */}
-                        <Card>
-                            <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid items-start gap-10 lg:grid-cols-2">
+                    <section>
+                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                            Trip details
+                        </h3>
+                        <Card className="p-6 sm:p-8">
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
                                 {errors.general && (
-                                    <div className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 border border-red-200 dark:border-red-800 rounded-lg">
-                                        <p className="text-sm text-red-800 dark:text-red-200">{errors.general}</p>
+                                    <div className="mb-4 rounded-[var(--radius)] border border-[var(--danger)]/30 bg-[var(--danger-bg)] p-3 text-sm text-[var(--danger)]">
+                                        {errors.general}
                                     </div>
                                 )}
 
-                                <div className="p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                    <p className="text-sm text-blue-800 dark:text-blue-200">
-                                        <strong>Your Experience Level:</strong> {user?.experience_level}
-                                    </p>
+                                <div className="mb-4 flex items-center justify-between rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3">
+                                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                        Your experience
+                                    </span>
+                                    <span className="text-sm font-semibold">{user?.experience_level}</span>
                                 </div>
 
-                                <Select
-                                    label="Trek Type"
-                                    name="trek_type"
-                                    value={formData.trek_type}
-                                    onChange={handleChange}
-                                    options={trekTypes}
-                                    required
-                                />
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                    <Select
+                                        label="Trek type"
+                                        name="trek_type"
+                                        value={formData.trek_type}
+                                        onChange={handleChange}
+                                        options={[
+                                            { value: 'Easy', label: 'Easy' },
+                                            { value: 'Moderate', label: 'Moderate' },
+                                            { value: 'Hard', label: 'Hard' },
+                                        ]}
+                                    />
+                                    <Select
+                                        label="Season"
+                                        name="season"
+                                        value={formData.season}
+                                        onChange={handleChange}
+                                        options={[
+                                            { value: 'Spring', label: 'Spring' },
+                                            { value: 'Summer', label: 'Summer' },
+                                            { value: 'Autumn', label: 'Autumn' },
+                                            { value: 'Winter', label: 'Winter' },
+                                        ]}
+                                    />
+                                </div>
 
-                                <Input
-                                    label="Altitude (meters)"
-                                    type="number"
-                                    name="altitude"
-                                    value={formData.altitude}
-                                    onChange={handleChange}
-                                    error={errors.altitude}
-                                    placeholder="e.g., 3500"
-                                    required
-                                />
-
-                                <Select
-                                    label="Season"
-                                    name="season"
-                                    value={formData.season}
-                                    onChange={handleChange}
-                                    options={seasons}
-                                    required
-                                />
-
-                                <Input
-                                    label="Duration (days)"
-                                    type="number"
-                                    name="duration"
-                                    value={formData.duration}
-                                    onChange={handleChange}
-                                    error={errors.duration}
-                                    placeholder="e.g., 7"
-                                    required
-                                />
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                    <Input
+                                        label="Altitude (meters)"
+                                        type="number"
+                                        name="altitude"
+                                        value={formData.altitude}
+                                        onChange={handleChange}
+                                        error={errors.altitude}
+                                        placeholder="e.g. 4000"
+                                        required
+                                    />
+                                    <Input
+                                        label="Duration (days)"
+                                        type="number"
+                                        name="duration"
+                                        value={formData.duration}
+                                        onChange={handleChange}
+                                        error={errors.duration}
+                                        placeholder="e.g. 7"
+                                        required
+                                    />
+                                </div>
 
                                 <Button
                                     type="submit"
+                                    variant="primary"
                                     fullWidth
-                                    disabled={isLoading}
                                     size="lg"
+                                    disabled={isLoading}
+                                    className="mt-2"
                                 >
-                                    {isLoading ? 'Analyzing...' : 'Get Recommendations'}
+                                    {isLoading ? 'Building your list…' : 'Get my packing plan'}
                                 </Button>
                             </form>
                         </Card>
+                    </section>
 
-                        {/* Results */}
-                        <div>
-                            {result ? (
-                                <div className="space-y-6">
-                                    {/* Risk Assessment */}
-                                    <Card>
-                                        <h3 className="text-2xl font-semibold mb-4 text-[var(--foreground)]">
-                                            Risk Assessment
-                                        </h3>
-                                        <div className="flex items-center gap-3">
-                                            <Badge variant={getRiskBadgeVariant(result.risk_level)} size="lg">
-                                                {result.risk_level} Risk
-                                            </Badge>
+                    <section>
+                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                            Your results
+                        </h3>
+                        {result ? (
+                            <div className="flex flex-col gap-5">
+                                <Card className="border-l-4 border-l-[var(--accent)] p-6">
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                Safety risk
+                                            </p>
+                                            <h4 className="mt-1 text-xl font-semibold">
+                                                Report ready
+                                            </h4>
                                         </div>
-                                    </Card>
-
-                                    {/* Recommended Gear */}
-                                    <Card>
-                                        <h3 className="text-2xl font-semibold mb-4 text-[var(--foreground)]">
-                                            Recommended Gear ({result.recommended_gear.length})
-                                        </h3>
-                                        <div className="space-y-4 max-h-96 overflow-y-auto">
-                                            {result.recommended_gear.map((gear: any, index: number) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex gap-4 p-3 rounded-lg border border-[var(--border)] hover:bg-[var(--background)] transition-colors"
-                                                >
-                                                    {gear.photo_url && (
-                                                        <img
-                                                            src={gear.photo_url}
-                                                            alt={gear.gear_name}
-                                                            className="w-16 h-16 object-cover rounded-lg"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect fill="%23ddd" width="64" height="64"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3E🎒%3C/text%3E%3C/svg%3E';
-                                                            }}
-                                                        />
-                                                    )}
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-[var(--foreground)]">{gear.gear_name}</h4>
-                                                        <p className="text-sm text-[var(--muted)]">{gear.description}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </Card>
-
-                                    <Button
-                                        variant="outline"
-                                        fullWidth
-                                        onClick={() => {
-                                            setResult(null);
-                                            setFormData({
-                                                trek_type: 'Easy',
-                                                altitude: '',
-                                                season: 'Spring',
-                                                duration: '',
-                                            });
-                                        }}
-                                    >
-                                        Prepare Another Trek
-                                    </Button>
-                                </div>
-                            ) : (
-                                <Card className="h-full flex items-center justify-center">
-                                    <div className="text-center text-[var(--muted)]">
-                                        <div className="text-6xl mb-4">🏔️</div>
-                                        <p>Fill out the form to get your personalized recommendations</p>
+                                        <Badge
+                                            variant={getRiskVariant(result.risk_level)}
+                                            className="px-4 py-1.5 text-sm"
+                                        >
+                                            {result.risk_level} risk
+                                        </Badge>
                                     </div>
                                 </Card>
-                            )}
-                        </div>
-                    </div>
+
+                                <Card className="overflow-hidden p-0">
+                                    <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-muted)] px-5 py-3">
+                                        <h4 className="text-sm font-semibold">Recommended gear</h4>
+                                        <Badge variant="info">
+                                            {result.recommended_gear.length} items
+                                        </Badge>
+                                    </div>
+                                    <ul className="divide-y divide-[var(--border)]">
+                                        {(result.recommended_gear || []).map((gear, index) => (
+                                            <li
+                                                key={index}
+                                                className="flex gap-4 px-5 py-4"
+                                            >
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--accent-soft)] text-xs font-medium text-[var(--accent)]">
+                                                    {gear.photo_url ? (
+                                                        // eslint-disable-next-line @next/next/no-img-element
+                                                        <img
+                                                            src={gear.photo_url}
+                                                            alt=""
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        (gear.category || 'Gear').slice(0, 4)
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h5 className="font-semibold">
+                                                            {gear.gear_name}
+                                                        </h5>
+                                                        {gear.category && (
+                                                            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                                {gear.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {gear.description && (
+                                                        <p className="mt-1 text-sm text-[var(--muted)]">
+                                                            {gear.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Card>
+                            </div>
+                        ) : (
+                            <EmptyState
+                                title="Waiting for trip details"
+                                description="Fill the form on the left to generate your risk level and gear checklist."
+                            />
+                        )}
+                    </section>
                 </div>
-            </div>
+            </PageContainer>
         </ProtectedRoute>
     );
 }

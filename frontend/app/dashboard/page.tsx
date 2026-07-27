@@ -5,22 +5,25 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Card from '@/components/Card';
-import Button from '@/components/Button';
 import Badge from '@/components/Badge';
+import Button from '@/components/Button';
+import PageContainer from '@/components/PageContainer';
+import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
+import type { TrekHistory } from '@/lib/types';
+import { getRiskVariant } from '@/lib/badgeHelpers';
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const [recentHistory, setRecentHistory] = useState<any[]>([]);
+    const [recentHistory, setRecentHistory] = useState<TrekHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchHistory = async () => {
             if (!user) return;
-
             try {
-                const history = await trekApi.getHistory(user.id);
-                setRecentHistory(history.slice(0, 3)); // Get last 3
+                const history = await trekApi.getHistory();
+                setRecentHistory(history.slice(0, 3) || []);
             } catch (error) {
                 console.error('Failed to fetch history:', error);
             } finally {
@@ -31,104 +34,109 @@ export default function DashboardPage() {
         fetchHistory();
     }, [user]);
 
-    const getRiskBadgeVariant = (risk: string) => {
-        switch (risk.toLowerCase()) {
-            case 'low': return 'success';
-            case 'moderate': return 'warning';
-            case 'high': return 'danger';
-            default: return 'default';
-        }
-    };
-
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    {/* Welcome Section */}
-                    <div className="mb-12">
-                        <h1 className="text-4xl font-bold mb-2 text-[var(--foreground)]">
-                            Welcome back, {user?.full_name}! 🏔️
-                        </h1>
-                        <p className="text-xl text-[var(--muted)]">
-                            Experience Level: <span className="font-semibold text-[var(--primary)]">{user?.experience_level}</span>
-                        </p>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="grid md:grid-cols-3 gap-6 mb-12">
-                        <Link href="/prepare" className="block">
-                            <Card hover className="text-center h-full">
-                                <div className="text-5xl mb-4">🎯</div>
-                                <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">Prepare New Trek</h3>
-                                <p className="text-[var(--muted)]">Get personalized recommendations</p>
-                            </Card>
-                        </Link>
-
-                        <Link href="/history" className="block">
-                            <Card hover className="text-center h-full">
-                                <div className="text-5xl mb-4">📜</div>
-                                <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">View History</h3>
-                                <p className="text-[var(--muted)]">See your past preparations</p>
-                            </Card>
-                        </Link>
-
-                        <Link href="/gear" className="block">
-                            <Card hover className="text-center h-full">
-                                <div className="text-5xl mb-4">🎒</div>
-                                <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">Browse Gear</h3>
-                                <p className="text-[var(--muted)]">Explore all available gear</p>
-                            </Card>
-                        </Link>
-                    </div>
-
-                    {/* Recent Trek History */}
-                    <div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-3xl font-bold text-[var(--foreground)]">Recent Preparations</h2>
-                            <Link href="/history">
-                                <Button variant="outline" size="sm">View All</Button>
-                            </Link>
+            <PageContainer className="flex flex-col gap-12">
+                <PageHeader
+                    title={`Welcome back, ${user?.full_name.split(' ')[0] || 'trekker'}`}
+                    description="Pick up a preparation, browse routes, or start a new packing plan."
+                    action={
+                        <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                Experience
+                            </p>
+                            <p className="text-sm font-semibold text-[var(--foreground)]">
+                                {user?.experience_level}
+                            </p>
                         </div>
+                    }
+                />
 
-                        {isLoading ? (
-                            <Card>
-                                <p className="text-center text-[var(--muted)] py-8">Loading...</p>
+                <section>
+                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                        Quick start
+                    </h2>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                        <Link href="/prepare" className="block">
+                            <Card className="h-full border-[var(--accent)]/25 bg-[var(--accent-soft)] transition hover:border-[var(--accent)]">
+                                <h3 className="text-lg font-semibold text-[var(--accent)]">
+                                    Prepare a trek
+                                </h3>
+                                <p className="mt-2 text-sm text-[var(--muted)]">
+                                    Gear list + risk check for your next route.
+                                </p>
                             </Card>
-                        ) : recentHistory.length === 0 ? (
-                            <Card>
-                                <div className="text-center py-12">
-                                    <p className="text-xl text-[var(--muted)] mb-4">No trek preparations yet</p>
-                                    <Link href="/prepare">
-                                        <Button>Prepare Your First Trek</Button>
-                                    </Link>
-                                </div>
+                        </Link>
+                        <Link href="/treks" className="block">
+                            <Card className="h-full transition hover:border-[var(--accent)]/40">
+                                <h3 className="text-lg font-semibold">Browse treks</h3>
+                                <p className="mt-2 text-sm text-[var(--muted)]">
+                                    Altitude, duration, and difficulty at a glance.
+                                </p>
                             </Card>
-                        ) : (
-                            <div className="grid md:grid-cols-3 gap-6">
-                                {recentHistory.map((item) => (
-                                    <Link key={item.history_id} href={`/history/${item.history_id}`}>
-                                        <Card hover>
-                                            <div className="mb-3">
-                                                <Badge variant={getRiskBadgeVariant(item.risk_level)}>
-                                                    {item.risk_level} Risk
-                                                </Badge>
-                                            </div>
-                                            <h3 className="text-xl font-semibold mb-2 text-[var(--foreground)]">
-                                                {item.trek_name}
-                                            </h3>
-                                            <div className="space-y-1 text-sm text-[var(--muted)]">
-                                                <p>Season: {item.season}</p>
-                                                <p>Duration: {item.duration} days</p>
-                                                <p className="text-xs">{new Date(item.date).toLocaleDateString()}</p>
-                                            </div>
-                                        </Card>
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
+                        </Link>
+                        <Link href="/history" className="block">
+                            <Card className="h-full transition hover:border-[var(--accent)]/40">
+                                <h3 className="text-lg font-semibold">Past plans</h3>
+                                <p className="mt-2 text-sm text-[var(--muted)]">
+                                    Reopen saved preparations anytime.
+                                </p>
+                            </Card>
+                        </Link>
                     </div>
-                </div>
-            </div>
+                </section>
+
+                <section>
+                    <div className="mb-4 flex items-end justify-between gap-4">
+                        <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                            Recent plans
+                        </h2>
+                        <Link
+                            href="/history"
+                            className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)]"
+                        >
+                            View all
+                        </Link>
+                    </div>
+
+                    {isLoading ? (
+                        <SkeletonGrid count={3} columns="md:grid-cols-3" />
+                    ) : recentHistory.length === 0 ? (
+                        <EmptyState
+                            title="No plans yet"
+                            description="Start your first preparation — it only takes a minute."
+                            action={
+                                <Link href="/prepare">
+                                    <Button>Prepare a trek</Button>
+                                </Link>
+                            }
+                        />
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-3">
+                            {recentHistory.map((item) => (
+                                <Link key={item.history_id} href={`/history/${item.history_id}`}>
+                                    <Card className="h-full transition hover:border-[var(--accent)]/40">
+                                        <div className="mb-4 flex items-center justify-between gap-2">
+                                            <span className="text-xs text-[var(--muted)]">
+                                                {new Date(item.date).toLocaleDateString()}
+                                            </span>
+                                            <Badge variant={getRiskVariant(item.risk_level)}>
+                                                {item.risk_level}
+                                            </Badge>
+                                        </div>
+                                        <h3 className="text-lg font-semibold leading-snug">
+                                            {item.trek_name}
+                                        </h3>
+                                        <p className="mt-4 text-sm text-[var(--muted)]">
+                                            {item.duration} days
+                                        </p>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </PageContainer>
         </ProtectedRoute>
     );
 }

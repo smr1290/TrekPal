@@ -1,1 +1,62 @@
-Generic single-database configuration.
+# Database migrations (Alembic)
+
+TrekPal uses **Alembic** to version the database schema.
+
+## Why migrations?
+
+`create_all()` can create missing tables, but it cannot safely:
+- rename columns
+- change types
+- add/remove constraints
+- evolve production data
+
+Migrations are the production-ready way to change schema over time.
+
+## Commands (from `backend/`)
+
+```powershell
+# Apply all migrations
+alembic upgrade head
+
+# Show current revision
+alembic current
+
+# Show history
+alembic history
+
+# Autogenerate a new migration after editing models.py
+alembic revision --autogenerate -m "describe_change"
+# Then review the file under alembic/versions/ before applying!
+```
+
+## Existing database (already has TrekPal tables)
+
+If your DB was created earlier with `create_all` and already has data:
+
+```powershell
+# Mark DB as already at the latest migration without recreating tables
+alembic stamp head
+```
+
+Then future `alembic upgrade head` only applies *new* migrations.
+
+## Fresh empty database
+
+Start Postgres first (from project root):
+
+```powershell
+docker compose up -d
+```
+
+Then:
+
+```powershell
+alembic upgrade head
+```
+
+Or start the API once (`uvicorn main:app --reload`) — `create_all` still bootstraps missing tables for local convenience.
+
+## Config
+
+Alembic reads `DATABASE_URL` from `.env` / `config.py` (see `alembic/env.py`).
+Do not put real passwords in `alembic.ini`.

@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
   subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
   subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "TrekPal - Your Trek Preparation Companion",
-  description: "Plan your perfect trek with personalized gear recommendations and risk assessment",
+  title: "TrekPal — Your trek companion",
+  description:
+    "Plan safer treks with gear lists, risk checks, and a clear preparation history.",
 };
 
 export default function RootLayout({
@@ -25,16 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={`${manrope.variable} ${fraunces.variable}`}>
+      <body className="app-shell flex min-h-screen flex-col font-[family-name:var(--font-sans)] text-[var(--foreground)]">
         <AuthProvider>
           <Navbar />
-          {children}
+          <main className="w-full flex-1 pt-16">{children}</main>
+          <Footer />
         </AuthProvider>
       </body>
     </html>
   );
 }
-

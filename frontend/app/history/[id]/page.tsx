@@ -3,15 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import Card from '@/components/Card';
 import Badge from '@/components/Badge';
-import Button from '@/components/Button';
+import Card from '@/components/Card';
+import PageContainer from '@/components/PageContainer';
+import { EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
+import type { TrekHistoryDetail, RecommendedGearItem } from '@/lib/types';
+import { getRiskVariant } from '@/lib/badgeHelpers';
 
 export default function HistoryDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const [detail, setDetail] = useState<any>(null);
+    const [detail, setDetail] = useState<TrekHistoryDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -31,97 +34,120 @@ export default function HistoryDetailPage() {
         }
     }, [params.id]);
 
-    const getRiskBadgeVariant = (risk: string) => {
-        switch (risk.toLowerCase()) {
-            case 'low': return 'success';
-            case 'moderate': return 'warning';
-            case 'high': return 'danger';
-            default: return 'default';
-        }
-    };
-
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-5xl mx-auto">
-                    <Button
-                        variant="outline"
-                        onClick={() => router.back()}
-                        className="mb-6"
-                    >
-                        ← Back
-                    </Button>
+            <PageContainer>
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="mb-8 text-sm font-semibold text-[var(--muted)] hover:text-[var(--accent)]"
+                >
+                    ← Back to history
+                </button>
 
-                    {isLoading ? (
-                        <Card>
-                            <p className="text-center text-[var(--muted)] py-8">Loading...</p>
-                        </Card>
-                    ) : !detail ? (
-                        <Card>
-                            <p className="text-center text-[var(--muted)] py-8">Trek preparation not found</p>
-                        </Card>
-                    ) : (
-                        <div className="space-y-6">
-                            {/* Trek Info */}
-                            <Card>
-                                <h1 className="text-3xl font-bold mb-4 text-[var(--foreground)]">
-                                    {detail.trek}
-                                </h1>
-                                <div className="grid md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <p className="text-sm text-[var(--muted)]">Season</p>
-                                        <p className="text-lg font-semibold text-[var(--foreground)]">{detail.season}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-[var(--muted)]">Duration</p>
-                                        <p className="text-lg font-semibold text-[var(--foreground)]">{detail.duration} days</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-[var(--muted)]">Risk Level</p>
-                                        <Badge variant={getRiskBadgeVariant(detail.risk_level)} size="lg">
-                                            {detail.risk_level}
-                                        </Badge>
-                                    </div>
+                {isLoading ? (
+                    <SkeletonGrid count={3} columns="md:grid-cols-3" />
+                ) : !detail ? (
+                    <EmptyState
+                        title="Plan not found"
+                        description="This preparation may have been removed or you don’t have access."
+                    />
+                ) : (
+                    <div className="flex flex-col gap-10">
+                        <Card className="p-6 sm:p-8">
+                            <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                                <div className="max-w-xl">
+                                    <p className="text-xs font-medium text-[var(--muted)]">
+                                        Planned{' '}
+                                        {new Date(detail.date || Date.now()).toLocaleDateString()}
+                                    </p>
+                                    <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
+                                        {detail.trek}
+                                    </h1>
+                                    <Badge variant="info" className="mt-4">
+                                        Saved preparation
+                                    </Badge>
                                 </div>
-                            </Card>
+                                <div className="md:text-right">
+                                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                        Safety risk
+                                    </p>
+                                    <Badge
+                                        variant={getRiskVariant(detail.risk_level)}
+                                        className="px-4 py-1.5 text-sm"
+                                    >
+                                        {detail.risk_level} risk
+                                    </Badge>
+                                </div>
+                            </div>
 
-                            {/* Recommended Gear */}
-                            <Card>
-                                <h2 className="text-2xl font-bold mb-6 text-[var(--foreground)]">
-                                    Recommended Gear ({detail.recommended_gear.length})
-                                </h2>
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    {detail.recommended_gear.map((gear: any, index: number) => (
-                                        <div
-                                            key={index}
-                                            className="flex gap-4 p-4 rounded-lg border border-[var(--border)] hover:bg-[var(--background)] transition-colors"
-                                        >
-                                            {gear.photo_url && (
-                                                <img
-                                                    src={gear.photo_url}
-                                                    alt={gear.gear_name}
-                                                    className="w-20 h-20 object-cover rounded-lg"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23ddd" width="80" height="80"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="32"%3E🎒%3C/text%3E%3C/svg%3E';
-                                                    }}
-                                                />
-                                            )}
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-lg text-[var(--foreground)]">
+                            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                                {[
+                                    { label: 'Season', value: detail.season },
+                                    { label: 'Duration', value: `${detail.duration} days` },
+                                    {
+                                        label: 'Altitude',
+                                        value: `${detail.input_altitude?.toLocaleString() || '—'} m`,
+                                    },
+                                    {
+                                        label: 'Gear items',
+                                        value: String(detail.recommended_gear?.length || 0),
+                                    },
+                                ].map((stat) => (
+                                    <div
+                                        key={stat.label}
+                                        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
+                                    >
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                            {stat.label}
+                                        </p>
+                                        <p className="mt-1 text-lg font-semibold">{stat.value}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+
+                        <section>
+                            <h2 className="mb-5 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                Recommended gear
+                            </h2>
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {(detail.recommended_gear || []).map(
+                                    (gear: RecommendedGearItem, index: number) => (
+                                        <Card key={index} className="overflow-hidden p-0">
+                                            <div className="flex h-36 items-center justify-center bg-[var(--accent-soft)] text-sm font-medium text-[var(--accent)]">
+                                                {gear.photo_url ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={gear.photo_url}
+                                                        alt={gear.gear_name}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    gear.category || 'Gear'
+                                                )}
+                                            </div>
+                                            <div className="p-5">
+                                                {gear.category && (
+                                                    <Badge variant="default" className="mb-3">
+                                                        {gear.category}
+                                                    </Badge>
+                                                )}
+                                                <h3 className="text-lg font-semibold">
                                                     {gear.gear_name}
                                                 </h3>
-                                                <p className="text-sm text-[var(--muted)]">
-                                                    Category: {gear.category}
+                                                <p className="mt-2 text-sm text-[var(--muted)]">
+                                                    {gear.description || 'No description available.'}
                                                 </p>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card>
-                        </div>
-                    )}
-                </div>
-            </div>
+                                        </Card>
+                                    )
+                                )}
+                            </div>
+                        </section>
+                    </div>
+                )}
+            </PageContainer>
         </ProtectedRoute>
     );
 }

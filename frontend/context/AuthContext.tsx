@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authApi } from '@/lib/api';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { authApi, setAccessToken, getAccessToken } from '@/lib/api';
 
 interface User {
     id: number;
@@ -19,28 +19,54 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const USER_KEY = 'trek_pal_user';
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Load user from localStorage on mount
-        const storedUser = localStorage.getItem('trek_pal_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setIsLoading(false);
+        const hydrate = async () => {
+            const token = getAccessToken();
+            if (!token) {
+                localStorage.removeItem(USER_KEY);
+                setUser(null);
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const me = await authApi.me();
+                const userData: User = {
+                    id: me.user_id,
+                    full_name: me.full_name,
+                    experience_level: me.experience_level || '',
+                };
+                setUser(userData);
+                localStorage.setItem(USER_KEY, JSON.stringify(userData));
+            } catch {
+                setAccessToken(null);
+                localStorage.removeItem(USER_KEY);
+                setUser(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        hydrate();
     }, []);
 
     const login = async (email: string, password: string) => {
         const response = await authApi.login(email, password);
-        const userData = {
+        setAccessToken(response.access_token);
+
+        const userData: User = {
             id: response.user_id,
             full_name: response.full_name,
             experience_level: response.experience_level,
         };
         setUser(userData);
-        localStorage.setItem('trek_pal_user', JSON.stringify(userData));
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
     };
 
     const signup = async (
@@ -54,11 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('trek_pal_user');
+        setAccessToken(null);
+        localStorage.removeItem(USER_KEY);
     };
 
     if (isLoading) {
-        return null; // or a loading spinner
+        return null;
     }
 
     return (

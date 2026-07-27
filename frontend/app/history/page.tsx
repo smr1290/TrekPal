@@ -7,20 +7,27 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
+import PageContainer from '@/components/PageContainer';
+import { PageHeader, EmptyState, SkeletonList } from '@/components/ui';
 import { trekApi } from '@/lib/api';
+import type { TrekHistory } from '@/lib/types';
+import { getRiskVariant } from '@/lib/badgeHelpers';
 
 export default function HistoryPage() {
     const { user } = useAuth();
-    const [history, setHistory] = useState<any[]>([]);
+    const [history, setHistory] = useState<TrekHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchHistory = async () => {
-            if (!user) return;
+            if (!user) {
+                setIsLoading(false);
+                return;
+            }
 
             try {
-                const data = await trekApi.getHistory(user.id);
-                setHistory(data);
+                const data = await trekApi.getHistory();
+                setHistory(data || []);
             } catch (error) {
                 console.error('Failed to fetch history:', error);
             } finally {
@@ -31,72 +38,69 @@ export default function HistoryPage() {
         fetchHistory();
     }, [user]);
 
-    const getRiskBadgeVariant = (risk: string) => {
-        switch (risk.toLowerCase()) {
-            case 'low': return 'success';
-            case 'moderate': return 'warning';
-            case 'high': return 'danger';
-            default: return 'default';
-        }
-    };
-
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-4xl font-bold mb-2 text-[var(--foreground)]">Trek History</h1>
-                        <p className="text-xl text-[var(--muted)]">
-                            View all your past trek preparations
-                        </p>
-                    </div>
+            <PageContainer>
+                <PageHeader
+                    title="Trail log"
+                    description="Every preparation you’ve saved — reopen gear lists and risk notes anytime."
+                />
 
-                    {isLoading ? (
-                        <Card>
-                            <p className="text-center text-[var(--muted)] py-8">Loading history...</p>
-                        </Card>
-                    ) : history.length === 0 ? (
-                        <Card>
-                            <div className="text-center py-12">
-                                <div className="text-6xl mb-4">🏔️</div>
-                                <p className="text-xl text-[var(--muted)] mb-4">No trek preparations yet</p>
-                                <Link href="/prepare">
-                                    <Button size="lg">Prepare Your First Trek</Button>
-                                </Link>
-                            </div>
-                        </Card>
-                    ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {history.map((item) => (
-                                <Link key={item.history_id} href={`/history/${item.history_id}`}>
-                                    <Card hover>
-                                        <div className="mb-3">
-                                            <Badge variant={getRiskBadgeVariant(item.risk_level)}>
-                                                {item.risk_level} Risk
+                {isLoading ? (
+                    <SkeletonList count={3} />
+                ) : history.length === 0 ? (
+                    <EmptyState
+                        title="Your log is empty"
+                        description="Prepare a trek once and it will show up here."
+                        action={
+                            <Link href="/prepare">
+                                <Button>Prepare a trek</Button>
+                            </Link>
+                        }
+                    />
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        {history.map((item) => (
+                            <Link key={item.history_id} href={`/history/${item.history_id}`}>
+                                <Card className="flex flex-col gap-6 transition hover:border-[var(--accent)]/40 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="text-xs font-medium text-[var(--muted)]">
+                                            Planned {new Date(item.date).toLocaleDateString()}
+                                        </p>
+                                        <h3 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                            {item.trek_name}
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-6 sm:min-w-[280px]">
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                Duration
+                                            </p>
+                                            <p className="mt-1 font-semibold">{item.duration} days</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                Altitude
+                                            </p>
+                                            <p className="mt-1 font-semibold">
+                                                {item.input_altitude?.toLocaleString() || '—'} m
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                Risk
+                                            </p>
+                                            <Badge variant={getRiskVariant(item.risk_level)}>
+                                                {item.risk_level}
                                             </Badge>
                                         </div>
-                                       
-                                        <div className="space-y-2 text-sm text-[var(--muted)]">
-                                            <div className="flex items-center gap-2">
-                                                <span>🌤️</span>
-                                                <span>Season: {item.season}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span>📅</span>
-                                                <span>Duration: {item.duration} days</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span>🕒</span>
-                                                <span>{new Date(item.date).toLocaleDateString()}</span>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
+                                    </div>
+                                </Card>
+                            </Link>
+                        ))}
+                    </div>
+                )}
+            </PageContainer>
         </ProtectedRoute>
     );
 }

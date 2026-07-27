@@ -1,28 +1,30 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from config import CORS_ORIGINS
 from db import engine
 import models
 from routes import routers
+from schemas import HealthResponse
 
 app = FastAPI(title="TrekPal API")
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Create tables
+# Dev convenience: create missing tables if migrations were not run yet.
+# Prefer: `alembic upgrade head` for schema changes going forward.
 models.Base.metadata.create_all(bind=engine)
 
-# Register all routers from routes/__init__.py
 for router, prefix, tags in routers:
     app.include_router(router, prefix=prefix, tags=tags)
 
 
-@app.get("/")
+@app.get("/", response_model=HealthResponse)
 def root():
-    return {"message": "TrekPal API Running"}
+    return HealthResponse(message="TrekPal API Running")

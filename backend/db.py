@@ -1,17 +1,14 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-# from config import SUPABASE_DIRECT_URI as CONNECTION
+from sqlalchemy.orm import sessionmaker, declarative_base
+from config import DATABASE_URL
 
-DATABASE_URL=f"postgresql://postgres:root@localhost:5432/TrekPal"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-engine=create_engine(DATABASE_URL)
-SessionLocal=sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base=declarative_base()
 
 def get_db():
-    db=SessionLocal()
-
+    db = SessionLocal()
     try:
         yield db
     finally:

@@ -1,114 +1,114 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/components/Button';
-import Card from '@/components/Card';
+
+// Landscape stock photo in frontend/public/hero.jpg (wide — fits the hero banner)
+const HERO_IMAGE = '/hero.jpg';
+const CTA_IMAGE = '/hero.jpg';
 
 export default function Home() {
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 gradient-hero opacity-90"></div>
+    return (
+        <div className="flex flex-col">
+            <section className="relative flex min-h-[calc(100vh-4rem)] items-end overflow-hidden sm:items-center">
+                <Image
+                    src={HERO_IMAGE}
+                    alt="Mountain peaks above the clouds"
+                    fill
+                    priority
+                    className="object-cover object-center"
+                    sizes="100vw"
+                />
+                <div
+                    className="absolute inset-0 bg-gradient-to-t from-[rgb(15_28_24_/0.88)] via-[rgb(15_28_24_/0.45)] to-[rgb(15_28_24_/0.25)]"
+                    aria-hidden
+                />
 
-        {/* Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <div>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              Your Perfect Trek
-              <br />
-              <span className="text-yellow-300">Starts Here</span>
-            </h1>
-            <p className="text-xl sm:text-2xl mb-10 text-gray-100 max-w-3xl mx-auto">
-              Get personalized gear recommendations, risk assessments, and expert guidance for your next mountain adventure
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/signup">
-                <Button size="lg" className="bg-white text-[var(--primary)] hover:bg-gray-100 shadow-xl">
-                  Get Started Free
-                </Button>
-              </Link>
-              <Link href="/treks">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-[var(--primary)]">
-                  Browse Treks
-                </Button>
-              </Link>
-            </div>
-          </div>
+                <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-28 sm:px-6 sm:pb-24 sm:pt-20">
+                    <p className="anim-rise mb-4 font-[family-name:var(--font-display)] text-5xl font-semibold tracking-tight text-white sm:text-6xl md:text-7xl">
+                        TrekPal
+                    </p>
+                    <h1 className="anim-rise-delay max-w-xl text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
+                        Your companion for the trail ahead.
+                    </h1>
+                    <p className="anim-rise-delay mt-4 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
+                        Clear gear lists and risk checks so you walk in prepared — not guessing.
+                    </p>
+                    <div className="anim-rise-delay mt-8 flex flex-col gap-3 sm:flex-row">
+                        <Link href="/signup">
+                            <Button size="lg" className="min-w-44">
+                                Start packing
+                            </Button>
+                        </Link>
+                        <Link href="/treks">
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                className="min-w-44 border-white/40 bg-white/10 text-white hover:bg-white/20"
+                            >
+                                Explore treks
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            <section className="border-t border-[var(--border)] bg-[var(--surface)] px-4 py-20 sm:px-6">
+                <div className="mx-auto max-w-5xl">
+                    <h2 className="text-center font-[family-name:var(--font-display)] text-3xl font-semibold text-[var(--foreground)]">
+                        Built for the trek, not the spreadsheet
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-lg text-center text-[var(--muted)]">
+                        From route context to a packing list you can trust.
+                    </p>
+                    <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+                        <li>
+                            <p className="text-sm font-semibold text-[var(--accent)]">01 · Route</p>
+                            <h3 className="mt-2 text-lg font-semibold">Set the trail</h3>
+                            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                                Altitude, season, and duration shape what you need on your back.
+                            </p>
+                        </li>
+                        <li>
+                            <p className="text-sm font-semibold text-[var(--accent)]">02 · Risk</p>
+                            <h3 className="mt-2 text-lg font-semibold">Read the conditions</h3>
+                            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                                A plain Low / Moderate / High check before you commit.
+                            </p>
+                        </li>
+                        <li>
+                            <p className="text-sm font-semibold text-[var(--accent)]">03 · Pack</p>
+                            <h3 className="mt-2 text-lg font-semibold">Leave with a list</h3>
+                            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                                Save gear suggestions and reopen them from your history anytime.
+                            </p>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <section className="relative overflow-hidden px-4 py-24 sm:px-6">
+                <Image
+                    src={CTA_IMAGE}
+                    alt=""
+                    fill
+                    className="object-cover object-center"
+                    sizes="100vw"
+                />
+                <div className="absolute inset-0 bg-[rgb(15_28_24_/0.78)]" aria-hidden />
+                <div className="relative mx-auto max-w-xl text-center text-white">
+                    <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
+                        Walk lighter. Plan clearer.
+                    </h2>
+                    <p className="mt-4 text-white/80">
+                        Create a free account and prepare your next trek in minutes.
+                    </p>
+                    <div className="mt-8">
+                        <Link href="/signup">
+                            <Button size="lg">Create free account</Button>
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 text-[var(--foreground)]">
-              Everything You Need for Your Trek
-            </h2>
-            <p className="text-xl text-[var(--muted)] max-w-2xl mx-auto">
-              TrekPal combines expert knowledge with personalized recommendations to ensure you're fully prepared
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card hover className="text-center">
-              <div className="text-5xl mb-4">🎒</div>
-              <h3 className="text-2xl font-semibold mb-3 text-[var(--foreground)]">
-                Smart Gear Recommendations
-              </h3>
-              <p className="text-[var(--muted)]">
-                Get personalized gear suggestions based on your trek type, altitude, season, and experience level
-              </p>
-            </Card>
-
-            <Card hover className="text-center" style={{ animationDelay: '100ms' }}>
-              <div className="text-5xl mb-4">⚠️</div>
-              <h3 className="text-2xl font-semibold mb-3 text-[var(--foreground)]">
-                Risk Assessment
-              </h3>
-              <p className="text-[var(--muted)]">
-                Understand the risks involved with intelligent analysis of altitude, weather, and difficulty factors
-              </p>
-            </Card>
-
-            <Card hover className="text-center" style={{ animationDelay: '200ms' }}>
-              <div className="text-5xl mb-4">📊</div>
-              <h3 className="text-2xl font-semibold mb-3 text-[var(--foreground)]">
-                Trek History
-              </h3>
-              <p className="text-[var(--muted)]">
-                Track all your trek preparations and learn from your past adventures
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <Card glass className="text-center p-12">
-            <h2 className="text-4xl font-bold mb-4 text-[var(--foreground)]">
-              Ready to Start Your Adventure?
-            </h2>
-            <p className="text-xl text-[var(--muted)] mb-8">
-              Join TrekPal today and prepare for your next trek with confidence
-            </p>
-            <Link href="/signup">
-              <Button size="lg" className="shadow-xl">
-                Create Your Free Account
-              </Button>
-            </Link>
-          </Card>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-4 border-t border-[var(--border)] text-center text-[var(--muted)]">
-        <p>&copy; 2026 TrekPal. Your trusted trek preparation companion.</p>
-      </footer>
-    </div>
-  );
+    );
 }

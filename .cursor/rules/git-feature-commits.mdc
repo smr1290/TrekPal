@@ -1,0 +1,15 @@
+---
+description: Commit and push to GitHub after every completed TrekPal feature
+alwaysApply: true
+---
+
+# Git: Feature Commits
+
+After every completed feature (or milestone phase slice):
+
+1. Create a focused git commit for that feature only (do not mix unrelated work when avoidable).
+2. Use a clear commit message that explains **why** the change exists.
+3. Push to GitHub (`origin`) on the current branch after the commit succeeds.
+4. Never commit secrets (`.env`, API keys, credentials). `.env.example` is OK.
+5. Do not force-push `main`/`master`.
+6. The user has explicitly requested this workflow — do not wait to be asked again each time.

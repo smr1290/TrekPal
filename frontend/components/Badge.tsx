@@ -1,35 +1,30 @@
-// Badge Component for status indicators
-
 import React from 'react';
+import type { BadgeVariant } from '@/lib/badgeHelpers';
 
 interface BadgeProps {
     children: React.ReactNode;
-    variant?: 'success' | 'warning' | 'danger' | 'info' | 'default';
-    size?: 'sm' | 'md' | 'lg';
+    variant?: BadgeVariant | string;
+    className?: string;
 }
 
-export default function Badge({
-    children,
-    variant = 'default',
-    size = 'md',
-}: BadgeProps) {
-    const variantStyles = {
-        success: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-        danger: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-        info: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-    };
+const styles: Record<BadgeVariant, string> = {
+    default: 'bg-[var(--surface-muted)] text-[var(--muted)]',
+    success: 'bg-[var(--success-bg)] text-[var(--success)]',
+    warning: 'bg-[var(--warning-bg)] text-[var(--warning)]',
+    danger: 'bg-[var(--danger-bg)] text-[var(--danger)]',
+    info: 'bg-[var(--info-bg)] text-[var(--info)]',
+};
 
-    const sizeStyles = {
-        sm: 'px-2 py-0.5 text-xs',
-        md: 'px-3 py-1 text-sm',
-        lg: 'px-4 py-1.5 text-base',
-    };
+function isBadgeVariant(value: string): value is BadgeVariant {
+    return value in styles;
+}
+
+export default function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
+    const resolved: BadgeVariant = isBadgeVariant(variant) ? variant : 'default';
 
     return (
         <span
-            className={`inline-flex items-center font-medium rounded-full ${variantStyles[variant]} ${sizeStyles[size]}`}
+            className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-semibold ${styles[resolved]} ${className}`}
         >
             {children}
         </span>

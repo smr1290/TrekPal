@@ -4,10 +4,14 @@ import React, { useEffect, useState } from 'react';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Input from '@/components/Input';
+import PageContainer from '@/components/PageContainer';
+import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
+import type { Trek } from '@/lib/types';
+import { getDifficultyVariant } from '@/lib/badgeHelpers';
 
 export default function TreksPage() {
-    const [treks, setTreks] = useState<any[]>([]);
+    const [treks, setTreks] = useState<Trek[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -15,7 +19,7 @@ export default function TreksPage() {
         const fetchTreks = async () => {
             try {
                 const data = await trekApi.listTreks();
-                setTreks(data);
+                setTreks(data || []);
             } catch (error) {
                 console.error('Failed to fetch treks:', error);
             } finally {
@@ -26,80 +30,77 @@ export default function TreksPage() {
         fetchTreks();
     }, []);
 
-    const getDifficultyVariant = (difficulty: string) => {
-        switch (difficulty.toLowerCase()) {
-            case 'easy': return 'success';
-            case 'moderate': return 'warning';
-            case 'hard': return 'danger';
-            default: return 'default';
-        }
-    };
-
-    const filteredTreks = treks.filter((trek) =>
+    const filteredTreks = (treks || []).filter((trek) =>
         trek.trek_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
-        <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="mb-8">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                        <div>
-                            <h1 className="text-4xl font-bold mb-2 text-[var(--foreground)]">Explore Treks</h1>
-                            <p className="text-xl text-[var(--muted)]">
-                                Discover amazing trekking destinations
-                            </p>
-                        </div>
-
-                        {/* Search */}
-                        <div className="w-full sm:max-w-md">
-                            <Input
-                                type="text"
-                                placeholder="Search treks..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+        <PageContainer>
+            <PageHeader
+                title="Trail guide"
+                description="Popular routes with altitude, duration, and difficulty — your map before the map."
+                action={
+                    <div className="w-full sm:w-72">
+                        <Input
+                            type="search"
+                            placeholder="Search treks…"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="!mb-0"
+                            aria-label="Search treks"
+                        />
                     </div>
+                }
+            />
+
+            {isLoading ? (
+                <SkeletonGrid count={4} />
+            ) : filteredTreks.length === 0 ? (
+                <EmptyState
+                    title="No treks found"
+                    description={
+                        searchTerm
+                            ? `Nothing matched “${searchTerm}”. Try another name.`
+                            : 'Trek data will appear here once seeded.'
+                    }
+                />
+            ) : (
+                <div className="grid gap-5 sm:grid-cols-2">
+                    {filteredTreks.map((trek) => (
+                        <Card
+                            key={trek.id}
+                            className="flex flex-col transition hover:border-[var(--accent)]/35"
+                        >
+                            <div className="mb-5 flex items-center justify-between">
+                                <Badge variant={getDifficultyVariant(trek.difficulty)}>
+                                    {trek.difficulty}
+                                </Badge>
+                            </div>
+                            <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                {trek.trek_name}
+                            </h3>
+                            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-5">
+                                <div>
+                                    <p className="text-xs font-medium text-[var(--muted)]">
+                                        Max altitude
+                                    </p>
+                                    <p className="mt-1 text-base font-semibold">
+                                        {trek.max_altitude.toLocaleString()} m
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-medium text-[var(--muted)]">
+                                        Typical duration
+                                    </p>
+                                    <p className="mt-1 text-base font-semibold">
+                                        {trek.duration_days} days
+                                    </p>
+                                </div>
+                            </div>
+                        </Card>
+                    ))}
                 </div>
-
-                {isLoading ? (
-                    <Card>
-                        <p className="text-center text-[var(--muted)] py-8">Loading treks...</p>
-                    </Card>
-                ) : filteredTreks.length === 0 ? (
-                    <Card>
-                        <p className="text-center text-[var(--muted)] py-8">
-                            {searchTerm ? 'No treks found matching your search' : 'No treks available'}
-                        </p>
-                    </Card>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredTreks.map((trek) => (
-                            <Card key={trek.id} hover>
-                                <div className="mb-3">
-                                    <Badge variant={getDifficultyVariant(trek.difficulty)}>
-                                        {trek.difficulty}
-                                    </Badge>
-                                </div>
-                                <h3 className="text-2xl font-semibold mb-3 text-[var(--foreground)]">
-                                    {trek.trek_name}
-                                </h3>
-                                <div className="space-y-2 text-[var(--muted)]">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl">⛰️</span>
-                                        <span>Max Altitude: {trek.max_altitude.toLocaleString()}m</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl">📅</span>
-                                        <span>Duration: {trek.duration_days} days</span>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+            )}
+        </PageContainer>
     );
 }

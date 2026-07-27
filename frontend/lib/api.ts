@@ -1,32 +1,70 @@
-// API client utility for Trek_Pal backend
+// API client utility for TrekPal backend
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const TOKEN_KEY = 'trek_pal_token';
 
-class ApiError extends Error {
+export class ApiError extends Error {
     constructor(public status: number, message: string) {
         super(message);
         this.name = 'ApiError';
     }
 }
 
-async function fetchApi<T>(
-    endpoint: string,
-    options: RequestInit = {}
-): Promise<T> {
+export function getAccessToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setAccessToken(token: string | null) {
+    if (typeof window === 'undefined') return;
+    if (token) {
+        localStorage.setItem(TOKEN_KEY, token);
+    } else {
+        localStorage.removeItem(TOKEN_KEY);
+    }
+}
+
+function formatErrorDetail(detail: unknown): string {
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+        return detail
+            .map((item) => {
+                if (typeof item === 'string') return item;
+                if (item && typeof item === 'object' && 'msg' in item) {
+                    return String((item as { msg: string }).msg);
+                }
+                return JSON.stringify(item);
+            })
+            .join(', ');
+    }
+    if (detail && typeof detail === 'object') {
+        return JSON.stringify(detail);
+    }
+    return 'Request failed';
+}
+
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const token = getAccessToken();
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(options.headers as Record<string, string> | undefined),
+    };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
 
     try {
         const response = await fetch(url, {
             ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
+            headers,
         });
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-            throw new ApiError(response.status, error.detail || 'Request failed');
+            throw new ApiError(response.status, formatErrorDetail(error.detail) || 'Request failed');
         }
 
         return await response.json();
@@ -38,85 +76,89 @@ async function fetchApi<T>(
     }
 }
 
-// Authentication APIs
 export const authApi = {
     signup: async (full_name: string, email: string, password: string, experience_level: string) => {
-        const params = new URLSearchParams({
-            full_name,
-            email,
-            password,
-            experience_level,
+        return fetchApi<{ message: string; user_id: number }>('/auth/signup', {
+            method: 'POST',
+            body: JSON.stringify({ full_name, email, password, experience_level }),
         });
-
-        return fetchApi<{ message: string; user_id: number }>(
-            `/auth/signup?${params.toString()}`,
-            { method: 'POST' }
-        );
     },
 
     login: async (email: string, password: string) => {
-        const params = new URLSearchParams({
-            email,
-            password,
-        });
-
         return fetchApi<{
-            message: string;
+            access_token: string;
+            token_type: string;
             user_id: number;
             full_name: string;
             experience_level: string;
-        }>(`/auth/login?${params.toString()}`, { method: 'POST' });
+        }>('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+        });
+    },
+
+    me: async () => {
+        return fetchApi<{
+            user_id: number;
+            full_name: string;
+            experience_level: string | null;
+            email: string;
+        }>('/auth/me');
     },
 };
 
-// Trek APIs
 export const trekApi = {
     prepareTrek: async (
-        user_id: number,
         trek_type: string,
         experience_level: string,
         altitude: number,
         season: string,
         duration: number
     ) => {
-        const params = new URLSearchParams({
-            user_id: user_id.toString(),
-            trek_type,
-            experience_level,
-            altitude: altitude.toString(),
-            season,
-            duration: duration.toString(),
-        });
-
         return fetchApi<{
             risk_level: string;
             recommended_gear: {
                 gear_name: string;
                 photo_url: string;
+                category?: string;
                 description: string;
             }[];
-        }>(`/trek/prepare-trek?${params.toString()}`, { method: 'POST' });
+        }>('/trek/prepare-trek', {
+            method: 'POST',
+            body: JSON.stringify({
+                trek_type,
+                experience_level,
+                altitude,
+                season,
+                duration,
+            }),
+        });
     },
 
     listTreks: async () => {
-        return fetchApi<{
-            id: number;
-            trek_name: string;
-            max_altitude: number;
-            duration_days: number;
-            difficulty: string;
-        }[]>('/trek/list');
+        return fetchApi<
+            {
+                id: number;
+                trek_name: string;
+                max_altitude: number;
+                duration_days: number;
+                difficulty: string;
+            }[]
+        >('/trek/list');
     },
 
-    getHistory: async (user_id: number) => {
-        return fetchApi<{
-            history_id: number;
-            trek_name: string;
-            season: string;
-            duration: number;
-            risk_level: string;
-            date: string;
-        }[]>(`/trek/history?user_id=${user_id}`);
+    getHistory: async () => {
+        return fetchApi<
+            {
+                history_id: number;
+                trek_name: string;
+                season: string;
+                duration: number;
+                risk_level: string;
+                date: string;
+                input_altitude: number;
+            }[]
+        >('/trek/history');
     },
 
     getHistoryDetail: async (history_id: number) => {
@@ -125,6 +167,8 @@ export const trekApi = {
             season: string;
             duration: number;
             risk_level: string;
+            input_altitude: number;
+            date: string;
             recommended_gear: {
                 gear_name: string;
                 photo_url: string;
@@ -134,17 +178,61 @@ export const trekApi = {
     },
 };
 
-// Gear APIs
 export const gearApi = {
     listGear: async () => {
-        return fetchApi<{
-            id: number;
-            gear_name: string;
-            category: string;
-            photo_url: string;
-            description: string;
-        }[]>('/gear/');
+        return fetchApi<
+            {
+                id: number;
+                gear_name: string;
+                category: string;
+                photo_url: string;
+                description: string;
+            }[]
+        >('/gear/');
     },
 };
 
-export { ApiError };
+export const knowledgeApi = {
+    listArticles: async (category?: string) => {
+        const query = category ? `?category=${encodeURIComponent(category)}` : '';
+        return fetchApi<
+            {
+                id: number;
+                title: string;
+                slug: string;
+                category: string;
+                summary: string;
+                trek_id?: number | null;
+            }[]
+        >(`/knowledge${query}`);
+    },
+
+    getArticle: async (slug: string) => {
+        return fetchApi<{
+            id: number;
+            title: string;
+            slug: string;
+            category: string;
+            summary: string;
+            content: string;
+            trek_id?: number | null;
+            source_url?: string | null;
+            created_at?: string | null;
+            updated_at?: string | null;
+        }>(`/knowledge/${encodeURIComponent(slug)}`);
+    },
+};
+
+export const chatApi = {
+    ask: async (message: string) => {
+        return fetchApi<{
+            result: {
+                answer: string;
+                sources: string[];
+            };
+        }>('/chat/ask', {
+            method: 'POST',
+            body: JSON.stringify({ message }),
+        });
+    },
+};

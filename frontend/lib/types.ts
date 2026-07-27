@@ -31,6 +31,14 @@ export interface TrekHistory {
   duration: number;
   risk_level: string;
   date: string;
+  input_altitude?: number;
+}
+
+export interface RecommendedGearItem {
+  gear_name: string;
+  photo_url: string;
+  category?: string;
+  description?: string;
 }
 
 export interface TrekHistoryDetail {
@@ -38,15 +46,12 @@ export interface TrekHistoryDetail {
   season: string;
   duration: number;
   risk_level: string;
-  recommended_gear: {
-    gear_name: string;
-    photo_url: string;
-    category: string;
-  }[];
+  input_altitude?: number;
+  date?: string;
+  recommended_gear: RecommendedGearItem[];
 }
 
 export interface TrekPreparationRequest {
-  user_id: number;
   trek_type: string;
   experience_level: string;
   altitude: number;
@@ -56,11 +61,7 @@ export interface TrekPreparationRequest {
 
 export interface TrekPreparationResponse {
   risk_level: string;
-  recommended_gear: {
-    gear_name: string;
-    photo_url: string;
-    description: string;
-  }[];
+  recommended_gear: RecommendedGearItem[];
 }
 
 export interface SignupRequest {
@@ -81,10 +82,18 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  message: string;
+  access_token: string;
+  token_type: string;
   user_id: number;
   full_name: string;
   experience_level: string;
+}
+
+export interface MeResponse {
+  user_id: number;
+  full_name: string;
+  experience_level: string | null;
+  email: string;
 }
 
 export interface AuthContextType {
@@ -97,4 +106,29 @@ export interface AuthContextType {
   signup: (full_name: string, email: string, password: string, experience_level: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+}
+
+export interface KnowledgeArticle {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  summary: string;
+  trek_id?: number | null;
+}
+
+export interface KnowledgeArticleDetail extends KnowledgeArticle {
+  content: string;
+  source_url?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface ChatAnswer {
+  answer: string;
+  sources: string[];
+}
+
+export interface ChatResponse {
+  result: ChatAnswer;
 }

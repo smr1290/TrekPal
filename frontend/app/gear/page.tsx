@@ -2,11 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import Card from '@/components/Card';
-import Button from '@/components/Button';
+import Badge from '@/components/Badge';
+import PageContainer from '@/components/PageContainer';
+import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { gearApi } from '@/lib/api';
+import type { Gear } from '@/lib/types';
 
 export default function GearPage() {
-    const [gear, setGear] = useState<any[]>([]);
+    const [gearList, setGearList] = useState<Gear[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -14,7 +17,7 @@ export default function GearPage() {
         const fetchGear = async () => {
             try {
                 const data = await gearApi.listGear();
-                setGear(data);
+                setGearList(data || []);
             } catch (error) {
                 console.error('Failed to fetch gear:', error);
             } finally {
@@ -25,79 +28,87 @@ export default function GearPage() {
         fetchGear();
     }, []);
 
-    const categories = ['All', ...Array.from(new Set(gear.map((item) => item.category).filter(Boolean)))];
+    const rawCategories = Array.from(
+        new Set((gearList || []).map((item) => item.category).filter(Boolean))
+    );
+    const categories = ['All', ...rawCategories];
 
-    const filteredGear = selectedCategory === 'All'
-        ? gear
-        : gear.filter((item) => item.category === selectedCategory);
+    const filteredGear =
+        selectedCategory === 'All'
+            ? gearList || []
+            : (gearList || []).filter((item) => item.category === selectedCategory);
 
     return (
-        <div className="min-h-screen bg-[var(--background)] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2 text-[var(--foreground)]">Gear Catalog</h1>
-                    <p className="text-xl text-[var(--muted)]">
-                        Browse all available trekking gear
-                    </p>
-                </div>
+        <PageContainer>
+            <PageHeader
+                title="Pack kit"
+                description="Essential equipment you can match to season, altitude, and trek length."
+            />
 
-                {/* Category Filter */}
-                <div className="mb-8 flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                        <Button
-                            key={category}
-                            type="button"
-                            onClick={() => setSelectedCategory(category)}
-                            variant={selectedCategory === category ? 'primary' : 'outline'}
-                            size="sm"
-                        >
-                            {category}
-                        </Button>
-                    ))}
-                </div>
+            {isLoading ? (
+                <SkeletonGrid count={4} />
+            ) : (
+                <div className="flex flex-col gap-10 md:flex-row md:gap-12">
+                    <aside className="md:w-52 shrink-0">
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                            Categories
+                        </p>
+                        <div className="flex flex-wrap gap-2 md:flex-col">
+                            {categories.map((category) => (
+                                <button
+                                    key={category}
+                                    type="button"
+                                    onClick={() => setSelectedCategory(category)}
+                                    className={`rounded-[var(--radius)] px-3 py-2 text-left text-sm font-medium ${
+                                        selectedCategory === category
+                                            ? 'bg-[var(--accent)] text-white'
+                                            : 'bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]'
+                                    }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    </aside>
 
-                {isLoading ? (
-                    <Card>
-                        <p className="text-center text-[var(--muted)] py-8">Loading gear...</p>
-                    </Card>
-                ) : filteredGear.length === 0 ? (
-                    <Card>
-                        <p className="text-center text-[var(--muted)] py-8">No gear items available</p>
-                    </Card>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredGear.map((item) => (
-                            <Card key={item.id} hover>
-                                {item.photo_url && (
-                                    <img
-                                        src={item.photo_url}
-                                        alt={item.gear_name}
-                                        className="w-full h-48 object-cover rounded-lg mb-4"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="200"%3E%3Crect fill="%23ddd" width="300" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="48"%3E🎒%3C/text%3E%3C/svg%3E';
-                                        }}
-                                    />
-                                )}
-                                <div>
-                                    {item.category && (
-                                        <p className="text-xs font-medium text-[var(--primary)] mb-1">
-                                            {item.category}
-                                        </p>
-                                    )}
-                                    <h3 className="text-lg font-semibold mb-2 text-[var(--foreground)]">
-                                        {item.gear_name}
-                                    </h3>
-                                    {item.description && (
-                                        <p className="text-sm text-[var(--muted)] line-clamp-3">
-                                            {item.description}
-                                        </p>
-                                    )}
-                                </div>
-                            </Card>
-                        ))}
+                    <div className="flex-1">
+                        {filteredGear.length === 0 ? (
+                            <EmptyState
+                                title="Nothing in this category"
+                                description="Try another filter or add gear in the database."
+                            />
+                        ) : (
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                {filteredGear.map((item) => (
+                                    <Card key={item.id} className="flex flex-col overflow-hidden p-0">
+                                        <div className="flex h-40 items-center justify-center bg-[var(--accent-soft)] text-sm font-medium text-[var(--accent)]">
+                                            {item.photo_url ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={item.photo_url}
+                                                    alt={item.gear_name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                item.category || 'Gear'
+                                            )}
+                                        </div>
+                                        <div className="flex flex-1 flex-col p-5">
+                                            <Badge variant="info" className="mb-3 w-fit">
+                                                {item.category}
+                                            </Badge>
+                                            <h3 className="text-lg font-semibold">{item.gear_name}</h3>
+                                            <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-        </div>
+                </div>
+            )}
+        </PageContainer>
     );
 }
