@@ -132,8 +132,16 @@ async def _call_groq_chat(messages: list[dict[str, Any]]) -> str:
         resp = await client.post(url, headers=headers, json=payload)
 
     if resp.status_code >= 400:
-        # Don't leak full provider error messages if they contain sensitive info.
-        raise HTTPException(status_code=502, detail="Groq API error. Check server logs and model/key.")
+        # Surface useful provider errors during setup (still avoid dumping headers/secrets).
+        detail = "Groq API error. Check model name and API key."
+        try:
+            err = resp.json()
+            msg = err.get("error", {}).get("message") if isinstance(err, dict) else None
+            if msg:
+                detail = f"Groq API error: {msg}"
+        except Exception:
+            pass
+        raise HTTPException(status_code=502, detail=detail)
 
     data = resp.json()
     try:
