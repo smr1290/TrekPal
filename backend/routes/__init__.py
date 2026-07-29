@@ -7,6 +7,7 @@ from .knowledge import router as knowledge_router
 from .chat import router as chat_router
 from .ml import router as ml_router
 from .trip_plans import router as trip_plans_router
+from .maps import router as maps_router
 
 routers = [
     (auth_router, "/auth", ["Authentication"]),
@@ -18,4 +19,5 @@ routers = [
     (chat_router, "/chat", ["AI Chat"]),
     (ml_router, "/ml", ["Machine Learning"]),
     (trip_plans_router, "/trip-plans", ["Trip Planner"]),
+    (maps_router, "/maps", ["Maps"]),
 ]

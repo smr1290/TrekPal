@@ -18,6 +18,7 @@ export default function Navbar() {
         { href: '/treks', label: 'Treks', public: true },
         { href: '/gear', label: 'Gear', public: true },
         { href: '/knowledge', label: 'Knowledge', public: true },
+        { href: '/maps', label: 'Maps', public: true },
         { href: '/chat', label: 'Chat', public: true },
         { href: '/dashboard', label: 'Dashboard', public: false },
         { href: '/prepare', label: 'Prepare', public: false },

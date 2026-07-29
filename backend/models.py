@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Text, ForeignKey, TIMESTAMP
+from sqlalchemy import Boolean, Column, Integer, String, Text, ForeignKey, TIMESTAMP, Float
 from sqlalchemy.sql import func
 from db import Base
 
@@ -94,4 +94,23 @@ class TripPlan(Base):
     risk_level = Column(String(20), nullable=True)
     plan_json = Column(Text, nullable=False)
     source = Column(String(20), nullable=False, default="ai")
+    created_at = Column(TIMESTAMP, server_default=func.now())
+
+
+class MapLocation(Base):
+    """Map points of interest for trekking regions (Phase 6)."""
+
+    __tablename__ = "map_locations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    category = Column(String(40), nullable=False, index=True)
+    # tea_house | hospital | checkpoint | emergency | trailhead
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    elevation_m = Column(Integer, nullable=True)
+    region = Column(String(100), nullable=True)
+    description = Column(Text, nullable=True)
+    trek_id = Column(Integer, ForeignKey("treks.id", ondelete="SET NULL"), nullable=True)
+    is_published = Column(Boolean, default=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())

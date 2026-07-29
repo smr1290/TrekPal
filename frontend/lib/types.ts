@@ -220,3 +220,15 @@ export interface TripPlanSummary {
 export interface TripPlanDetail extends TripPlanSummary {
   plan: TripPlanContent;
 }
+
+export interface MapLocation {
+  id: number;
+  name: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+  elevation_m?: number | null;
+  region?: string | null;
+  description?: string | null;
+  trek_id?: number | null;
+}

@@ -349,3 +349,25 @@ export const tripPlanApi = {
         }>(`/trip-plans/${planId}`);
     },
 };
+
+export const mapsApi = {
+    listLocations: async (category?: string, region?: string) => {
+        const params = new URLSearchParams();
+        if (category) params.set('category', category);
+        if (region) params.set('region', region);
+        const query = params.toString() ? `?${params.toString()}` : '';
+        return fetchApi<
+            {
+                id: number;
+                name: string;
+                category: string;
+                latitude: number;
+                longitude: number;
+                elevation_m?: number | null;
+                region?: string | null;
+                description?: string | null;
+                trek_id?: number | null;
+            }[]
+        >(`/maps/locations${query}`);
+    },
+};

@@ -246,3 +246,23 @@ class TripPlanDetail(BaseModel):
     source: str
     plan: dict
     created_at: datetime | None = None
+
+
+# ---------- Maps (Phase 6) ----------
+
+
+class MapLocationItem(BaseModel):
+    id: int
+    name: str
+    category: str
+    latitude: float
+    longitude: float
+    elevation_m: int | None = None
+    region: str | None = None
+    description: str | None = None
+    trek_id: int | None = None
+
+
+class MapRegionSummary(BaseModel):
+    region: str
+    location_count: int
