@@ -206,3 +206,43 @@ class MLInsightsResponse(BaseModel):
     budget: BudgetEstimateResponse
     recommended_treks: list[TrekRecommendationItem]
     recommend_source: str
+
+
+# ---------- AI Trip Planner (Phase 5) ----------
+
+
+class TripPlanGenerateRequest(BaseModel):
+    destination: str = Field(min_length=2, max_length=150)
+    duration_days: int = Field(gt=0, le=40)
+    season: str
+    experience_level: str
+    difficulty: str
+    altitude: int = Field(gt=0)
+    trek_id: int | None = None
+
+
+class TripPlanListItem(BaseModel):
+    id: int
+    title: str
+    destination: str
+    season: str
+    duration_days: int
+    experience_level: str
+    difficulty: str
+    risk_level: str | None = None
+    source: str
+    created_at: datetime | None = None
+
+
+class TripPlanDetail(BaseModel):
+    id: int
+    title: str
+    destination: str
+    season: str
+    duration_days: int
+    experience_level: str
+    difficulty: str
+    risk_level: str | None = None
+    source: str
+    plan: dict
+    created_at: datetime | None = None

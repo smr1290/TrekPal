@@ -174,3 +174,49 @@ export interface MLInsights {
   recommended_treks: TrekRecommendation[];
   recommend_source: string;
 }
+
+export interface TripPlanItineraryDay {
+  day: number;
+  title: string;
+  description: string;
+}
+
+export interface TripPlanPrepBlock {
+  when: string;
+  tasks: string[];
+}
+
+export interface TripPlanContent {
+  title?: string;
+  summary?: string;
+  itinerary?: TripPlanItineraryDay[];
+  budget?: {
+    low_usd?: number;
+    mid_usd?: number;
+    high_usd?: number;
+    notes?: string;
+  };
+  permits?: string[];
+  packing_list?: string[];
+  transport?: string[];
+  accommodations?: string[];
+  preparation_schedule?: TripPlanPrepBlock[];
+  knowledge_sources?: string[];
+}
+
+export interface TripPlanSummary {
+  id: number;
+  title: string;
+  destination: string;
+  season: string;
+  duration_days: number;
+  experience_level: string;
+  difficulty: string;
+  risk_level?: string | null;
+  source: string;
+  created_at?: string | null;
+}
+
+export interface TripPlanDetail extends TripPlanSummary {
+  plan: TripPlanContent;
+}

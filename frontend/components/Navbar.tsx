@@ -21,6 +21,7 @@ export default function Navbar() {
         { href: '/chat', label: 'Chat', public: true },
         { href: '/dashboard', label: 'Dashboard', public: false },
         { href: '/prepare', label: 'Prepare', public: false },
+        { href: '/planner', label: 'Planner', public: false },
         { href: '/history', label: 'History', public: false },
     ];
 

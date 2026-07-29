@@ -30,9 +30,9 @@ class UserTrekHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
 
-    trek_type = Column(String(50))         # User selected trek type
-    experience_level = Column(String(20))  # User selected experience
-    input_altitude = Column(Integer)       # User entered altitude
+    trek_type = Column(String(50))
+    experience_level = Column(String(20))
+    input_altitude = Column(Integer)
 
     season = Column(String(20))
     planned_duration = Column(Integer)
@@ -49,8 +49,6 @@ class Gear(Base):
     category = Column(String(50))
     photo_url = Column(Text)
     description = Column(Text)
-   
-
 
 
 class TrekGearRecommendation(Base):
@@ -77,3 +75,23 @@ class KnowledgeArticle(Base):
     is_published = Column(Boolean, default=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+
+class TripPlan(Base):
+    """Saved AI-generated trip plans (Phase 5)."""
+
+    __tablename__ = "trip_plans"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    trek_id = Column(Integer, ForeignKey("treks.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(200), nullable=False)
+    destination = Column(String(150), nullable=False)
+    season = Column(String(20), nullable=False)
+    duration_days = Column(Integer, nullable=False)
+    experience_level = Column(String(20), nullable=False)
+    difficulty = Column(String(20), nullable=False)
+    risk_level = Column(String(20), nullable=True)
+    plan_json = Column(Text, nullable=False)
+    source = Column(String(20), nullable=False, default="ai")
+    created_at = Column(TIMESTAMP, server_default=func.now())

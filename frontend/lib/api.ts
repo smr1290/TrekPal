@@ -287,3 +287,65 @@ export const mlApi = {
         });
     },
 };
+
+export const tripPlanApi = {
+    generate: async (payload: {
+        destination: string;
+        duration_days: number;
+        season: string;
+        experience_level: string;
+        difficulty: string;
+        altitude: number;
+        trek_id?: number | null;
+    }) => {
+        return fetchApi<{
+            id: number;
+            title: string;
+            destination: string;
+            season: string;
+            duration_days: number;
+            experience_level: string;
+            difficulty: string;
+            risk_level?: string | null;
+            source: string;
+            plan: Record<string, unknown>;
+            created_at?: string | null;
+        }>('/trip-plans/generate', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    },
+
+    list: async () => {
+        return fetchApi<
+            {
+                id: number;
+                title: string;
+                destination: string;
+                season: string;
+                duration_days: number;
+                experience_level: string;
+                difficulty: string;
+                risk_level?: string | null;
+                source: string;
+                created_at?: string | null;
+            }[]
+        >('/trip-plans/');
+    },
+
+    get: async (planId: number) => {
+        return fetchApi<{
+            id: number;
+            title: string;
+            destination: string;
+            season: string;
+            duration_days: number;
+            experience_level: string;
+            difficulty: string;
+            risk_level?: string | null;
+            source: string;
+            plan: Record<string, unknown>;
+            created_at?: string | null;
+        }>(`/trip-plans/${planId}`);
+    },
+};
