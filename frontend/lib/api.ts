@@ -117,6 +117,22 @@ export const trekApi = {
     ) => {
         return fetchApi<{
             risk_level: string;
+            risk_source?: string;
+            budget_estimate?: {
+                low_usd: number;
+                mid_usd: number;
+                high_usd: number;
+            } | null;
+            budget_source?: string | null;
+            recommended_treks?: {
+                id: number;
+                trek_name: string;
+                max_altitude?: number | null;
+                duration_days?: number | null;
+                difficulty?: string | null;
+                match_score?: number | null;
+            }[] | null;
+            recommend_source?: string | null;
             recommended_gear: {
                 gear_name: string;
                 photo_url: string;
@@ -233,6 +249,41 @@ export const chatApi = {
         }>('/chat/ask', {
             method: 'POST',
             body: JSON.stringify({ message }),
+        });
+    },
+};
+
+export const mlApi = {
+    insights: async (payload: {
+        altitude: number;
+        experience_level: string;
+        trek_type: string;
+        season: string;
+        duration: number;
+    }) => {
+        return fetchApi<{
+            risk_level: string;
+            risk_source: string;
+            difficulty: string;
+            difficulty_source: string;
+            budget: {
+                low_usd: number;
+                mid_usd: number;
+                high_usd: number;
+                source: string;
+            };
+            recommended_treks: {
+                id: number;
+                trek_name: string;
+                max_altitude?: number | null;
+                duration_days?: number | null;
+                difficulty?: string | null;
+                match_score?: number | null;
+            }[];
+            recommend_source: string;
+        }>('/ml/insights', {
+            method: 'POST',
+            body: JSON.stringify(payload),
         });
     },
 };

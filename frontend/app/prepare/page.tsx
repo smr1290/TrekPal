@@ -12,7 +12,7 @@ import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
-import { getRiskVariant } from '@/lib/badgeHelpers';
+import { getDifficultyVariant, getRiskVariant } from '@/lib/badgeHelpers';
 
 type FormErrors = {
     altitude?: string;
@@ -73,7 +73,7 @@ export default function PrepareTrekPage() {
             <PageContainer className="pb-16">
                 <PageHeader
                     title="Prepare your trek"
-                    description="Tell us about the route — we’ll return a risk level and gear checklist."
+                    description="Tell us about the route — ML predicts risk and budget, then builds your gear checklist."
                     action={
                         result ? (
                             <Button
@@ -193,6 +193,12 @@ export default function PrepareTrekPage() {
                                             <h4 className="mt-1 text-xl font-semibold">
                                                 Report ready
                                             </h4>
+                                            <p className="mt-2 text-xs text-[var(--muted)]">
+                                                Predicted by{' '}
+                                                <span className="font-semibold text-[var(--foreground)]">
+                                                    {result.risk_source === 'ml' ? 'ML model' : 'rule engine'}
+                                                </span>
+                                            </p>
                                         </div>
                                         <Badge
                                             variant={getRiskVariant(result.risk_level)}
@@ -203,6 +209,60 @@ export default function PrepareTrekPage() {
                                     </div>
                                 </Card>
 
+                                {result.budget_estimate && (
+                                    <Card className="p-6">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                    Budget estimate
+                                                </p>
+                                                <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold">
+                                                    ${result.budget_estimate.mid_usd.toLocaleString()}
+                                                </p>
+                                                <p className="mt-1 text-sm text-[var(--muted)]">
+                                                    Range ${result.budget_estimate.low_usd.toLocaleString()} – $
+                                                    {result.budget_estimate.high_usd.toLocaleString()} USD
+                                                </p>
+                                            </div>
+                                            <Badge variant="info">
+                                                {result.budget_source === 'ml' ? 'ML' : 'Rules'}
+                                            </Badge>
+                                        </div>
+                                    </Card>
+                                )}
+
+                                {(result.recommended_treks || []).length > 0 && (
+                                    <Card className="p-6">
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <h4 className="text-sm font-semibold">Recommended treks</h4>
+                                            <Badge variant="default">
+                                                {result.recommend_source === 'ml' ? 'ML match' : 'Rules'}
+                                            </Badge>
+                                        </div>
+                                        <ul className="space-y-3">
+                                            {(result.recommended_treks || []).map((trek) => (
+                                                <li
+                                                    key={trek.id}
+                                                    className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-3 last:border-0 last:pb-0"
+                                                >
+                                                    <div>
+                                                        <p className="font-semibold">{trek.trek_name}</p>
+                                                        <p className="mt-1 text-xs text-[var(--muted)]">
+                                                            {(trek.max_altitude || 0).toLocaleString()} m ·{' '}
+                                                            {trek.duration_days || '—'} days
+                                                        </p>
+                                                    </div>
+                                                    {trek.difficulty && (
+                                                        <Badge variant={getDifficultyVariant(trek.difficulty)}>
+                                                            {trek.difficulty}
+                                                        </Badge>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Card>
+                                )}
+
                                 <Card className="overflow-hidden p-0">
                                     <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-muted)] px-5 py-3">
                                         <h4 className="text-sm font-semibold">Recommended gear</h4>
@@ -212,10 +272,7 @@ export default function PrepareTrekPage() {
                                     </div>
                                     <ul className="divide-y divide-[var(--border)]">
                                         {(result.recommended_gear || []).map((gear, index) => (
-                                            <li
-                                                key={index}
-                                                className="flex gap-4 px-5 py-4"
-                                            >
+                                            <li key={index} className="flex gap-4 px-5 py-4">
                                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--accent-soft)] text-xs font-medium text-[var(--accent)]">
                                                     {gear.photo_url ? (
                                                         // eslint-disable-next-line @next/next/no-img-element
@@ -230,9 +287,7 @@ export default function PrepareTrekPage() {
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-start justify-between gap-2">
-                                                        <h5 className="font-semibold">
-                                                            {gear.gear_name}
-                                                        </h5>
+                                                        <h5 className="font-semibold">{gear.gear_name}</h5>
                                                         {gear.category && (
                                                             <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
                                                                 {gear.category}
@@ -253,7 +308,7 @@ export default function PrepareTrekPage() {
                         ) : (
                             <EmptyState
                                 title="Waiting for trip details"
-                                description="Fill the form on the left to generate your risk level and gear checklist."
+                                description="Fill the form on the left to generate risk, budget, trek matches, and gear."
                             />
                         )}
                     </section>

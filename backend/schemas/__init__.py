@@ -77,7 +77,12 @@ class RecommendedGearItem(BaseModel):
 
 class PrepareTrekResponse(BaseModel):
     risk_level: str
+    risk_source: str = "rules"  # "ml" | "rules"
     recommended_gear: list[RecommendedGearItem]
+    budget_estimate: dict[str, float] | None = None
+    budget_source: str | None = None
+    recommended_treks: list[dict] | None = None
+    recommend_source: str | None = None
 
 
 class HistoryListItem(BaseModel):
@@ -143,3 +148,61 @@ class ChatAnswer(BaseModel):
 
 class ChatResponse(BaseModel):
     result: ChatAnswer
+
+
+# ---------- Machine Learning (Phase 4) ----------
+
+
+class MLFeatureRequest(BaseModel):
+    altitude: int = Field(gt=0)
+    experience_level: str
+    trek_type: str
+    season: str
+    duration: int = Field(gt=0)
+
+
+class DifficultyRequest(BaseModel):
+    altitude: int = Field(gt=0)
+    duration: int = Field(gt=0)
+    season: str
+
+
+class RiskPredictionResponse(BaseModel):
+    risk_level: str
+    source: str
+
+
+class DifficultyPredictionResponse(BaseModel):
+    difficulty: str
+    source: str
+
+
+class BudgetEstimateResponse(BaseModel):
+    low_usd: float
+    mid_usd: float
+    high_usd: float
+    source: str
+
+
+class TrekRecommendationItem(BaseModel):
+    id: int
+    trek_name: str
+    max_altitude: int | None = None
+    duration_days: int | None = None
+    difficulty: str | None = None
+    match_score: float | None = None
+
+
+class TrekRecommendationResponse(BaseModel):
+    recommendations: list[TrekRecommendationItem]
+    source: str
+
+
+class MLInsightsResponse(BaseModel):
+    risk_level: str
+    risk_source: str
+    difficulty: str
+    difficulty_source: str
+    budget: BudgetEstimateResponse
+    recommended_treks: list[TrekRecommendationItem]
+    recommend_source: str

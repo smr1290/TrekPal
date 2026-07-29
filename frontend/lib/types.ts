@@ -61,6 +61,22 @@ export interface TrekPreparationRequest {
 
 export interface TrekPreparationResponse {
   risk_level: string;
+  risk_source?: string;
+  budget_estimate?: {
+    low_usd: number;
+    mid_usd: number;
+    high_usd: number;
+  } | null;
+  budget_source?: string | null;
+  recommended_treks?: {
+    id: number;
+    trek_name: string;
+    max_altitude?: number | null;
+    duration_days?: number | null;
+    difficulty?: string | null;
+    match_score?: number | null;
+  }[] | null;
+  recommend_source?: string | null;
   recommended_gear: RecommendedGearItem[];
 }
 
@@ -131,4 +147,30 @@ export interface ChatAnswer {
 
 export interface ChatResponse {
   result: ChatAnswer;
+}
+
+export interface BudgetEstimate {
+  low_usd: number;
+  mid_usd: number;
+  high_usd: number;
+  source?: string;
+}
+
+export interface TrekRecommendation {
+  id: number;
+  trek_name: string;
+  max_altitude?: number | null;
+  duration_days?: number | null;
+  difficulty?: string | null;
+  match_score?: number | null;
+}
+
+export interface MLInsights {
+  risk_level: string;
+  risk_source: string;
+  difficulty: string;
+  difficulty_source: string;
+  budget: BudgetEstimate;
+  recommended_treks: TrekRecommendation[];
+  recommend_source: string;
 }
