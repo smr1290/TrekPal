@@ -12,7 +12,7 @@ import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
-import { getDifficultyVariant, getRiskVariant } from '@/lib/badgeHelpers';
+import { getDifficultyVariant, getRiskVariant, getGearPriorityVariant } from '@/lib/badgeHelpers';
 
 type FormErrors = {
     altitude?: string;
@@ -288,12 +288,24 @@ export default function PrepareTrekPage() {
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-start justify-between gap-2">
                                                         <h5 className="font-semibold">{gear.gear_name}</h5>
-                                                        {gear.category && (
-                                                            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                                                {gear.category}
-                                                            </span>
-                                                        )}
+                                                        <div className="flex shrink-0 flex-col items-end gap-1">
+                                                            {gear.priority && (
+                                                                <Badge variant={getGearPriorityVariant(gear.priority)}>
+                                                                    {gear.priority}
+                                                                </Badge>
+                                                            )}
+                                                            {gear.category && (
+                                                                <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                                                    {gear.category}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
+                                                    {gear.reason && (
+                                                        <p className="mt-1 text-sm text-[var(--foreground)]">
+                                                            {gear.reason}
+                                                        </p>
+                                                    )}
                                                     {gear.description && (
                                                         <p className="mt-1 text-sm text-[var(--muted)]">
                                                             {gear.description}

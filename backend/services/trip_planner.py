@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from config import GROQ_API_KEY, GROQ_MODEL
 from ml.predict import estimate_budget, predict_risk
+from ml.gear_recommend import packing_lines_from_picks, recommend_gear_picks
 import models
 
 # Conservative minimums for well-known Nepal routes (round-trip style plans).
@@ -35,6 +36,38 @@ ROUTE_MIN_DAYS: list[tuple[tuple[str, ...], int, str]] = [
     (("langtang",), 7, "Langtang treks are typically 7–10 days."),
     (("gokyo",), 12, "Gokyo / high Khumbu routes usually need 12+ days."),
 ]
+
+
+def structured_packing_list(
+    db: Session,
+    *,
+    altitude: int,
+    experience_level: str,
+    difficulty: str,
+    season: str,
+    duration_days: int,
+    risk_level: str,
+) -> list[str]:
+    """Catalog-backed packing list with priority labels (same engine as Prepare)."""
+    picks = recommend_gear_picks(
+        db,
+        altitude=altitude,
+        experience=experience_level,
+        trek_type=difficulty,
+        season=season,
+        duration=duration_days,
+        risk=risk_level,
+    )
+    lines = packing_lines_from_picks(picks)
+    return lines or [
+        "Broken-in waterproof boots",
+        "Layered clothing + rain shell",
+        "Sleeping bag rated for expected night temps",
+        "Water purification / bottles",
+        "Headlamp + power bank",
+        "First-aid kit and personal meds",
+        "Sun protection (hat, SPF, sunglasses)",
+    ]
 
 
 def _truncate(text: str, max_chars: int) -> str:
@@ -333,6 +366,7 @@ def _normalize_plan(
     risk_level: str,
     traveler_type: str,
     warnings: list[str],
+    packing_list: list[str] | None = None,
 ) -> dict[str, Any]:
     """Force safety invariants after AI output."""
     base = fallback_plan(
@@ -356,6 +390,10 @@ def _normalize_plan(
     plan["traveler_type"] = traveler_type
     existing_warnings = plan.get("warnings") if isinstance(plan.get("warnings"), list) else []
     plan["warnings"] = list(dict.fromkeys([*(warnings or []), *existing_warnings]))
+
+    # Always use structured catalog packing (do not trust vague AI lists).
+    if packing_list:
+        plan["packing_list"] = packing_list
 
     itinerary = plan.get("itinerary")
     if not isinstance(itinerary, list) or len(itinerary) != duration_days:
@@ -485,6 +523,15 @@ async def generate_trip_plan(
             ]
         )
         plan = _extract_json(raw)
+        packing = structured_packing_list(
+            db,
+            altitude=altitude,
+            experience_level=experience_level,
+            difficulty=difficulty,
+            season=season,
+            duration_days=final_days,
+            risk_level=risk_level,
+        )
         plan = _normalize_plan(
             plan,
             destination=destination,
@@ -496,6 +543,7 @@ async def generate_trip_plan(
             risk_level=risk_level,
             traveler_type=traveler,
             warnings=warnings,
+            packing_list=packing,
         )
         plan["knowledge_sources"] = sources
         return plan, risk_level, "ai", final_days
@@ -511,6 +559,15 @@ async def generate_trip_plan(
             risk_level,
             traveler_type=traveler,
             warnings=warnings,
+        )
+        plan["packing_list"] = structured_packing_list(
+            db,
+            altitude=altitude,
+            experience_level=experience_level,
+            difficulty=difficulty,
+            season=season,
+            duration_days=final_days,
+            risk_level=risk_level,
         )
         plan["knowledge_sources"] = sources
         return plan, risk_level, "fallback", final_days

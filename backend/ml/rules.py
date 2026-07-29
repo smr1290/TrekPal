@@ -170,200 +170,21 @@ def recommend_gear(
     duration: int | float,
     risk: str,
 ) -> list[Any]:
-    import models
+    """Backward-compatible wrapper — returns Gear ORM rows only.
 
-    gear_items = db.query(models.Gear).all()
-    if not gear_items:
-        return []
+    Prefer ``recommend_gear_picks`` when you need priority + reason.
+    """
+    from ml.gear_recommend import recommend_gear_picks
 
-    scored_gears: list[tuple[Any, int]] = []
-
-    for g in gear_items:
-        name = (g.gear_name or "").lower()
-        score = 0
-
-        if "trekking boots" in name:
-            score += 10
-        if "backpack" in name:
-            score += 10
-        if "water bottle" in name:
-            score += 10
-        if "first aid" in name:
-            score += 9
-        if "sunscreen" in name:
-            score += 8
-        if "torch" in name or "head lamp" in name:
-            score += 7
-
-        if altitude >= 3000:
-            if "sunglasses" in name:
-                score += 5
-            if "extra socks" in name:
-                score += 3
-
-        if altitude >= 4000:
-            if "thermal" in name:
-                score += 8
-            if "gloves" in name:
-                score += 7
-            if "down jacket" in name:
-                score += 9
-            if "sunglasses" in name:
-                score += 7
-            if "antiseptic cream" in name:
-                score += 4
-
-        if altitude >= 5000:
-            if "thermal" in name:
-                score += 3
-            if "gloves" in name:
-                score += 3
-            if "down jacket" in name:
-                score += 3
-            if "head lamp" in name:
-                score += 2
-
-        if season == "Winter":
-            if "gloves" in name:
-                score += 9
-            if "down jacket" in name:
-                score += 10
-            if "thermal" in name:
-                score += 10
-            if "extra socks" in name:
-                score += 6
-            if "gaiters" in name:
-                score += 5
-            if "crampons" in name:
-                score += 5
-        elif season == "Autumn":
-            if "extra socks" in name:
-                score += 3
-            if "gloves" in name:
-                score += 2
-        elif season == "Spring":
-            if "sunglasses" in name:
-                score += 3
-            if "gloves" in name and altitude >= 4000:
-                score += 3
-        elif season == "Summer":
-            if "water bottle" in name:
-                score += 2
-            if "sunscreen" in name:
-                score += 3
-            if "sandals" in name and duration >= 5:
-                score += 3
-
-        if trek_type == "Easy":
-            if "rope" in name:
-                score -= 5
-            if "crampons" in name:
-                score -= 5
-            if "gaiters" in name and altitude < 4000:
-                score -= 2
-        elif trek_type == "Moderate":
-            if "head lamp" in name:
-                score += 3
-            if "power bank" in name:
-                score += 3
-            if "gaiters" in name and altitude >= 3500:
-                score += 3
-            if "rope" in name and altitude >= 4500:
-                score += 2
-        elif trek_type == "Hard":
-            if "rope" in name:
-                score += 8
-            if "crampons" in name:
-                score += 8
-            if "gaiters" in name:
-                score += 6
-            if "head lamp" in name:
-                score += 4
-            if "power bank" in name:
-                score += 4
-
-        if experience == "Beginner":
-            if "first aid" in name:
-                score += 4
-            if "head lamp" in name:
-                score += 4
-            if "power bank" in name:
-                score += 3
-            if "extra socks" in name:
-                score += 3
-            if "gloves" in name and altitude >= 3000:
-                score += 2
-        elif experience == "Intermediate":
-            if "head lamp" in name:
-                score += 2
-            if "power bank" in name:
-                score += 2
-        elif experience == "Advanced":
-            if "rope" in name and trek_type == "Hard":
-                score += 2
-            if "crampons" in name and altitude >= 4500:
-                score += 2
-
-        if duration >= 4:
-            if "extra socks" in name:
-                score += 4
-            if "power bank" in name:
-                score += 3
-            if "antiseptic cream" in name:
-                score += 3
-        if duration >= 7:
-            if "sandals" in name:
-                score += 5
-            if "power bank" in name:
-                score += 2
-            if "backpack" in name:
-                score += 2
-        if duration >= 10:
-            if "extra socks" in name:
-                score += 2
-            if "antiseptic cream" in name:
-                score += 2
-            if "sandals" in name:
-                score += 2
-
-        if risk == "Moderate":
-            if "head lamp" in name:
-                score += 2
-            if "power bank" in name:
-                score += 2
-            if "antiseptic cream" in name:
-                score += 2
-        elif risk == "High":
-            if "head lamp" in name:
-                score += 4
-            if "power bank" in name:
-                score += 4
-            if "antiseptic cream" in name:
-                score += 4
-            if "rope" in name:
-                score += 3
-            if "crampons" in name:
-                score += 3
-            if "gaiters" in name:
-                score += 3
-
-        if score > 0:
-            scored_gears.append((g, score))
-
-    scored_gears.sort(key=lambda x: x[1], reverse=True)
-
-    unique_gears = []
-    seen_ids: set[int] = set()
-    for gear, _score in scored_gears:
-        if gear.id not in seen_ids:
-            unique_gears.append(gear)
-            seen_ids.add(gear.id)
-
-    if risk == "Low":
-        limit = 7
-    elif risk == "Moderate":
-        limit = 10
-    else:
-        limit = 13
-
-    return unique_gears[:limit]
+    return [
+        pick.gear
+        for pick in recommend_gear_picks(
+            db,
+            altitude=altitude,
+            experience=experience,
+            trek_type=trek_type,
+            season=season,
+            duration=duration,
+            risk=risk,
+        )
+    ]

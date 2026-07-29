@@ -28,6 +28,20 @@ export function getDifficultyVariant(difficulty: string): BadgeVariant {
     }
 }
 
+/** Maps gear priority labels to Badge visual variants. */
+export function getGearPriorityVariant(priority: string): BadgeVariant {
+    switch (priority.toLowerCase()) {
+        case 'essential':
+            return 'danger';
+        case 'recommended':
+            return 'warning';
+        case 'optional':
+            return 'info';
+        default:
+            return 'default';
+    }
+}
+
 const KNOWLEDGE_CATEGORY_LABELS: Record<string, string> = {
     trek_guide: 'Trek guide',
     permit: 'Permits',

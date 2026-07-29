@@ -73,6 +73,8 @@ class RecommendedGearItem(BaseModel):
     photo_url: str | None = None
     category: str | None = None
     description: str | None = None
+    priority: str | None = None  # essential | recommended | optional
+    reason: str | None = None
 
 
 class PrepareTrekResponse(BaseModel):

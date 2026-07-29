@@ -138,6 +138,8 @@ export const trekApi = {
                 photo_url: string;
                 category?: string;
                 description: string;
+                priority?: string;
+                reason?: string;
             }[];
         }>('/trek/prepare-trek', {
             method: 'POST',

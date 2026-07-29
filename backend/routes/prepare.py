@@ -5,7 +5,7 @@ from db import get_db
 from schemas import PrepareTrekRequest, PrepareTrekResponse, RecommendedGearItem
 from security import get_current_user
 from ml.predict import estimate_budget, predict_risk, recommend_treks
-from ml.rules import recommend_gear
+from ml.gear_recommend import recommend_gear_picks
 import models
 
 router = APIRouter()
@@ -66,8 +66,8 @@ def prepare_trek(
     db.commit()
     db.refresh(history)
 
-    gears = recommend_gear(
-        db=db,
+    gear_picks = recommend_gear_picks(
+        db,
         altitude=altitude,
         experience=experience_level,
         trek_type=trek_type,
@@ -76,10 +76,10 @@ def prepare_trek(
         risk=risk,
     )
 
-    for g in gears:
+    for pick in gear_picks:
         mapping = models.TrekGearRecommendation(
             history_id=history.id,
-            gear_id=g.id,
+            gear_id=pick.gear.id,
         )
         db.add(mapping)
 
@@ -94,11 +94,13 @@ def prepare_trek(
         recommend_source=recommend_source,
         recommended_gear=[
             RecommendedGearItem(
-                gear_name=g.gear_name,
-                photo_url=g.photo_url,
-                category=g.category,
-                description=g.description,
+                gear_name=pick.gear.gear_name,
+                photo_url=pick.gear.photo_url,
+                category=pick.gear.category,
+                description=pick.gear.description,
+                priority=pick.priority,
+                reason=pick.reason,
             )
-            for g in gears
+            for pick in gear_picks
         ],
     )

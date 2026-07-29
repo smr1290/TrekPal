@@ -39,6 +39,8 @@ export interface RecommendedGearItem {
   photo_url: string;
   category?: string;
   description?: string;
+  priority?: 'essential' | 'recommended' | 'optional' | string;
+  reason?: string;
 }
 
 export interface TrekHistoryDetail {
