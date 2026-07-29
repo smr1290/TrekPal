@@ -297,6 +297,7 @@ export const tripPlanApi = {
         difficulty: string;
         altitude: number;
         trek_id?: number | null;
+        traveler_type?: 'nepali' | 'foreign';
     }) => {
         return fetchApi<{
             id: number;

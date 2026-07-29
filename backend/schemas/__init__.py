@@ -219,6 +219,8 @@ class TripPlanGenerateRequest(BaseModel):
     difficulty: str
     altitude: int = Field(gt=0)
     trek_id: int | None = None
+    # nepali = Nepal citizen/local traveler; foreign = international visitor
+    traveler_type: str = "foreign"
 
 
 class TripPlanListItem(BaseModel):

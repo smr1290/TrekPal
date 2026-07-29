@@ -202,6 +202,8 @@ export interface TripPlanContent {
   accommodations?: string[];
   preparation_schedule?: TripPlanPrepBlock[];
   knowledge_sources?: string[];
+  warnings?: string[];
+  traveler_type?: string;
 }
 
 export interface TripPlanSummary {

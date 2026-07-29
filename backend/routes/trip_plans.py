@@ -14,6 +14,7 @@ router = APIRouter()
 VALID_DIFFICULTY = {"Easy", "Moderate", "Hard"}
 VALID_EXPERIENCE = {"Beginner", "Intermediate", "Advanced"}
 VALID_SEASONS = {"Spring", "Summer", "Autumn", "Winter"}
+VALID_TRAVELER_TYPES = {"nepali", "foreign"}
 
 
 @router.post("/generate", response_model=TripPlanDetail)
@@ -29,13 +30,19 @@ async def generate_plan(
     if payload.season not in VALID_SEASONS:
         raise HTTPException(status_code=400, detail="Invalid season")
 
+    traveler_type = (payload.traveler_type or "foreign").strip().lower()
+    if traveler_type in {"nepal", "local", "citizen", "nepalese"}:
+        traveler_type = "nepali"
+    if traveler_type not in VALID_TRAVELER_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid traveler_type (use nepali or foreign)")
+
     trek_id = payload.trek_id
     if trek_id is not None:
         trek = db.query(models.Trek).filter(models.Trek.id == trek_id).first()
         if not trek:
             raise HTTPException(status_code=404, detail="Trek not found")
 
-    plan, risk_level, source = await generate_trip_plan(
+    plan, risk_level, source, final_days = await generate_trip_plan(
         db,
         destination=payload.destination.strip(),
         duration_days=payload.duration_days,
@@ -43,6 +50,7 @@ async def generate_plan(
         experience_level=payload.experience_level,
         difficulty=payload.difficulty,
         altitude=payload.altitude,
+        traveler_type=traveler_type,
     )
 
     title = str(plan.get("title") or f"{payload.destination} trip plan")[:200]
@@ -53,7 +61,7 @@ async def generate_plan(
         title=title,
         destination=payload.destination.strip(),
         season=payload.season,
-        duration_days=payload.duration_days,
+        duration_days=final_days,
         experience_level=payload.experience_level,
         difficulty=payload.difficulty,
         risk_level=risk_level,
