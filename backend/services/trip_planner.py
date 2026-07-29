@@ -354,7 +354,8 @@ def _normalize_plan(
     # Always use traveler-aware permits (do not trust AI stereotypes).
     plan["permits"] = permits_for_traveler(traveler_type, destination)
     plan["traveler_type"] = traveler_type
-    plan["warnings"] = list(dict.fromkeys([*(warnings or []), *(plan.get("warnings") or []) if isinstance(plan.get("warnings"), list) else []]))
+    existing_warnings = plan.get("warnings") if isinstance(plan.get("warnings"), list) else []
+    plan["warnings"] = list(dict.fromkeys([*(warnings or []), *existing_warnings]))
 
     itinerary = plan.get("itinerary")
     if not isinstance(itinerary, list) or len(itinerary) != duration_days:
