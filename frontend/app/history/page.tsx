@@ -51,10 +51,10 @@ export default function HistoryPage() {
                 ) : history.length === 0 ? (
                     <EmptyState
                         title="Your log is empty"
-                        description="Prepare a trek once and it will show up here."
+                        description="Plan a trek once and it will show up here."
                         action={
-                            <Link href="/prepare">
-                                <Button>Prepare a trek</Button>
+                            <Link href="/planner?tab=checklist">
+                                <Button>Plan a trek</Button>
                             </Link>
                         }
                     />

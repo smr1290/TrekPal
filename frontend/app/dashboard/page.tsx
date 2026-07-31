@@ -39,7 +39,7 @@ export default function DashboardPage() {
             <PageContainer className="flex flex-col gap-12">
                 <PageHeader
                     title={`Welcome back, ${user?.full_name.split(' ')[0] || 'trekker'}`}
-                    description="Pick up a preparation, browse routes, or start a new packing plan."
+                    description="Plan a trek, browse routes, or reopen a past preparation."
                     action={
                         <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
                             <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">
@@ -57,13 +57,13 @@ export default function DashboardPage() {
                         Quick start
                     </h2>
                     <div className="grid gap-4 sm:grid-cols-3">
-                        <Link href="/prepare" className="block">
+                        <Link href="/planner?tab=checklist" className="block">
                             <Card className="h-full border-[var(--accent)]/25 bg-[var(--accent-soft)] transition hover:border-[var(--accent)]">
                                 <h3 className="text-lg font-semibold text-[var(--accent)]">
-                                    Prepare a trek
+                                    Plan a trek
                                 </h3>
                                 <p className="mt-2 text-sm text-[var(--muted)]">
-                                    Gear list + risk check for your next route.
+                                    Quick packing checklist or a full day-by-day itinerary.
                                 </p>
                             </Card>
                         </Link>
@@ -106,8 +106,8 @@ export default function DashboardPage() {
                             title="No plans yet"
                             description="Start your first preparation — it only takes a minute."
                             action={
-                                <Link href="/prepare">
-                                    <Button>Prepare a trek</Button>
+                                <Link href="/planner?tab=checklist">
+                                    <Button>Plan a trek</Button>
                                 </Link>
                             }
                         />

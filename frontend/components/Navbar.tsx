@@ -21,16 +21,19 @@ export default function Navbar() {
         { href: '/maps', label: 'Maps', public: true },
         { href: '/chat', label: 'Chat', public: false },
         { href: '/dashboard', label: 'Dashboard', public: false },
-        { href: '/prepare', label: 'Prepare', public: false },
-        { href: '/planner', label: 'Planner', public: false },
+        { href: '/planner', label: 'Plan trip', public: false },
         { href: '/history', label: 'History', public: false },
     ];
 
     const visibleLinks = links.filter((link) => link.public || isAuthenticated);
 
-    const linkClass = (href: string) =>
-        `rounded-[var(--radius)] px-3 py-2 text-sm font-medium ${
-            pathname === href
+    const linkClass = (href: string) => {
+        const active =
+            pathname === href ||
+            (href === '/planner' && pathname.startsWith('/planner')) ||
+            (href === '/planner' && pathname.startsWith('/prepare'));
+        return `rounded-[var(--radius)] px-3 py-2 text-sm font-medium ${
+            active
                 ? isHome && !mobileOpen
                     ? 'text-white'
                     : 'text-[var(--accent)]'
@@ -38,6 +41,7 @@ export default function Navbar() {
                   ? 'text-white/80 hover:text-white'
                   : 'text-[var(--muted)] hover:text-[var(--foreground)]'
         }`;
+    };
 
     const closeMobile = () => setMobileOpen(false);
 

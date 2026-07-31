@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Input from '@/components/Input';
@@ -10,10 +11,13 @@ import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import PageContainer from '@/components/PageContainer';
+import PrepareTrekPanel from '@/components/PrepareTrekPanel';
 import { PageHeader, EmptyState, LoadingBlock } from '@/components/ui';
 import { tripPlanApi } from '@/lib/api';
 import type { TripPlanContent, TripPlanDetail, TripPlanSummary } from '@/lib/types';
 import { getDifficultyVariant, getRiskVariant } from '@/lib/badgeHelpers';
+
+type PlanTab = 'checklist' | 'itinerary';
 
 type FormErrors = {
     destination?: string;
@@ -27,8 +31,17 @@ function asStringList(value: unknown): string[] {
     return value.filter((item): item is string => typeof item === 'string');
 }
 
-export default function PlannerPage() {
+function PlanTripInner() {
     const { user } = useAuth();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const tab: PlanTab = tabParam === 'itinerary' ? 'itinerary' : 'checklist';
+
+    const setTab = (next: PlanTab) => {
+        router.replace(`/planner?tab=${next}`);
+    };
+
     const [formData, setFormData] = useState({
         destination: 'Everest Base Camp',
         difficulty: 'Hard',
@@ -93,7 +106,8 @@ export default function PlannerPage() {
             await loadSaved();
         } catch {
             setErrors({
-                general: 'Could not generate a plan. Check that you are logged in and the API is running.',
+                general:
+                    'Could not generate a plan. Check that you are logged in and the API is running.',
             });
         } finally {
             setIsGenerating(false);
@@ -105,13 +119,52 @@ export default function PlannerPage() {
     const prep = Array.isArray(content.preparation_schedule) ? content.preparation_schedule : [];
 
     return (
-        <ProtectedRoute>
-            <PageContainer className="pb-16">
-                <PageHeader
-                    title="AI trip planner"
-                    description="Generate a full trek plan — itinerary, budget, permits, packing, transport, stays, and prep schedule."
-                />
+        <PageContainer className="pb-16">
+            <PageHeader
+                title="Plan your trek"
+                description="One place for packing checklists and full day-by-day itineraries — pick the depth you need."
+            />
 
+            <div className="mb-8 flex flex-wrap gap-2 border-b border-[var(--border)] pb-4">
+                <button
+                    type="button"
+                    onClick={() => setTab('checklist')}
+                    className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
+                        tab === 'checklist'
+                            ? 'bg-[var(--accent)] text-white'
+                            : 'bg-[var(--surface-muted)] text-[var(--muted)] hover:text-[var(--foreground)]'
+                    }`}
+                >
+                    Quick checklist
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setTab('itinerary')}
+                    className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
+                        tab === 'itinerary'
+                            ? 'bg-[var(--accent)] text-white'
+                            : 'bg-[var(--surface-muted)] text-[var(--muted)] hover:text-[var(--foreground)]'
+                    }`}
+                >
+                    Full itinerary
+                </button>
+            </div>
+
+            {tab === 'checklist' ? (
+                <PrepareTrekPanel
+                    onRequestItinerary={(draft) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            destination: draft.destination.trim() || prev.destination,
+                            altitude: draft.altitude || prev.altitude,
+                            duration_days: draft.duration || prev.duration_days,
+                            season: draft.season || prev.season,
+                            difficulty: draft.trek_type || prev.difficulty,
+                        }));
+                        setTab('itinerary');
+                    }}
+                />
+            ) : (
                 <div className="grid items-start gap-10 lg:grid-cols-[360px_1fr]">
                     <section className="space-y-6">
                         <Card className="p-6">
@@ -193,7 +246,8 @@ export default function PlannerPage() {
                                     />
                                 </div>
                                 <p className="mb-2 -mt-1 text-xs text-[var(--muted)]">
-                                    Tip: EBC plans need about 12–14 days. If you enter too few, TrekPal will auto-adjust.
+                                    Tip: EBC plans need about 12–14 days. If you enter too few, TrekPal will
+                                    auto-adjust.
                                 </p>
 
                                 <p className="mb-2 text-xs text-[var(--muted)]">
@@ -232,7 +286,8 @@ export default function PlannerPage() {
                                             >
                                                 <p className="font-semibold">{item.title}</p>
                                                 <p className="mt-1 text-xs text-[var(--muted)]">
-                                                    {item.destination} · {item.duration_days} days · {item.source}
+                                                    {item.destination} · {item.duration_days} days ·{' '}
+                                                    {item.source}
                                                 </p>
                                             </button>
                                         </li>
@@ -240,6 +295,14 @@ export default function PlannerPage() {
                                 </ul>
                             )}
                         </Card>
+
+                        <button
+                            type="button"
+                            onClick={() => setTab('checklist')}
+                            className="text-sm font-semibold text-[var(--accent)] hover:underline"
+                        >
+                            ← Back to quick checklist
+                        </button>
                     </section>
 
                     <section>
@@ -248,7 +311,7 @@ export default function PlannerPage() {
                         ) : !plan ? (
                             <EmptyState
                                 title="No plan yet"
-                                description="Fill the form and generate a full trip plan grounded in TrekPal knowledge + ML estimates."
+                                description="Generate a full trip plan with itinerary, permits, packing, and prep schedule — or start with the quick checklist tab."
                             />
                         ) : (
                             <div className="flex flex-col gap-5">
@@ -258,14 +321,19 @@ export default function PlannerPage() {
                                             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
                                                 {plan.source === 'ai' ? 'Generated by AI' : 'Fallback template'}
                                                 {content.traveler_type
-                                                    ? ` · ${content.traveler_type === 'nepali' ? 'Nepali traveler' : 'Foreign traveler'}`
+                                                    ? ` · ${
+                                                          content.traveler_type === 'nepali'
+                                                              ? 'Nepali traveler'
+                                                              : 'Foreign traveler'
+                                                      }`
                                                     : ''}
                                             </p>
                                             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">
                                                 {plan.title}
                                             </h2>
                                             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">
-                                                {content.summary || `${plan.destination} · ${plan.duration_days} days`}
+                                                {content.summary ||
+                                                    `${plan.destination} · ${plan.duration_days} days`}
                                             </p>
                                             <p className="mt-2 text-xs text-[var(--muted)]">
                                                 Saved duration: {plan.duration_days} days · Itinerary days:{' '}
@@ -286,13 +354,16 @@ export default function PlannerPage() {
                                 </Card>
 
                                 {(content.warnings || []).length > 0 && (
-                                    <Card className="border-[var(--warning, #b45309)]/30 p-6">
+                                    <Card className="border-[var(--warning,#b45309)]/30 p-6">
                                         <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
                                             Plan adjustments
                                         </h3>
                                         <ul className="mt-3 space-y-2">
                                             {(content.warnings || []).map((warning) => (
-                                                <li key={warning} className="text-sm leading-relaxed text-[var(--foreground)]">
+                                                <li
+                                                    key={warning}
+                                                    className="text-sm leading-relaxed text-[var(--foreground)]"
+                                                >
                                                     • {warning}
                                                 </li>
                                             ))}
@@ -313,7 +384,9 @@ export default function PlannerPage() {
                                             {Number(content.budget.high_usd || 0).toLocaleString()}
                                         </p>
                                         {content.budget.notes && (
-                                            <p className="mt-3 text-sm text-[var(--muted)]">{content.budget.notes}</p>
+                                            <p className="mt-3 text-sm text-[var(--muted)]">
+                                                {content.budget.notes}
+                                            </p>
                                         )}
                                     </Card>
                                 )}
@@ -324,12 +397,17 @@ export default function PlannerPage() {
                                     </h3>
                                     <ol className="space-y-4">
                                         {itinerary.map((day) => (
-                                            <li key={day.day} className="border-b border-[var(--border)] pb-4 last:border-0">
+                                            <li
+                                                key={day.day}
+                                                className="border-b border-[var(--border)] pb-4 last:border-0"
+                                            >
                                                 <p className="text-xs font-semibold uppercase tracking-wide text-[var(--accent)]">
                                                     Day {day.day}
                                                 </p>
                                                 <p className="mt-1 font-semibold">{day.title}</p>
-                                                <p className="mt-1 text-sm text-[var(--muted)]">{day.description}</p>
+                                                <p className="mt-1 text-sm text-[var(--muted)]">
+                                                    {day.description}
+                                                </p>
                                             </li>
                                         ))}
                                     </ol>
@@ -340,7 +418,10 @@ export default function PlannerPage() {
                                         { title: 'Permits', items: asStringList(content.permits) },
                                         { title: 'Packing list', items: asStringList(content.packing_list) },
                                         { title: 'Transport', items: asStringList(content.transport) },
-                                        { title: 'Accommodations', items: asStringList(content.accommodations) },
+                                        {
+                                            title: 'Accommodations',
+                                            items: asStringList(content.accommodations),
+                                        },
                                     ].map((section) => (
                                         <Card key={section.title} className="p-6">
                                             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
@@ -348,7 +429,10 @@ export default function PlannerPage() {
                                             </h3>
                                             <ul className="space-y-2">
                                                 {section.items.map((item) => (
-                                                    <li key={item} className="text-sm leading-relaxed text-[var(--foreground)]">
+                                                    <li
+                                                        key={item}
+                                                        className="text-sm leading-relaxed text-[var(--foreground)]"
+                                                    >
                                                         • {item}
                                                     </li>
                                                 ))}
@@ -399,7 +483,17 @@ export default function PlannerPage() {
                         )}
                     </section>
                 </div>
-            </PageContainer>
+            )}
+        </PageContainer>
+    );
+}
+
+export default function PlannerPage() {
+    return (
+        <ProtectedRoute>
+            <Suspense fallback={<PageContainer><LoadingBlock label="Loading planner…" /></PageContainer>}>
+                <PlanTripInner />
+            </Suspense>
         </ProtectedRoute>
     );
 }
