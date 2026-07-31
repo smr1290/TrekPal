@@ -17,7 +17,8 @@ routers = [
     (gear_router, "/gear", ["Gear"]),
     (knowledge_router, "/knowledge", ["Knowledge"]),
     (chat_router, "/chat", ["AI Chat"]),
-    (ml_router, "/ml", ["Machine Learning"]),
+    # Internal/dev estimates — Plan trip already exposes risk/budget to users.
+    (ml_router, "/ml", ["Internal ML"]),
     (trip_plans_router, "/trip-plans", ["Trip Planner"]),
     (maps_router, "/maps", ["Maps"]),
 ]

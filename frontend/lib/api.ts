@@ -63,6 +63,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         });
 
         if (!response.ok) {
+            // Expired / invalid session — clear local auth so UI can recover.
+            if (response.status === 401 && typeof window !== 'undefined') {
+                setAccessToken(null);
+                localStorage.removeItem('trek_pal_user');
+                window.dispatchEvent(new Event('trekpal:auth-expired'));
+            }
             const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
             throw new ApiError(response.status, formatErrorDetail(error.detail) || 'Request failed');
         }

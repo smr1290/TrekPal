@@ -15,6 +15,7 @@ interface AuthContextType {
     signup: (full_name: string, email: string, password: string, experience_level: string) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
+    isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +25,12 @@ const USER_KEY = 'trek_pal_user';
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const clearSession = () => {
+        setUser(null);
+        setAccessToken(null);
+        localStorage.removeItem(USER_KEY);
+    };
 
     useEffect(() => {
         const hydrate = async () => {
@@ -45,15 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(userData);
                 localStorage.setItem(USER_KEY, JSON.stringify(userData));
             } catch {
-                setAccessToken(null);
-                localStorage.removeItem(USER_KEY);
-                setUser(null);
+                clearSession();
             } finally {
                 setIsLoading(false);
             }
         };
 
-        hydrate();
+        void hydrate();
+
+        const onExpired = () => {
+            setUser(null);
+            localStorage.removeItem(USER_KEY);
+        };
+        window.addEventListener('trekpal:auth-expired', onExpired);
+        return () => window.removeEventListener('trekpal:auth-expired', onExpired);
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -79,13 +91,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = () => {
-        setUser(null);
-        setAccessToken(null);
-        localStorage.removeItem(USER_KEY);
+        clearSession();
     };
 
     if (isLoading) {
-        return null;
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-sm text-[var(--muted)]">
+                Loading TrekPal…
+            </div>
+        );
     }
 
     return (
@@ -96,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 signup,
                 logout,
                 isAuthenticated: !!user,
+                isLoading,
             }}
         >
             {children}

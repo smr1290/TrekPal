@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import Button from '@/components/Button';
+import HomeHeroCtas from '@/components/HomeHeroCtas';
+import HomeBottomCta from '@/components/HomeBottomCta';
 
 // Landscape stock photo in frontend/public/hero.jpg (wide — fits the hero banner)
 const HERO_IMAGE = '/hero.jpg';
@@ -33,22 +33,7 @@ export default function Home() {
                     <p className="anim-rise-delay mt-4 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
                         Clear gear lists and risk checks so you walk in prepared — not guessing.
                     </p>
-                    <div className="anim-rise-delay mt-8 flex flex-col gap-3 sm:flex-row">
-                        <Link href="/signup">
-                            <Button size="lg" className="min-w-44">
-                                Start packing
-                            </Button>
-                        </Link>
-                        <Link href="/treks">
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="min-w-44 border-white/40 bg-white/10 text-white hover:bg-white/20"
-                            >
-                                Explore treks
-                            </Button>
-                        </Link>
-                    </div>
+                    <HomeHeroCtas />
                 </div>
             </section>
 
@@ -95,19 +80,7 @@ export default function Home() {
                     sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-[rgb(15_28_24_/0.78)]" aria-hidden />
-                <div className="relative mx-auto max-w-xl text-center text-white">
-                    <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
-                        Walk lighter. Plan clearer.
-                    </h2>
-                    <p className="mt-4 text-white/80">
-                        Create a free account and prepare your next trek in minutes.
-                    </p>
-                    <div className="mt-8">
-                        <Link href="/signup">
-                            <Button size="lg">Create free account</Button>
-                        </Link>
-                    </div>
-                </div>
+                <HomeBottomCta />
             </section>
         </div>
     );

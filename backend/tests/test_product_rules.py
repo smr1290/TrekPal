@@ -122,3 +122,19 @@ def test_unverified_emergency_hidden_by_default():
         )
         is True
     )
+
+
+def test_history_title_prefers_destination():
+    class FakeHistory:
+        destination = "Everest Base Camp"
+        trek_type = "Hard"
+
+    from routes.history import _history_title
+
+    assert _history_title(FakeHistory()) == "Everest Base Camp"
+
+    class NoDest:
+        destination = None
+        trek_type = "Easy"
+
+    assert _history_title(NoDest()) == "Easy"
