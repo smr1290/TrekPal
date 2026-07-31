@@ -19,7 +19,7 @@ export default function Navbar() {
         { href: '/gear', label: 'Gear', public: true },
         { href: '/knowledge', label: 'Knowledge', public: true },
         { href: '/maps', label: 'Maps', public: true },
-        { href: '/chat', label: 'Chat', public: true },
+        { href: '/chat', label: 'Chat', public: false },
         { href: '/dashboard', label: 'Dashboard', public: false },
         { href: '/prepare', label: 'Prepare', public: false },
         { href: '/planner', label: 'Planner', public: false },

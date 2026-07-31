@@ -12,6 +12,8 @@ from db import get_db
 from config import GROQ_API_KEY, GROQ_MODEL
 import models
 from schemas import ChatRequest, ChatResponse
+from security import get_current_user
+from services.rate_limit import chat_limiter
 
 
 router = APIRouter()
@@ -151,10 +153,20 @@ async def _call_groq_chat(messages: list[dict[str, Any]]) -> str:
 
 
 @router.post("/ask", response_model=ChatResponse)
-async def ask_chat(payload: ChatRequest, db: Session = Depends(get_db)):
+async def ask_chat(
+    payload: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
     message = (payload.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="message is required")
+
+    if not chat_limiter.allow(f"user:{current_user.id}"):
+        raise HTTPException(
+            status_code=429,
+            detail="Chat rate limit exceeded (20 questions per hour). Try again later.",
+        )
 
     articles = _retrieve_relevant_articles(db, message, limit=4)
     prompt_messages = _build_prompt(message, articles)

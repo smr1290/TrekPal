@@ -12,7 +12,7 @@ import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
-import { getDifficultyVariant, getRiskVariant, getGearPriorityVariant } from '@/lib/badgeHelpers';
+import { getDifficultyVariant, getRiskVariant, getGearPriorityVariant, getEstimateSourceLabel } from '@/lib/badgeHelpers';
 
 type FormErrors = {
     altitude?: string;
@@ -27,6 +27,7 @@ export default function PrepareTrekPage() {
         altitude: '',
         season: 'Spring',
         duration: '',
+        destination: '',
     });
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +59,8 @@ export default function PrepareTrekPage() {
                 user.experience_level,
                 parseInt(formData.altitude),
                 formData.season,
-                parseInt(formData.duration)
+                parseInt(formData.duration),
+                formData.destination.trim() || undefined
             );
             setResult(response);
         } catch {
@@ -73,7 +75,7 @@ export default function PrepareTrekPage() {
             <PageContainer className="pb-16">
                 <PageHeader
                     title="Prepare your trek"
-                    description="Tell us about the route — ML predicts risk and budget, then builds your gear checklist."
+                    description="Enter route details for a rule-based risk estimate, budget range, and a real Nepal packing checklist with rent/buy tips."
                     action={
                         result ? (
                             <Button
@@ -164,6 +166,15 @@ export default function PrepareTrekPage() {
                                     />
                                 </div>
 
+                                <Input
+                                    label="Destination (optional)"
+                                    type="text"
+                                    name="destination"
+                                    value={formData.destination}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Everest Base Camp, Annapurna Circuit"
+                                />
+
                                 <Button
                                     type="submit"
                                     variant="primary"
@@ -188,15 +199,15 @@ export default function PrepareTrekPage() {
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                                Safety risk
+                                                Safety risk estimate
                                             </p>
                                             <h4 className="mt-1 text-xl font-semibold">
                                                 Report ready
                                             </h4>
                                             <p className="mt-2 text-xs text-[var(--muted)]">
-                                                Predicted by{' '}
+                                                Source:{' '}
                                                 <span className="font-semibold text-[var(--foreground)]">
-                                                    {result.risk_source === 'ml' ? 'ML model' : 'rule engine'}
+                                                    {getEstimateSourceLabel(result.risk_source)}
                                                 </span>
                                             </p>
                                         </div>
@@ -207,6 +218,23 @@ export default function PrepareTrekPage() {
                                             {result.risk_level} risk
                                         </Badge>
                                     </div>
+                                    {(result.risk_factors || []).length > 0 && (
+                                        <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-[var(--muted)]">
+                                            {result.risk_factors!.map((factor, i) => (
+                                                <li key={i}>{factor}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {result.ams_note && (
+                                        <p className="mt-4 rounded-[var(--radius)] bg-[var(--warning-bg)] p-3 text-sm text-[var(--warning)]">
+                                            {result.ams_note}
+                                        </p>
+                                    )}
+                                    {result.safety_disclaimer && (
+                                        <p className="mt-3 text-xs text-[var(--muted)]">
+                                            {result.safety_disclaimer}
+                                        </p>
+                                    )}
                                 </Card>
 
                                 {result.budget_estimate && (
@@ -225,7 +253,7 @@ export default function PrepareTrekPage() {
                                                 </p>
                                             </div>
                                             <Badge variant="info">
-                                                {result.budget_source === 'ml' ? 'ML' : 'Rules'}
+                                                {getEstimateSourceLabel(result.budget_source)}
                                             </Badge>
                                         </div>
                                     </Card>
@@ -236,7 +264,7 @@ export default function PrepareTrekPage() {
                                         <div className="mb-4 flex items-center justify-between">
                                             <h4 className="text-sm font-semibold">Recommended treks</h4>
                                             <Badge variant="default">
-                                                {result.recommend_source === 'ml' ? 'ML match' : 'Rules'}
+                                                {getEstimateSourceLabel(result.recommend_source)}
                                             </Badge>
                                         </div>
                                         <ul className="space-y-3">
@@ -265,7 +293,7 @@ export default function PrepareTrekPage() {
 
                                 <Card className="overflow-hidden p-0">
                                     <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-muted)] px-5 py-3">
-                                        <h4 className="text-sm font-semibold">Recommended gear</h4>
+                                        <h4 className="text-sm font-semibold">Packing checklist</h4>
                                         <Badge variant="info">
                                             {result.recommended_gear.length} items
                                         </Badge>
@@ -301,9 +329,19 @@ export default function PrepareTrekPage() {
                                                             )}
                                                         </div>
                                                     </div>
+                                                    {gear.quantity && (
+                                                        <p className="mt-1 text-xs font-medium text-[var(--foreground)]">
+                                                            Pack: {gear.quantity}
+                                                        </p>
+                                                    )}
                                                     {gear.reason && (
                                                         <p className="mt-1 text-sm text-[var(--foreground)]">
                                                             {gear.reason}
+                                                        </p>
+                                                    )}
+                                                    {gear.rent_hint && (
+                                                        <p className="mt-1 text-sm text-[var(--muted)]">
+                                                            Nepal tip: {gear.rent_hint}
                                                         </p>
                                                     )}
                                                     {gear.description && (

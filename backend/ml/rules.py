@@ -188,3 +188,48 @@ def recommend_gear(
             risk=risk,
         )
     ]
+
+
+def explain_risk_factors(
+    altitude: int | float,
+    experience: str,
+    trek_type: str,
+    season: str,
+    duration: int | float,
+) -> list[str]:
+    """Human-readable reasons behind the risk estimate (not a medical diagnosis)."""
+    factors: list[str] = []
+    alt = float(altitude)
+    days = float(duration)
+
+    if alt >= 5000:
+        factors.append(f"Target altitude {int(alt)} m is in a high AMS-risk range.")
+    elif alt >= 3500:
+        factors.append(f"Target altitude {int(alt)} m needs careful acclimatization.")
+    elif alt >= 2500:
+        factors.append(f"Altitude {int(alt)} m can still cause mild symptoms for some people.")
+
+    if experience == "Beginner":
+        factors.append("Beginner experience increases risk on longer or harder routes.")
+    if trek_type == "Hard":
+        factors.append("Hard difficulty usually means steeper terrain and longer days.")
+    elif trek_type == "Moderate":
+        factors.append("Moderate difficulty still demands fitness and pacing.")
+
+    if season == "Winter":
+        factors.append("Winter adds cold, ice, and shorter daylight.")
+    elif season == "Summer":
+        factors.append("Summer/monsoon brings rain, leeches, and slippery trails.")
+
+    if days < 4 and alt >= 4000:
+        factors.append("Short duration at high altitude leaves little room to acclimatize.")
+    if days >= 12 and alt >= 4500:
+        factors.append("Long high routes increase cumulative fatigue and exposure.")
+
+    if not factors:
+        factors.append("Profile looks comparatively manageable for a prepared trekking group.")
+
+    factors.append(
+        "This is a heuristic estimate for planning only — not a medical or rescue assessment."
+    )
+    return factors

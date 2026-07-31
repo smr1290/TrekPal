@@ -94,8 +94,13 @@ export default function MapsPage() {
         <PageContainer className="pb-16">
             <PageHeader
                 title="Trek maps"
-                description="OpenStreetMap view of trailheads, tea houses, checkpoints, hospitals, and emergency posts — with elevation."
+                description="OpenStreetMap view of trailheads, tea houses, checkpoints, and landmarks — with elevation."
             />
+
+            <div className="mb-6 rounded-[var(--radius)] border border-[var(--warning)]/40 bg-[var(--warning-bg)] px-4 py-3 text-sm text-[var(--warning)]">
+                Demo / approximate locations only. Hospital and emergency markers are unverified —
+                do not rely on this map for rescue. Confirm locally and carry offline contingency plans.
+            </div>
 
             <div className="mb-4 flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => (

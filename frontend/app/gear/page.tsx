@@ -98,9 +98,19 @@ export default function GearPage() {
                                                 {item.category}
                                             </Badge>
                                             <h3 className="text-lg font-semibold">{item.gear_name}</h3>
+                                            {item.quantity_hint && (
+                                                <p className="mt-1 text-xs font-medium">
+                                                    Pack: {item.quantity_hint}
+                                                </p>
+                                            )}
                                             <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">
                                                 {item.description}
                                             </p>
+                                            {item.rent_hint && (
+                                                <p className="mt-3 text-xs leading-relaxed text-[var(--muted)]">
+                                                    Nepal: {item.rent_hint}
+                                                </p>
+                                            )}
                                         </div>
                                     </Card>
                                 ))}

@@ -65,7 +65,11 @@ def predict_risk(
     season: str,
     duration: int | float,
 ) -> tuple[str, str]:
-    """Return (risk_level, source) where source is 'ml' or 'rules'."""
+    """Return (risk_level, source).
+
+    Source is ``estimate`` when using the sklearn model (trained on synthetic
+    rule labels — not clinical data) or ``rules`` for the plain heuristic.
+    """
     _load_models()
     if _risk_model is not None:
         try:
@@ -74,7 +78,7 @@ def predict_risk(
             )
             pred = str(_risk_model.predict(features)[0])
             if pred in ("Low", "Moderate", "High"):
-                return pred, "ml"
+                return pred, "estimate"
         except Exception:
             pass
     return calculate_risk(altitude, experience, trek_type, season, duration), "rules"
@@ -91,7 +95,7 @@ def predict_difficulty(
             features = np.array([encode_difficulty_features(altitude, duration, season)])
             pred = str(_difficulty_model.predict(features)[0])
             if pred in ("Easy", "Moderate", "Hard"):
-                return pred, "ml"
+                return pred, "estimate"
         except Exception:
             pass
     return predict_difficulty_rules(altitude, duration, season), "rules"
@@ -116,7 +120,7 @@ def estimate_budget(
                     "low_usd": round(mid * 0.85, 2),
                     "mid_usd": round(mid, 2),
                     "high_usd": round(mid * 1.2, 2),
-                }, "ml"
+                }, "estimate"
         except Exception:
             pass
     return estimate_budget_rules(altitude, experience, trek_type, season, duration), "rules"
@@ -136,7 +140,7 @@ def recommend_treks(
 
     Uses rule-based scoring against DB treks (always available).
     If the NN recommender artifact is loaded, boost treks whose difficulty
-    matches nearest training profiles — still returns 'ml' when that artifact exists.
+    matches nearest training profiles — source is ``estimate`` (synthetic training).
     """
     _load_models()
     if not treks:
@@ -157,7 +161,7 @@ def recommend_treks(
             _distances, indices = nn.kneighbors(features, n_neighbors=min(5, len(labels)))
             for idx in indices[0]:
                 preferred_difficulties.add(labels[idx])
-            source = "ml"
+            source = "estimate"
         except Exception:
             source = "rules"
 

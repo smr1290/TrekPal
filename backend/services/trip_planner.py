@@ -47,6 +47,7 @@ def structured_packing_list(
     season: str,
     duration_days: int,
     risk_level: str,
+    destination: str | None = None,
 ) -> list[str]:
     """Catalog-backed packing list with priority labels (same engine as Prepare)."""
     picks = recommend_gear_picks(
@@ -57,6 +58,7 @@ def structured_packing_list(
         season=season,
         duration=duration_days,
         risk=risk_level,
+        destination=destination,
     )
     lines = packing_lines_from_picks(picks)
     return lines or [
@@ -117,24 +119,10 @@ def resolve_duration(destination: str, altitude: int, requested_days: int) -> tu
 
 
 def permits_for_traveler(traveler_type: str, destination: str) -> list[str]:
-    """Nepal permit guidance differs for citizens vs foreign visitors."""
-    if traveler_type == "nepali":
-        return [
-            "Nepali citizens generally do not need a TIMS card (that requirement is for foreign trekkers).",
-            "You may still need a local national park / conservation area entry ticket depending on the route — "
-            "confirm current citizen rates for the area you will enter "
-            f"(e.g. Sagarmatha / Annapurna for {destination}).",
-            "Carry a citizenship card / national ID; some checkpoints ask for it.",
-            "Rules can change — verify with the park office or a local information center before you go.",
-        ]
+    """Nepal permit guidance — route-specific when destination is recognized."""
+    from services.permits import permits_for_route
 
-    return [
-        "TIMS card (Trekkers' Information Management System) is usually required for foreign trekkers.",
-        "Buy the relevant national park / conservation area permit "
-        f"(for example Sagarmatha NP for EBC-area routes, ACAP for Annapurna).",
-        "Apply through a registered agency or official counter; carry passport copies and photos.",
-        "Permit fees and rules change — confirm current requirements before travel.",
-    ]
+    return permits_for_route(traveler_type, destination)
 
 
 def retrieve_knowledge(db: Session, query: str, limit: int = 5) -> list[models.KnowledgeArticle]:
@@ -531,6 +519,7 @@ async def generate_trip_plan(
             season=season,
             duration_days=final_days,
             risk_level=risk_level,
+            destination=destination,
         )
         plan = _normalize_plan(
             plan,
@@ -568,6 +557,7 @@ async def generate_trip_plan(
             season=season,
             duration_days=final_days,
             risk_level=risk_level,
+            destination=destination,
         )
         plan["knowledge_sources"] = sources
         return plan, risk_level, "fallback", final_days

@@ -5,6 +5,7 @@ import Card from '@/components/Card';
 import PageContainer from '@/components/PageContainer';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { EmptyState, LoadingBlock } from '@/components/ui';
 import { chatApi } from '@/lib/api';
 import type { ChatAnswer, ChatResponse } from '@/lib/types';
@@ -44,7 +45,7 @@ export default function ChatPage() {
                 {
                     role: 'assistant',
                     content:
-                        'Sorry — I could not contact the AI provider. If you are running the backend, set GROQ_API_KEY in the backend environment.',
+                        'Sorry — chat requires sign-in, a configured GROQ_API_KEY, and stays under 20 questions per hour.',
                 },
             ]);
         } finally {
@@ -53,13 +54,14 @@ export default function ChatPage() {
     };
 
     return (
+        <ProtectedRoute>
         <PageContainer>
             <div className="mb-8">
                 <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
                     AI trek assistant
                 </h1>
                 <p className="mt-2 text-base leading-relaxed text-[var(--muted)]">
-                    Ask anything about trekking prep — TrekPal will ground answers in its Knowledge base.
+                    Sign-in required. Answers are grounded in the knowledge base (limit 20 questions/hour).
                 </p>
             </div>
 
@@ -146,6 +148,7 @@ export default function ChatPage() {
                 </div>
             </div>
         </PageContainer>
+        </ProtectedRoute>
     );
 }
 

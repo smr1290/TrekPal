@@ -55,6 +55,9 @@ class GearListItem(BaseModel):
     category: str | None = None
     photo_url: str | None = None
     description: str | None = None
+    slug: str | None = None
+    quantity_hint: str | None = None
+    rent_hint: str | None = None
 
 
 # ---------- Prepare / History ----------
@@ -66,6 +69,7 @@ class PrepareTrekRequest(BaseModel):
     altitude: int = Field(gt=0)
     season: str
     duration: int = Field(gt=0)
+    destination: str | None = None
 
 
 class RecommendedGearItem(BaseModel):
@@ -75,11 +79,17 @@ class RecommendedGearItem(BaseModel):
     description: str | None = None
     priority: str | None = None  # essential | recommended | optional
     reason: str | None = None
+    quantity: str | None = None
+    rent_hint: str | None = None
+    slug: str | None = None
 
 
 class PrepareTrekResponse(BaseModel):
     risk_level: str
-    risk_source: str = "rules"  # "ml" | "rules"
+    risk_source: str = "rules"  # "estimate" | "rules"
+    risk_factors: list[str] = []
+    safety_disclaimer: str | None = None
+    ams_note: str | None = None
     recommended_gear: list[RecommendedGearItem]
     budget_estimate: dict[str, float] | None = None
     budget_source: str | None = None

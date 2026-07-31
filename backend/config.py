@@ -27,9 +27,24 @@ DATABASE_URL = _env(
     "postgresql://postgres:root@localhost:5432/TrekPal",
 )
 
+APP_ENV = (_env("APP_ENV", "development") or "development").lower()
 JWT_SECRET = _env("JWT_SECRET", "dev-only-change-me-in-production")
 JWT_ALGORITHM = _env("JWT_ALGORITHM", "HS256") or "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(_env("ACCESS_TOKEN_EXPIRE_MINUTES", "10080") or "10080")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(_env("ACCESS_TOKEN_EXPIRE_MINUTES", "1440") or "1440")
+
+_WEAK_JWT_SECRETS = {
+    "dev-only-change-me-in-production",
+    "replace-with-a-long-random-secret",
+    "secret",
+    "changeme",
+}
+
+if APP_ENV not in {"development", "dev", "test", "local"}:
+    if not JWT_SECRET or JWT_SECRET in _WEAK_JWT_SECRETS or len(JWT_SECRET) < 32:
+        raise RuntimeError(
+            "Refusing to start: set a strong JWT_SECRET (32+ chars) when APP_ENV "
+            f"is '{APP_ENV}'. Weak/default secrets are only allowed in development."
+        )
 
 _cors = _env("CORS_ORIGINS", "http://localhost:3000") or "http://localhost:3000"
 CORS_ORIGINS = [origin.strip() for origin in _cors.split(",") if origin.strip()]

@@ -22,6 +22,9 @@ export interface Gear {
   category: string;
   photo_url: string;
   description: string;
+  slug?: string;
+  quantity_hint?: string;
+  rent_hint?: string;
 }
 
 export interface TrekHistory {
@@ -41,6 +44,9 @@ export interface RecommendedGearItem {
   description?: string;
   priority?: 'essential' | 'recommended' | 'optional' | string;
   reason?: string;
+  quantity?: string;
+  rent_hint?: string;
+  slug?: string;
 }
 
 export interface TrekHistoryDetail {
@@ -59,11 +65,15 @@ export interface TrekPreparationRequest {
   altitude: number;
   season: string;
   duration: number;
+  destination?: string;
 }
 
 export interface TrekPreparationResponse {
   risk_level: string;
   risk_source?: string;
+  risk_factors?: string[];
+  safety_disclaimer?: string | null;
+  ams_note?: string | null;
   budget_estimate?: {
     low_usd: number;
     mid_usd: number;

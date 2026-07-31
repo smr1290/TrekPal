@@ -113,11 +113,15 @@ export const trekApi = {
         experience_level: string,
         altitude: number,
         season: string,
-        duration: number
+        duration: number,
+        destination?: string
     ) => {
         return fetchApi<{
             risk_level: string;
             risk_source?: string;
+            risk_factors?: string[];
+            safety_disclaimer?: string | null;
+            ams_note?: string | null;
             budget_estimate?: {
                 low_usd: number;
                 mid_usd: number;
@@ -140,6 +144,9 @@ export const trekApi = {
                 description: string;
                 priority?: string;
                 reason?: string;
+                quantity?: string;
+                rent_hint?: string;
+                slug?: string;
             }[];
         }>('/trek/prepare-trek', {
             method: 'POST',
@@ -149,6 +156,7 @@ export const trekApi = {
                 altitude,
                 season,
                 duration,
+                destination: destination || null,
             }),
         });
     },

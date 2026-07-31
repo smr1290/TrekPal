@@ -49,6 +49,9 @@ class Gear(Base):
     category = Column(String(50))
     photo_url = Column(Text)
     description = Column(Text)
+    slug = Column(String(80), unique=True, index=True, nullable=True)
+    quantity_hint = Column(String(80), nullable=True)
+    rent_hint = Column(Text, nullable=True)
 
 
 class TrekGearRecommendation(Base):

@@ -5,7 +5,8 @@ from db import get_db
 from schemas import PrepareTrekRequest, PrepareTrekResponse, RecommendedGearItem
 from security import get_current_user
 from ml.predict import estimate_budget, predict_risk, recommend_treks
-from ml.gear_recommend import recommend_gear_picks
+from ml.rules import explain_risk_factors
+from ml.gear_recommend import ams_disclaimer, recommend_gear_picks
 import models
 
 router = APIRouter()
@@ -22,6 +23,7 @@ def prepare_trek(
     altitude = payload.altitude
     season = payload.season
     duration = payload.duration
+    destination = (payload.destination or "").strip() or None
 
     valid_trek_types = ["Easy", "Moderate", "Hard"]
     valid_experience = ["Beginner", "Intermediate", "Advanced"]
@@ -74,6 +76,7 @@ def prepare_trek(
         season=season,
         duration=duration,
         risk=risk,
+        destination=destination,
     )
 
     for pick in gear_picks:
@@ -88,6 +91,14 @@ def prepare_trek(
     return PrepareTrekResponse(
         risk_level=risk,
         risk_source=risk_source,
+        risk_factors=explain_risk_factors(
+            altitude, experience_level, trek_type, season, duration
+        ),
+        safety_disclaimer=(
+            "Risk and budget figures are planning estimates only — not medical advice, "
+            "insurance guidance, or a guarantee of trail conditions."
+        ),
+        ams_note=ams_disclaimer(altitude),
         budget_estimate=budget,
         budget_source=budget_source,
         recommended_treks=trek_recs,
@@ -100,6 +111,9 @@ def prepare_trek(
                 description=pick.gear.description,
                 priority=pick.priority,
                 reason=pick.reason,
+                quantity=pick.quantity,
+                rent_hint=pick.rent_hint,
+                slug=getattr(pick.gear, "slug", None) or pick.need_key,
             )
             for pick in gear_picks
         ],

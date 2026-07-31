@@ -1,23 +1,17 @@
-"""Structured gear recommendations for Nepal treks.
+"""Structured, Nepal-realistic gear recommendations.
 
-Why this exists
----------------
-The old scorer matched fragile substrings like ``"head lamp"`` / ``"trekking boots"``
-against whatever happened to be in the ``gear`` table. Many catalog names never
-matched (``Headlamp``, ``Hiking Boots``), so essential kit was often missing.
+Design
+------
+Each catalog item has a stable **slug**. Needs declare which slug they want.
+That avoids fragile name matching ("head lamp" vs "Headlamp").
 
-Approach
---------
-1. Define **need slots** (roles): boots, rain shell, down jacket, etc.
-2. Each slot has **aliases** that match real catalog names flexibly.
-3. Activate slots from altitude / season / duration / difficulty / experience / risk.
-4. Map each active slot to the best catalog row; return priority + human reason.
+Recommendations also include:
+- quantity hints (e.g. "3–4 pairs")
+- rent/buy tips for Kathmandu (Thamel) / Pokhara
+- route overlays (EBC, Annapurna, Mustang, …) when destination is known
 
-Alternatives considered
------------------------
-- Pure LLM packing lists: flexible but inconsistent and hard to test.
-- Tags column on every gear row: cleaner long-term; slots + aliases work without a
-  schema redesign and still match today's catalog.
+These are packing *checklists*, not medical advice. AMS medications stay as
+disclaimer text, not a forced product.
 """
 
 from __future__ import annotations
@@ -31,14 +25,9 @@ Priority = Literal["essential", "recommended", "optional"]
 
 @dataclass(frozen=True)
 class GearNeed:
-    """One role the trekker should fill in their pack."""
-
-    key: str
-    aliases: tuple[str, ...]
+    slug: str
     priority: Priority
     reason: str
-    # Prefer these categories when several catalog rows match.
-    preferred_categories: tuple[str, ...] = ()
 
 
 @dataclass
@@ -48,148 +37,242 @@ class GearPick:
     reason: str
     score: int
     need_key: str
+    quantity: str | None = None
+    rent_hint: str | None = None
 
 
-# Seed inventory used by migration + ensure_catalog(). Safe to re-run (name unique).
+# Realistic teahouse-trek packing inventory for Nepal.
+# Keep migration 006 in sync with this list.
 CATALOG_SEED: list[dict[str, str]] = [
     {
-        "gear_name": "Hiking Boots",
+        "slug": "hiking-boots",
+        "gear_name": "Hiking Boots (waterproof, broken-in)",
         "category": "Footwear",
-        "description": "Broken-in waterproof mid-cut boots for rocky trails.",
+        "description": "Mid-cut waterproof boots. Break them in for 2+ weeks before the trek.",
+        "quantity_hint": "1 pair",
+        "rent_hint": "Buy preferred; rent only if arriving late. Thamel & Lakeside have many shops.",
     },
     {
+        "slug": "camp-sandals",
         "gear_name": "Camp Sandals",
         "category": "Footwear",
-        "description": "Light sandals for evenings and river crossings.",
+        "description": "Light sandals for lodges, toilets, and river crossings.",
+        "quantity_hint": "1 pair",
+        "rent_hint": "Cheap to buy in Thamel/Pokhara; no need to rent.",
     },
     {
-        "gear_name": "Trekking Socks",
+        "slug": "trekking-socks",
+        "gear_name": "Merino / Trekking Socks",
         "category": "Footwear",
-        "description": "Moisture-wicking socks; pack several pairs for multi-day treks.",
+        "description": "Moisture-wicking socks reduce blisters; rotate and dry nightly.",
+        "quantity_hint": "3–4 pairs (more for 10+ days)",
+        "rent_hint": "Buy — personal item. Easy to find in Thamel.",
     },
     {
-        "gear_name": "Down Jacket",
+        "slug": "down-jacket",
+        "gear_name": "Down / Synthetic Insulated Jacket",
         "category": "Clothing",
-        "description": "Insulated jacket for cold mornings and high camps.",
+        "description": "Warmth for high camps and cold mornings. Synthetic stays warmer when damp.",
+        "quantity_hint": "1",
+        "rent_hint": "Widely rented in Thamel for EBC/ABC — inspect loft and zippers.",
     },
     {
+        "slug": "fleece-midlayer",
         "gear_name": "Fleece Midlayer",
         "category": "Clothing",
-        "description": "Warm midlayer for hiking and evenings in lodges.",
+        "description": "Breathable midlayer for hiking and lodge evenings.",
+        "quantity_hint": "1",
+        "rent_hint": "Buy or bring from home; inexpensive in Nepal.",
     },
     {
-        "gear_name": "Thermal Base Layer",
+        "slug": "thermal-base-layer",
+        "gear_name": "Thermal Base Layer (top + bottom)",
         "category": "Clothing",
-        "description": "Moisture-wicking base layer for cold altitude nights.",
+        "description": "Moisture-wicking base layers for cold nights above ~4,000 m.",
+        "quantity_hint": "1 set (2 sets if winter)",
+        "rent_hint": "Buy — hygiene item. Common in Thamel.",
     },
     {
-        "gear_name": "Rain Jacket",
+        "slug": "rain-jacket",
+        "gear_name": "Waterproof Rain Jacket (shell)",
         "category": "Clothing",
-        "description": "Waterproof breathable shell for monsoon and afternoon storms.",
+        "description": "Breathable waterproof shell for afternoon storms and monsoon spray.",
+        "quantity_hint": "1",
+        "rent_hint": "Rent or buy in Thamel/Pokhara; check taped seams.",
     },
     {
-        "gear_name": "Rain Poncho",
+        "slug": "rain-pants",
+        "gear_name": "Rain Pants / Softshell Pants",
         "category": "Clothing",
-        "description": "Lightweight rain protection that covers pack and body.",
+        "description": "Keep legs dry on wet trail days; softshell is versatile in shoulder seasons.",
+        "quantity_hint": "1",
+        "rent_hint": "Often bundled with jacket rentals in Thamel.",
     },
     {
-        "gear_name": "Warm Gloves",
+        "slug": "trekking-pants",
+        "gear_name": "Quick-dry Trekking Pants",
         "category": "Clothing",
-        "description": "Insulated gloves for cold passes and early starts.",
+        "description": "Light, quick-dry pants for daily hiking.",
+        "quantity_hint": "1–2 pairs",
+        "rent_hint": "Buy — cheap and plentiful in Nepal.",
     },
     {
-        "gear_name": "Sun Hat",
+        "slug": "warm-gloves",
+        "gear_name": "Insulated Gloves",
         "category": "Clothing",
-        "description": "Wide-brim or cap for strong high-altitude UV.",
+        "description": "Warm gloves for passes and pre-dawn starts.",
+        "quantity_hint": "1 pair (+ liner gloves optional)",
+        "rent_hint": "Buy or rent with high-altitude kits.",
     },
     {
-        "gear_name": "Trekking Backpack 50L",
+        "slug": "sun-hat",
+        "gear_name": "Sun Hat / Cap",
+        "category": "Clothing",
+        "description": "Shade for strong Himalayan UV.",
+        "quantity_hint": "1",
+        "rent_hint": "Buy — very cheap locally.",
+    },
+    {
+        "slug": "buff",
+        "gear_name": "Buff / Neck Gaiter",
+        "category": "Clothing",
+        "description": "Dust, wind, cold, and sun protection for face and neck.",
+        "quantity_hint": "1–2",
+        "rent_hint": "Buy. Essential on dusty Mustang / Kali Gandaki corridors.",
+    },
+    {
+        "slug": "backpack-50l",
+        "gear_name": "Trekking Backpack 50–65L",
         "category": "Accessories",
-        "description": "50–65L pack sized for teahouse multi-day treks.",
+        "description": "Main pack for teahouse treks. Use a rain cover.",
+        "quantity_hint": "1 (+ daypack if using porter)",
+        "rent_hint": "Easy to rent in Thamel; check hip belt fit and zippers.",
     },
     {
+        "slug": "daypack",
+        "gear_name": "Daypack 20–30L",
+        "category": "Accessories",
+        "description": "Carry water, layers, and snacks while a porter takes the main bag.",
+        "quantity_hint": "1 (if using porter)",
+        "rent_hint": "Rent with main pack or buy inexpensive options in Thamel.",
+    },
+    {
+        "slug": "trekking-poles",
         "gear_name": "Trekking Poles",
         "category": "Accessories",
-        "description": "Adjustable poles that reduce knee load on descents.",
+        "description": "Reduce knee load on long Himalayan descents.",
+        "quantity_hint": "1 pair",
+        "rent_hint": "Very cheap to rent in Thamel/Pokhara.",
     },
     {
-        "gear_name": "Sleeping Bag -10C",
+        "slug": "sleeping-bag-10c",
+        "gear_name": "Sleeping Bag (comfort ~−10°C)",
         "category": "Camping",
-        "description": "Cold-weather bag for high teahouse nights.",
+        "description": "Teahouse blankets vary; bring a bag rated for expected night temps.",
+        "quantity_hint": "1",
+        "rent_hint": "Common rental in Thamel — ask for temperature rating in writing.",
     },
     {
-        "gear_name": "Water Bottle 1L",
+        "slug": "water-bottle",
+        "gear_name": "Water Bottles / Soft Flask (1–2L total)",
         "category": "Hydration",
-        "description": "Durable bottle; carry at least 1–2L capacity.",
+        "description": "Carry enough for each hiking day; refill at lodges.",
+        "quantity_hint": "1–2 L capacity",
+        "rent_hint": "Buy. Consider a filter bottle to cut plastic waste.",
     },
     {
-        "gear_name": "Water Purification Tablets",
+        "slug": "water-purification",
+        "gear_name": "Water Purification (tablets or filter)",
         "category": "Hydration",
-        "description": "Treat lodge or stream water when bottled water is scarce.",
+        "description": "Treat lodge/stream water when bottled water is scarce or expensive.",
+        "quantity_hint": "Enough for trip length",
+        "rent_hint": "Buy tablets/filter in Thamel pharmacies or outdoor shops.",
     },
     {
-        "gear_name": "Headlamp",
+        "slug": "headlamp",
+        "gear_name": "Headlamp + spare batteries",
         "category": "Safety",
-        "description": "Hands-free light for pre-dawn starts and lodge nights.",
+        "description": "Hands-free light for early starts and dark lodges.",
+        "quantity_hint": "1 + spare cells",
+        "rent_hint": "Buy preferred; batteries sell out on busy trails.",
     },
     {
-        "gear_name": "First Aid Kit",
+        "slug": "first-aid-kit",
+        "gear_name": "Personal First Aid Kit",
         "category": "Safety",
-        "description": "Blister care, pain relief, antiseptic, personal meds.",
+        "description": "Blister care, pain relief, antiseptic, tape, personal prescriptions.",
+        "quantity_hint": "1 kit",
+        "rent_hint": "Assemble yourself. Pharmacies in KTM/Pokhara stock basics.",
     },
     {
-        "gear_name": "Sunglasses",
+        "slug": "sunglasses",
+        "gear_name": "UV Sunglasses (category 3–4)",
         "category": "Accessories",
-        "description": "UV protection; critical on snow and above 3,000 m.",
+        "description": "Protect eyes from UV and snow glare above ~3,000 m.",
+        "quantity_hint": "1 (+ spare if possible)",
+        "rent_hint": "Buy. Glacier-style glasses useful for high snow sections.",
     },
     {
-        "gear_name": "Sunscreen SPF 50",
+        "slug": "sunscreen",
+        "gear_name": "Sunscreen SPF 50+ & Lip Balm SPF",
         "category": "Accessories",
-        "description": "High SPF for intense Himalayan UV reflection.",
+        "description": "UV is intense at altitude even on cloudy days.",
+        "quantity_hint": "1 tube + lip balm",
+        "rent_hint": "Buy before departure or in Kathmandu.",
     },
     {
-        "gear_name": "Power Bank",
+        "slug": "power-bank",
+        "gear_name": "Power Bank 10,000–20,000 mAh",
         "category": "Accessories",
-        "description": "Lodge charging is unreliable; keep devices alive for maps/SOS.",
+        "description": "Lodge charging is slow/paid; keep phone for maps and emergencies.",
+        "quantity_hint": "1 (2 on long remote routes)",
+        "rent_hint": "Buy — do not rely on lodge outlets alone.",
     },
     {
+        "slug": "gaiters",
         "gear_name": "Gaiters",
         "category": "Accessories",
         "description": "Keep snow, mud, and scree out of boots.",
+        "quantity_hint": "1 pair",
+        "rent_hint": "Often included in winter/high-pass rental kits.",
     },
     {
-        "gear_name": "Microspikes",
+        "slug": "microspikes",
+        "gear_name": "Microspikes / Traction Devices",
         "category": "Accessories",
-        "description": "Traction for icy trails in winter or high passes.",
+        "description": "Traction for icy trails on winter routes and high passes.",
+        "quantity_hint": "1 pair",
+        "rent_hint": "Rent in Thamel for winter EBC / Thorong La; check fit on your boots.",
     },
     {
-        "gear_name": "Buff Neck Gaiter",
-        "category": "Clothing",
-        "description": "Dust, wind, and sun protection for the face and neck.",
+        "slug": "passport-pouch",
+        "gear_name": "Money Belt / Passport Pouch",
+        "category": "Accessories",
+        "description": "Keep passport, permits, cash, and cards secure and dry.",
+        "quantity_hint": "1",
+        "rent_hint": "Buy. Carry photocopies separately.",
+    },
+    {
+        "slug": "quick-dry-towel",
+        "gear_name": "Quick-dry Towel",
+        "category": "Camping",
+        "description": "Lodges may not provide towels; pack a compact one.",
+        "quantity_hint": "1",
+        "rent_hint": "Buy — inexpensive in Thamel.",
+    },
+    {
+        "slug": "dry-bags",
+        "gear_name": "Dry Bags / Pack Liners",
+        "category": "Accessories",
+        "description": "Keep sleeping bag and clothes dry in rain or mule spray.",
+        "quantity_hint": "2–3 (or one full pack liner)",
+        "rent_hint": "Buy. Critical in monsoon / summer.",
     },
 ]
 
 
-def _compact(text: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", (text or "").lower())
-
-
-def _name_matches(gear_name: str, aliases: tuple[str, ...]) -> bool:
-    name = (gear_name or "").lower()
-    compact_name = _compact(gear_name)
-    for alias in aliases:
-        a = alias.lower().strip()
-        if not a:
-            continue
-        if a in name:
-            return True
-        if _compact(a) and _compact(a) in compact_name:
-            return True
-        # All significant words from the alias appear in the name.
-        words = [w for w in re.findall(r"[a-z0-9]+", a) if len(w) > 2]
-        if words and all(w in name for w in words):
-            return True
-    return False
+def _norm_dest(destination: str | None) -> str:
+    return (destination or "").strip().lower()
 
 
 def build_needs(
@@ -200,277 +283,198 @@ def build_needs(
     season: str,
     duration: int | float,
     risk: str,
+    destination: str | None = None,
 ) -> list[GearNeed]:
-    """Decide which gear roles matter for this trip profile."""
+    """Decide which gear slugs matter for this trip profile."""
     alt = float(altitude)
     days = float(duration)
+    dest = _norm_dest(destination)
+
     needs: list[GearNeed] = [
-        GearNeed(
-            key="boots",
-            aliases=("hiking boots", "trekking boots", "boots"),
-            priority="essential",
-            reason="Broken-in waterproof boots prevent blisters and slips on rocky trails.",
-            preferred_categories=("Footwear",),
-        ),
-        GearNeed(
-            key="backpack",
-            aliases=("backpack", "trekking pack", "rucksack"),
-            priority="essential",
-            reason="A 50–65L pack fits teahouse multi-day clothing and layers.",
-            preferred_categories=("Accessories",),
-        ),
-        GearNeed(
-            key="water",
-            aliases=("water bottle", "bottle", "hydration"),
-            priority="essential",
-            reason="Reliable hydration capacity every day on trail.",
-            preferred_categories=("Hydration",),
-        ),
-        GearNeed(
-            key="first_aid",
-            aliases=("first aid", "first-aid", "medical kit"),
-            priority="essential",
-            reason="Blisters and minor injuries are common; carry a basic kit.",
-            preferred_categories=("Safety",),
-        ),
-        GearNeed(
-            key="headlamp",
-            aliases=("headlamp", "head lamp", "torch", "flashlight"),
-            priority="essential",
-            reason="Early starts and dark lodges need hands-free light.",
-            preferred_categories=("Safety",),
-        ),
-        GearNeed(
-            key="rain",
-            aliases=("rain jacket", "rain shell", "rain poncho", "poncho", "waterproof"),
-            priority="essential",
-            reason="Afternoon storms are common in the hills; stay dry to stay warm.",
-            preferred_categories=("Clothing",),
-        ),
-        GearNeed(
-            key="sunscreen",
-            aliases=("sunscreen", "spf", "sun cream"),
-            priority="essential",
-            reason="UV is intense at altitude even on cloudy days.",
-            preferred_categories=("Accessories",),
-        ),
-        GearNeed(
-            key="sun_hat",
-            aliases=("sun hat", "hat", "cap"),
-            priority="recommended",
-            reason="Shade your face and neck during long exposed climbs.",
-            preferred_categories=("Clothing",),
-        ),
-        GearNeed(
-            key="fleece",
-            aliases=("fleece", "midlayer", "mid layer"),
-            priority="recommended",
-            reason="A breathable midlayer works for hiking and cool evenings.",
-            preferred_categories=("Clothing",),
-        ),
-        GearNeed(
-            key="poles",
-            aliases=("trekking poles", "hiking poles", "poles"),
-            priority="recommended",
-            reason="Poles save knees on long Himalayan descents.",
-            preferred_categories=("Accessories",),
-        ),
-        GearNeed(
-            key="buff",
-            aliases=("buff", "neck gaiter", "neck warmer"),
-            priority="optional",
-            reason="Useful for dust, cold wind, and sun on open ridges.",
-            preferred_categories=("Clothing",),
-        ),
+        GearNeed("hiking-boots", "essential", "Broken-in waterproof boots prevent blisters on rocky Nepal trails."),
+        GearNeed("backpack-50l", "essential", "A 50–65L pack fits teahouse multi-day layers and kit."),
+        GearNeed("water-bottle", "essential", "Carry reliable water capacity every hiking day."),
+        GearNeed("first-aid-kit", "essential", "Blisters and minor injuries are common — pack a personal kit."),
+        GearNeed("headlamp", "essential", "Early starts and dark lodges need hands-free light."),
+        GearNeed("rain-jacket", "essential", "Afternoon storms are common; staying dry keeps you warmer and safer."),
+        GearNeed("sunscreen", "essential", "Himalayan UV is intense even when cloudy."),
+        GearNeed("trekking-pants", "essential", "Quick-dry pants are the daily hiking uniform on teahouse treks."),
+        GearNeed("passport-pouch", "essential", "Permits and ID are checked at posts — keep documents dry and on you."),
+        GearNeed("sun-hat", "recommended", "Shade your face and neck on long exposed climbs."),
+        GearNeed("fleece-midlayer", "recommended", "A breathable midlayer works for hiking and cool evenings."),
+        GearNeed("trekking-poles", "recommended", "Poles save knees on long Himalayan descents."),
+        GearNeed("buff", "recommended", "Useful for dust, cold wind, and sun on open ridges."),
     ]
 
     if alt >= 3000:
-        needs.append(
-            GearNeed(
-                key="sunglasses",
-                aliases=("sunglasses", "glacier glasses", "sun glasses"),
-                priority="essential",
-                reason="Strong UV and snow glare above ~3,000 m can damage eyes.",
-                preferred_categories=("Accessories",),
-            )
-        )
-        needs.append(
-            GearNeed(
-                key="socks",
-                aliases=("socks", "trekking socks", "extra socks"),
-                priority="recommended",
-                reason="Dry socks prevent blisters and cold feet at altitude.",
-                preferred_categories=("Footwear",),
-            )
-        )
+        needs.append(GearNeed("sunglasses", "essential", "Strong UV and snow glare above ~3,000 m can damage eyes."))
+        needs.append(GearNeed("trekking-socks", "recommended", "Dry socks prevent blisters and cold feet at altitude."))
 
     if alt >= 3500 or season == "Winter":
         needs.append(
             GearNeed(
-                key="down_jacket",
-                aliases=("down jacket", "puffer", "insulated jacket"),
-                priority="essential",
-                reason="High camps and early mornings get cold fast; insulation is non-negotiable.",
-                preferred_categories=("Clothing",),
+                "down-jacket",
+                "essential",
+                "High camps and early mornings get cold fast — insulation is non-negotiable.",
             )
         )
 
     if alt >= 4000 or season == "Winter":
+        needs.append(GearNeed("thermal-base-layer", "essential", "Base layers matter when night temps drop hard."))
+        glove_priority: Priority = "essential" if season == "Winter" or alt >= 4500 else "recommended"
+        needs.append(GearNeed("warm-gloves", glove_priority, "Cold fingers reduce grip on poles and ladders."))
         needs.append(
             GearNeed(
-                key="thermals",
-                aliases=("thermal", "base layer", "baselayer"),
-                priority="essential",
-                reason="Base layers keep you warm when temperatures drop at night.",
-                preferred_categories=("Clothing",),
-            )
-        )
-        needs.append(
-            GearNeed(
-                key="gloves",
-                aliases=("gloves", "mittens"),
-                priority="essential" if season == "Winter" or alt >= 4500 else "recommended",
-                reason="Cold fingers reduce grip and safety on poles and ladders.",
-                preferred_categories=("Clothing",),
-            )
-        )
-        needs.append(
-            GearNeed(
-                key="sleeping_bag",
-                aliases=("sleeping bag", "sleep bag"),
-                priority="essential",
-                reason="Teahouse blankets vary; bring a bag rated for expected night temps.",
-                preferred_categories=("Camping",),
+                "sleeping-bag-10c",
+                "essential",
+                "Teahouse blankets vary; bring a bag rated for expected night temps.",
             )
         )
 
     if alt >= 4500 or season == "Winter" or (trek_type == "Hard" and alt >= 4000):
-        needs.append(
-            GearNeed(
-                key="gaiters",
-                aliases=("gaiters",),
-                priority="recommended" if season != "Winter" else "essential",
-                reason="Keep snow and scree out of boots on high or winter trails.",
-                preferred_categories=("Accessories",),
-            )
-        )
+        gaiter_p: Priority = "essential" if season == "Winter" else "recommended"
+        needs.append(GearNeed("gaiters", gaiter_p, "Keep snow and scree out of boots on high or winter trails."))
 
     if season == "Winter" or (alt >= 4800 and season in {"Autumn", "Spring"}):
-        needs.append(
-            GearNeed(
-                key="traction",
-                aliases=("microspikes", "crampons", "spikes"),
-                priority="recommended" if season == "Winter" else "optional",
-                reason="Icy sections appear on high passes — traction prevents slips.",
-                preferred_categories=("Accessories",),
-            )
-        )
+        trac_p: Priority = "recommended" if season == "Winter" else "optional"
+        needs.append(GearNeed("microspikes", trac_p, "Icy sections appear on high passes — traction prevents slips."))
+
+    if season == "Summer" or "monsoon" in dest:
+        needs.append(GearNeed("rain-pants", "essential", "Monsoon/summer trails stay wet — protect legs and boots."))
+        needs.append(GearNeed("dry-bags", "essential", "Keep sleeping bag and spare clothes dry in heavy rain."))
+    elif season in {"Spring", "Autumn"}:
+        needs.append(GearNeed("dry-bags", "recommended", "Pack liners protect kit if an afternoon storm hits."))
 
     if days >= 4:
+        needs.append(GearNeed("power-bank", "recommended", "Lodge charging is slow or paid — keep maps/phone powered."))
         needs.append(
             GearNeed(
-                key="power_bank",
-                aliases=("power bank", "powerbank", "battery pack"),
-                priority="recommended",
-                reason="Lodge charging is slow or paid; keep phone/maps powered.",
-                preferred_categories=("Accessories",),
+                "water-purification",
+                "recommended",
+                "Treating water is cheaper and more reliable than buying bottles daily.",
             )
         )
-        needs.append(
-            GearNeed(
-                key="water_treatment",
-                aliases=("purification", "water tablets", "filter", "steripen"),
-                priority="recommended",
-                reason="Treating water is cheaper and more reliable than buying bottles daily.",
-                preferred_categories=("Hydration",),
-            )
-        )
+        needs.append(GearNeed("quick-dry-towel", "optional", "Lodges often do not provide towels."))
 
     if days >= 7:
+        needs.append(GearNeed("camp-sandals", "recommended", "Rest your feet in lodges after long days in boots."))
+        needs.append(GearNeed("daypack", "recommended", "Use a daypack if a porter carries your main bag."))
+        if not any(n.slug == "trekking-socks" for n in needs):
+            needs.append(GearNeed("trekking-socks", "recommended", "Multi-day treks need spare socks while others dry."))
+
+    # Route-specific overlays (real Nepal trek differences).
+    if any(k in dest for k in ("everest", "ebc", "gokyo", "khumbu", "lukla")):
         needs.append(
             GearNeed(
-                key="sandals",
-                aliases=("sandals", "camp shoes", "flip flop"),
-                priority="recommended",
-                reason="Give feet a rest in lodges after long days in boots.",
-                preferred_categories=("Footwear",),
+                "sleeping-bag-10c",
+                "essential",
+                "Khumbu nights are cold — a −10°C-rated bag (or colder) is standard for EBC/Gokyo.",
             )
         )
-        # Promote socks if not already added.
-        if not any(n.key == "socks" for n in needs):
+        if season == "Winter":
             needs.append(
                 GearNeed(
-                    key="socks",
-                    aliases=("socks", "trekking socks", "extra socks"),
-                    priority="recommended",
-                    reason="Multi-day treks need spare socks while others dry.",
-                    preferred_categories=("Footwear",),
+                    "microspikes",
+                    "essential",
+                    "Winter Khumbu trails and passes often have ice — pack traction.",
                 )
             )
 
+    if any(k in dest for k in ("annapurna circuit", "thorong", "manang")):
+        needs.append(
+            GearNeed(
+                "trekking-poles",
+                "essential",
+                "Thorong La descent is long and hard on knees — poles are strongly recommended.",
+            )
+        )
+        if season == "Winter":
+            needs.append(GearNeed("microspikes", "essential", "Thorong La can be icy in winter."))
+
+    if any(k in dest for k in ("mustang", "upper mustang", "lo manthang")):
+        needs.append(
+            GearNeed(
+                "buff",
+                "essential",
+                "Mustang is windy and dusty — protect mouth, nose, and neck.",
+            )
+        )
+        needs.append(
+            GearNeed(
+                "sunglasses",
+                "essential",
+                "Strong glare and dust on the Mustang plateau — quality UV glasses matter.",
+            )
+        )
+
+    if any(k in dest for k in ("manaslu", "tsum")):
+        needs.append(
+            GearNeed(
+                "power-bank",
+                "essential",
+                "Manaslu/Tsum charging is limited in remote sections — bring spare power.",
+            )
+        )
+
     if experience == "Beginner":
-        # Upgrade poles and first-aid messaging already essential; add poles boost via duplicate skip.
-        for i, n in enumerate(needs):
-            if n.key == "poles":
-                needs[i] = GearNeed(
-                    key=n.key,
-                    aliases=n.aliases,
-                    priority="essential",
-                    reason="Beginners benefit most from poles on steep Nepal descents.",
-                    preferred_categories=n.preferred_categories,
+        upgraded = []
+        for n in needs:
+            if n.slug == "trekking-poles":
+                upgraded.append(
+                    GearNeed(
+                        n.slug,
+                        "essential",
+                        "Beginners benefit most from poles on steep Nepal descents.",
+                    )
                 )
-            if n.key == "power_bank" and n.priority == "recommended":
-                needs[i] = GearNeed(
-                    key=n.key,
-                    aliases=n.aliases,
-                    priority="essential",
-                    reason="Navigation and emergency calls matter more when you are still learning the trails.",
-                    preferred_categories=n.preferred_categories,
+            elif n.slug == "power-bank" and n.priority != "essential":
+                upgraded.append(
+                    GearNeed(
+                        n.slug,
+                        "essential",
+                        "Navigation and emergency calls matter more while you are still learning trails.",
+                    )
                 )
+            else:
+                upgraded.append(n)
+        needs = upgraded
 
     if risk == "High" or trek_type == "Hard":
-        for i, n in enumerate(needs):
-            if n.key in {"headlamp", "first_aid", "power_bank"} and n.priority != "essential":
-                needs[i] = GearNeed(
-                    key=n.key,
-                    aliases=n.aliases,
-                    priority="essential",
-                    reason=n.reason + " Higher risk / harder routes make this critical.",
-                    preferred_categories=n.preferred_categories,
+        upgraded = []
+        for n in needs:
+            if n.slug in {"headlamp", "first-aid-kit", "power-bank"} and n.priority != "essential":
+                upgraded.append(
+                    GearNeed(
+                        n.slug,
+                        "essential",
+                        n.reason + " Higher risk / harder routes make this critical.",
+                    )
                 )
+            else:
+                upgraded.append(n)
+        needs = upgraded
 
-    # De-duplicate by key, keeping the higher priority if both appear.
     rank = {"essential": 3, "recommended": 2, "optional": 1}
-    by_key: dict[str, GearNeed] = {}
+    by_slug: dict[str, GearNeed] = {}
     for need in needs:
-        prev = by_key.get(need.key)
+        prev = by_slug.get(need.slug)
         if prev is None or rank[need.priority] > rank[prev.priority]:
-            by_key[need.key] = need
-    return list(by_key.values())
+            by_slug[need.slug] = need
+    return list(by_slug.values())
 
 
-def _match_catalog(need: GearNeed, gear_items: list[Any]) -> Any | None:
-    matches: list[tuple[int, Any]] = []
+def _match_by_slug(slug: str, gear_items: list[Any]) -> Any | None:
     for gear in gear_items:
-        name = gear.gear_name or ""
-        if not _name_matches(name, need.aliases):
-            continue
-        score = 10
-        cat = (gear.category or "").strip()
-        if need.preferred_categories and cat in need.preferred_categories:
-            score += 5
-        # Prefer earlier aliases (more specific) when several catalog rows match.
-        for index, alias in enumerate(need.aliases):
-            if _name_matches(name, (alias,)):
-                score += max(0, 20 - index)
-                break
-        # Prefer concise product names slightly.
-        score += max(0, 8 - len(name.split()))
-        matches.append((score, gear))
-    if not matches:
-        return None
-    matches.sort(key=lambda x: x[0], reverse=True)
-    return matches[0][1]
+        g_slug = getattr(gear, "slug", None) or ""
+        if g_slug == slug:
+            return gear
+    # Fallback: match compacted name to slug words (older DB rows without slug).
+    compact_slug = re.sub(r"[^a-z0-9]", "", slug)
+    for gear in gear_items:
+        name = re.sub(r"[^a-z0-9]", "", (gear.gear_name or "").lower())
+        if compact_slug and compact_slug in name:
+            return gear
+    return None
 
 
 def recommend_gear_picks(
@@ -482,6 +486,7 @@ def recommend_gear_picks(
     season: str,
     duration: int | float,
     risk: str,
+    destination: str | None = None,
 ) -> list[GearPick]:
     """Return prioritized gear picks matched to the live catalog."""
     import models
@@ -498,6 +503,7 @@ def recommend_gear_picks(
         season=season,
         duration=duration,
         risk=risk,
+        destination=destination,
     )
 
     priority_rank = {"essential": 3, "recommended": 2, "optional": 1}
@@ -505,33 +511,35 @@ def recommend_gear_picks(
     used_ids: set[int] = set()
 
     for need in sorted(needs, key=lambda n: priority_rank[n.priority], reverse=True):
-        gear = _match_catalog(need, gear_items)
+        gear = _match_by_slug(need.slug, gear_items)
         if gear is None or gear.id in used_ids:
             continue
         used_ids.add(gear.id)
+        meta = next((row for row in CATALOG_SEED if row["slug"] == need.slug), {})
         picks.append(
             GearPick(
                 gear=gear,
                 priority=need.priority,
                 reason=need.reason,
                 score=priority_rank[need.priority] * 10,
-                need_key=need.key,
+                need_key=need.slug,
+                quantity=getattr(gear, "quantity_hint", None) or meta.get("quantity_hint"),
+                rent_hint=getattr(gear, "rent_hint", None) or meta.get("rent_hint"),
             )
         )
 
     picks.sort(key=lambda p: (priority_rank[p.priority], p.score), reverse=True)
 
-    # Soft limit so the UI stays readable; never drop essentials.
     essentials = [p for p in picks if p.priority == "essential"]
     recommended = [p for p in picks if p.priority == "recommended"]
     optional = [p for p in picks if p.priority == "optional"]
 
     if risk == "Low":
-        lim_rec, lim_opt = 6, 2
-    elif risk == "Moderate":
         lim_rec, lim_opt = 8, 3
-    else:
+    elif risk == "Moderate":
         lim_rec, lim_opt = 10, 4
+    else:
+        lim_rec, lim_opt = 12, 5
 
     return essentials + recommended[:lim_rec] + optional[:lim_opt]
 
@@ -539,32 +547,82 @@ def recommend_gear_picks(
 def packing_lines_from_picks(picks: list[GearPick]) -> list[str]:
     """Human-readable packing list for the trip planner."""
     label = {"essential": "Essential", "recommended": "Recommended", "optional": "Optional"}
-    return [f"{label[p.priority]}: {p.gear.gear_name} — {p.reason}" for p in picks]
+    lines: list[str] = []
+    for p in picks:
+        qty = f" ({p.quantity})" if p.quantity else ""
+        rent = f" | {p.rent_hint}" if p.rent_hint else ""
+        lines.append(f"{label[p.priority]}: {p.gear.gear_name}{qty} — {p.reason}{rent}")
+    return lines
+
+
+def ams_disclaimer(altitude: int | float) -> str | None:
+    if float(altitude) < 3500:
+        return None
+    return (
+        "Altitude illness risk rises above ~3,500 m. TrekPal does not prescribe medicines. "
+        "Discuss acetazolamide (Diamox) and ascent plans with a doctor before you go."
+    )
 
 
 def ensure_catalog(db: Any) -> int:
-    """Insert missing CATALOG_SEED rows. Returns number of rows added."""
+    """Insert or refresh CATALOG_SEED rows. Returns number of rows touched."""
     import models
 
-    existing = {
-        (g.gear_name or "").strip().lower()
-        for g in db.query(models.Gear).all()
-    }
-    added = 0
+    existing_by_slug: dict[str, Any] = {}
+    existing_by_name: dict[str, Any] = {}
+    for g in db.query(models.Gear).all():
+        if getattr(g, "slug", None):
+            existing_by_slug[g.slug] = g
+        existing_by_name[(g.gear_name or "").strip().lower()] = g
+
+    touched = 0
     for row in CATALOG_SEED:
-        key = row["gear_name"].strip().lower()
-        if key in existing:
-            continue
-        db.add(
-            models.Gear(
-                gear_name=row["gear_name"],
-                category=row["category"],
-                description=row["description"],
-                photo_url=None,
+        slug = row["slug"]
+        gear = existing_by_slug.get(slug) or existing_by_name.get(row["gear_name"].strip().lower())
+        if gear is None:
+            # Try fuzzy name match for older short names (e.g. "Hiking Boots").
+            for name_key, candidate in existing_by_name.items():
+                if slug.replace("-", "")[:8] in re.sub(r"[^a-z0-9]", "", name_key):
+                    gear = candidate
+                    break
+
+        if gear is None:
+            db.add(
+                models.Gear(
+                    gear_name=row["gear_name"],
+                    category=row["category"],
+                    description=row["description"],
+                    photo_url=None,
+                    slug=slug,
+                    quantity_hint=row.get("quantity_hint"),
+                    rent_hint=row.get("rent_hint"),
+                )
             )
-        )
-        existing.add(key)
-        added += 1
-    if added:
+            touched += 1
+            continue
+
+        changed = False
+        if getattr(gear, "slug", None) != slug:
+            gear.slug = slug
+            changed = True
+        if gear.gear_name != row["gear_name"]:
+            gear.gear_name = row["gear_name"]
+            changed = True
+        if gear.category != row["category"]:
+            gear.category = row["category"]
+            changed = True
+        if gear.description != row["description"]:
+            gear.description = row["description"]
+            changed = True
+        if getattr(gear, "quantity_hint", None) != row.get("quantity_hint"):
+            gear.quantity_hint = row.get("quantity_hint")
+            changed = True
+        if getattr(gear, "rent_hint", None) != row.get("rent_hint"):
+            gear.rent_hint = row.get("rent_hint")
+            changed = True
+        if changed:
+            touched += 1
+
+    if touched:
         db.commit()
-    return added
+    return touched

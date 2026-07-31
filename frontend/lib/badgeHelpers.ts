@@ -28,6 +28,19 @@ export function getDifficultyVariant(difficulty: string): BadgeVariant {
     }
 }
 
+/** Honest labels for estimate sources (models are trained on synthetic data). */
+export function getEstimateSourceLabel(source?: string | null): string {
+    switch ((source || '').toLowerCase()) {
+        case 'estimate':
+        case 'ml':
+            return 'Heuristic estimate';
+        case 'rules':
+            return 'Rule checklist';
+        default:
+            return source || 'Estimate';
+    }
+}
+
 /** Maps gear priority labels to Badge visual variants. */
 export function getGearPriorityVariant(priority: string): BadgeVariant {
     switch (priority.toLowerCase()) {

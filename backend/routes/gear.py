@@ -19,6 +19,9 @@ def list_gear(db: Session = Depends(get_db)):
             category=g.category,
             photo_url=g.photo_url,
             description=g.description,
+            slug=getattr(g, "slug", None),
+            quantity_hint=getattr(g, "quantity_hint", None),
+            rent_hint=getattr(g, "rent_hint", None),
         )
         for g in gear_items
     ]
