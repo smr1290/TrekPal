@@ -37,6 +37,7 @@ class UserTrekHistory(Base):
     season = Column(String(20))
     planned_duration = Column(Integer)
     risk_level = Column(String(20))
+    destination = Column(String(150), nullable=True)
 
     created_at = Column(TIMESTAMP, server_default=func.now())
 

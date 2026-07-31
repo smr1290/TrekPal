@@ -373,7 +373,9 @@ export default function PrepareTrekPanel({ initialDestination = '', onRequestIti
                                         variant="primary"
                                         onClick={() =>
                                             onRequestItinerary({
-                                                destination: formData.destination,
+                                                destination:
+                                                    formData.destination.trim() ||
+                                                    `Trek (${formData.altitude || '?'} m)`,
                                                 altitude: formData.altitude,
                                                 duration: formData.duration,
                                                 season: formData.season,

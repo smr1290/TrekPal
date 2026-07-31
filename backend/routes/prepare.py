@@ -62,6 +62,7 @@ def prepare_trek(
         season=season,
         planned_duration=duration,
         risk_level=risk,
+        destination=destination,
     )
 
     db.add(history)

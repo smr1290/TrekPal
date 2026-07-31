@@ -41,7 +41,7 @@ export default function LoginPage() {
         setIsLoading(true);
         try {
             await login(formData.email, formData.password);
-            router.push('/dashboard');
+            router.push('/planner');
         } catch {
             setErrors({ general: 'Invalid email or password. Please try again.' });
         } finally {

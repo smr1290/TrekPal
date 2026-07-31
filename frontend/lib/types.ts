@@ -35,6 +35,8 @@ export interface TrekHistory {
   risk_level: string;
   date: string;
   input_altitude?: number;
+  destination?: string;
+  trek_type?: string;
 }
 
 export interface RecommendedGearItem {
@@ -56,6 +58,8 @@ export interface TrekHistoryDetail {
   risk_level: string;
   input_altitude?: number;
   date?: string;
+  destination?: string;
+  trek_type?: string;
   recommended_gear: RecommendedGearItem[];
 }
 

@@ -23,7 +23,11 @@ const CATEGORIES = [
     { id: 'emergency', label: 'Emergency' },
 ];
 
-const CACHE_KEY = 'trekpal_map_locations_v2';
+const CACHE_KEY_BASE = 'trekpal_map_locations_v3';
+
+function cacheKey(showUnverifiedSafety: boolean) {
+    return `${CACHE_KEY_BASE}_${showUnverifiedSafety ? 'all' : 'safe'}`;
+}
 
 function categoryBadge(category: string) {
     switch (category) {
@@ -60,10 +64,10 @@ export default function MapsPage() {
                 );
                 setLocations(data || []);
                 setFromCache(false);
-                localStorage.setItem(CACHE_KEY, JSON.stringify(data || []));
+                localStorage.setItem(cacheKey(showUnverifiedSafety), JSON.stringify(data || []));
             } catch (error) {
                 console.error('Map locations fetch failed, trying cache:', error);
-                const cached = localStorage.getItem(CACHE_KEY);
+                const cached = localStorage.getItem(cacheKey(showUnverifiedSafety));
                 if (cached) {
                     setLocations(JSON.parse(cached) as MapLocation[]);
                     setFromCache(true);

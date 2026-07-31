@@ -183,6 +183,8 @@ export const trekApi = {
                 risk_level: string;
                 date: string;
                 input_altitude: number;
+                destination?: string | null;
+                trek_type?: string | null;
             }[]
         >('/trek/history');
     },
@@ -195,10 +197,18 @@ export const trekApi = {
             risk_level: string;
             input_altitude: number;
             date: string;
+            destination?: string | null;
+            trek_type?: string | null;
             recommended_gear: {
                 gear_name: string;
                 photo_url: string;
-                category: string;
+                category?: string;
+                description?: string;
+                priority?: string;
+                reason?: string;
+                quantity?: string;
+                rent_hint?: string;
+                slug?: string;
             }[];
         }>(`/trek/history/${history_id}`);
     },
@@ -259,41 +269,6 @@ export const chatApi = {
         }>('/chat/ask', {
             method: 'POST',
             body: JSON.stringify({ message }),
-        });
-    },
-};
-
-export const mlApi = {
-    insights: async (payload: {
-        altitude: number;
-        experience_level: string;
-        trek_type: string;
-        season: string;
-        duration: number;
-    }) => {
-        return fetchApi<{
-            risk_level: string;
-            risk_source: string;
-            difficulty: string;
-            difficulty_source: string;
-            budget: {
-                low_usd: number;
-                mid_usd: number;
-                high_usd: number;
-                source: string;
-            };
-            recommended_treks: {
-                id: number;
-                trek_name: string;
-                max_altitude?: number | null;
-                duration_days?: number | null;
-                difficulty?: string | null;
-                match_score?: number | null;
-            }[];
-            recommend_source: string;
-        }>('/ml/insights', {
-            method: 'POST',
-            body: JSON.stringify(payload),
         });
     },
 };

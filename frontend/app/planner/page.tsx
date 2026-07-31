@@ -36,7 +36,8 @@ function PlanTripInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const tabParam = searchParams.get('tab');
-    const tab: PlanTab = tabParam === 'itinerary' ? 'itinerary' : 'checklist';
+    const planIdParam = searchParams.get('plan');
+    const tab: PlanTab = tabParam === 'itinerary' || planIdParam ? 'itinerary' : 'checklist';
 
     const setTab = (next: PlanTab) => {
         router.replace(`/planner?tab=${next}`);
@@ -70,6 +71,20 @@ function PlanTripInner() {
     useEffect(() => {
         void loadSaved();
     }, []);
+
+    useEffect(() => {
+        if (!planIdParam) return;
+        const id = Number(planIdParam);
+        if (!Number.isFinite(id)) return;
+        void (async () => {
+            try {
+                const detail = await tripPlanApi.get(id);
+                setPlan(detail as TripPlanDetail);
+            } catch (error) {
+                console.error('Failed to open saved itinerary:', error);
+            }
+        })();
+    }, [planIdParam]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

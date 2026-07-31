@@ -19,10 +19,9 @@ export default function Navbar() {
         { href: '/gear', label: 'Gear', public: true },
         { href: '/knowledge', label: 'Knowledge', public: true },
         { href: '/maps', label: 'Maps', public: true },
-        { href: '/chat', label: 'Chat', public: false },
-        { href: '/dashboard', label: 'Dashboard', public: false },
         { href: '/planner', label: 'Plan trip', public: false },
-        { href: '/history', label: 'History', public: false },
+        { href: '/history', label: 'My plans', public: false },
+        { href: '/chat', label: 'Chat', public: false },
     ];
 
     const visibleLinks = links.filter((link) => link.public || isAuthenticated);
@@ -30,8 +29,8 @@ export default function Navbar() {
     const linkClass = (href: string) => {
         const active =
             pathname === href ||
-            (href === '/planner' && pathname.startsWith('/planner')) ||
-            (href === '/planner' && pathname.startsWith('/prepare'));
+            (href === '/planner' && (pathname.startsWith('/planner') || pathname.startsWith('/prepare'))) ||
+            (href === '/history' && pathname.startsWith('/history'));
         return `rounded-[var(--radius)] px-3 py-2 text-sm font-medium ${
             active
                 ? isHome && !mobileOpen

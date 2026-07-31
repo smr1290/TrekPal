@@ -105,6 +105,8 @@ class HistoryListItem(BaseModel):
     risk_level: str | None = None
     date: datetime | None = None
     input_altitude: int | None = None
+    destination: str | None = None
+    trek_type: str | None = None
 
 
 class HistoryDetailResponse(BaseModel):
@@ -114,6 +116,8 @@ class HistoryDetailResponse(BaseModel):
     risk_level: str | None = None
     input_altitude: int | None = None
     date: datetime | None = None
+    destination: str | None = None
+    trek_type: str | None = None
     recommended_gear: list[RecommendedGearItem]
 
 

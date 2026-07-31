@@ -9,7 +9,7 @@ import PageContainer from '@/components/PageContainer';
 import { EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekHistoryDetail, RecommendedGearItem } from '@/lib/types';
-import { getRiskVariant } from '@/lib/badgeHelpers';
+import { getRiskVariant, getGearPriorityVariant } from '@/lib/badgeHelpers';
 
 export default function HistoryDetailPage() {
     const params = useParams();
@@ -30,7 +30,7 @@ export default function HistoryDetailPage() {
         };
 
         if (params.id) {
-            fetchDetail();
+            void fetchDetail();
         }
     }, [params.id]);
 
@@ -39,10 +39,10 @@ export default function HistoryDetailPage() {
             <PageContainer>
                 <button
                     type="button"
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/history')}
                     className="mb-8 text-sm font-semibold text-[var(--muted)] hover:text-[var(--accent)]"
                 >
-                    ← Back to history
+                    ← Back to my plans
                 </button>
 
                 {isLoading ? (
@@ -58,15 +58,17 @@ export default function HistoryDetailPage() {
                             <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                                 <div className="max-w-xl">
                                     <p className="text-xs font-medium text-[var(--muted)]">
-                                        Planned{' '}
+                                        Checklist ·{' '}
                                         {new Date(detail.date || Date.now()).toLocaleDateString()}
                                     </p>
                                     <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
                                         {detail.trek}
                                     </h1>
-                                    <Badge variant="info" className="mt-4">
-                                        Saved preparation
-                                    </Badge>
+                                    {detail.trek_type && (
+                                        <Badge variant="info" className="mt-4">
+                                            {detail.trek_type}
+                                        </Badge>
+                                    )}
                                 </div>
                                 <div className="md:text-right">
                                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
@@ -109,7 +111,7 @@ export default function HistoryDetailPage() {
 
                         <section>
                             <h2 className="mb-5 text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                Recommended gear
+                                Packing checklist
                             </h2>
                             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {(detail.recommended_gear || []).map(
@@ -128,17 +130,37 @@ export default function HistoryDetailPage() {
                                                 )}
                                             </div>
                                             <div className="p-5">
-                                                {gear.category && (
-                                                    <Badge variant="default" className="mb-3">
-                                                        {gear.category}
-                                                    </Badge>
+                                                <div className="mb-3 flex flex-wrap gap-2">
+                                                    {gear.priority && (
+                                                        <Badge
+                                                            variant={getGearPriorityVariant(gear.priority)}
+                                                        >
+                                                            {gear.priority}
+                                                        </Badge>
+                                                    )}
+                                                    {gear.category && (
+                                                        <Badge variant="default">{gear.category}</Badge>
+                                                    )}
+                                                </div>
+                                                <h3 className="text-lg font-semibold">{gear.gear_name}</h3>
+                                                {gear.quantity && (
+                                                    <p className="mt-1 text-xs font-medium">
+                                                        Pack: {gear.quantity}
+                                                    </p>
                                                 )}
-                                                <h3 className="text-lg font-semibold">
-                                                    {gear.gear_name}
-                                                </h3>
-                                                <p className="mt-2 text-sm text-[var(--muted)]">
-                                                    {gear.description || 'No description available.'}
-                                                </p>
+                                                {gear.reason && (
+                                                    <p className="mt-2 text-sm">{gear.reason}</p>
+                                                )}
+                                                {gear.rent_hint && (
+                                                    <p className="mt-2 text-sm text-[var(--muted)]">
+                                                        Nepal tip: {gear.rent_hint}
+                                                    </p>
+                                                )}
+                                                {gear.description && (
+                                                    <p className="mt-2 text-sm text-[var(--muted)]">
+                                                        {gear.description}
+                                                    </p>
+                                                )}
                                             </div>
                                         </Card>
                                     )
