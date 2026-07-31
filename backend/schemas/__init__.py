@@ -275,6 +275,8 @@ class MapLocationItem(BaseModel):
     region: str | None = None
     description: str | None = None
     trek_id: int | None = None
+    is_verified: bool = False
+    source_note: str | None = None
 
 
 class MapRegionSummary(BaseModel):

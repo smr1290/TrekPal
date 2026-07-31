@@ -85,3 +85,40 @@ def test_rate_limiter_blocks_after_max():
     assert limiter.allow("u1") is True
     assert limiter.allow("u1") is False
     assert limiter.allow("u2") is True
+
+
+def test_unverified_emergency_hidden_by_default():
+    from services.map_visibility import is_visible_on_map
+
+    assert (
+        is_visible_on_map(
+            category="emergency",
+            is_verified=False,
+            show_unverified_safety=False,
+        )
+        is False
+    )
+    assert (
+        is_visible_on_map(
+            category="emergency",
+            is_verified=False,
+            show_unverified_safety=True,
+        )
+        is True
+    )
+    assert (
+        is_visible_on_map(
+            category="trailhead",
+            is_verified=True,
+            show_unverified_safety=False,
+        )
+        is True
+    )
+    assert (
+        is_visible_on_map(
+            category="hospital",
+            is_verified=True,
+            show_unverified_safety=False,
+        )
+        is True
+    )

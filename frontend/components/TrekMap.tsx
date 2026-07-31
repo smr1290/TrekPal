@@ -25,13 +25,15 @@ const CATEGORY_COLORS: Record<string, string> = {
     trailhead: '#0f766e',
 };
 
-function categoryIcon(category: string) {
+function categoryIcon(category: string, isVerified?: boolean) {
     const color = CATEGORY_COLORS[category] || '#334155';
+    const border = isVerified ? '2px solid white' : '2px dashed rgba(255,255,255,.85)';
     return L.divIcon({
         className: '',
         html: `<span style="
             display:block;width:14px;height:14px;border-radius:9999px;
-            background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.35);
+            background:${color};border:${border};box-shadow:0 1px 4px rgba(0,0,0,.35);
+            opacity:${isVerified === false ? 0.75 : 1};
         "></span>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7],
@@ -80,7 +82,7 @@ export default function TrekMap({
                 <Marker
                     key={loc.id}
                     position={[loc.latitude, loc.longitude]}
-                    icon={categoryIcon(loc.category)}
+                    icon={categoryIcon(loc.category, loc.is_verified)}
                     opacity={selectedId && selectedId !== loc.id ? 0.55 : 1}
                     eventHandlers={{
                         click: () => onSelect?.(loc.id),
@@ -92,9 +94,13 @@ export default function TrekMap({
                             <div style={{ marginTop: 4, fontSize: 12 }}>
                                 {loc.category.replace('_', ' ')}
                                 {loc.elevation_m != null ? ` · ${loc.elevation_m.toLocaleString()} m` : ''}
+                                {loc.is_verified ? ' · verified' : ' · unverified'}
                             </div>
                             {loc.description && (
                                 <div style={{ marginTop: 6, fontSize: 12 }}>{loc.description}</div>
+                            )}
+                            {loc.source_note && (
+                                <div style={{ marginTop: 6, fontSize: 11, opacity: 0.8 }}>{loc.source_note}</div>
                             )}
                         </div>
                     </Popup>

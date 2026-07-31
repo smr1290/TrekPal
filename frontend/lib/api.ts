@@ -362,10 +362,15 @@ export const tripPlanApi = {
 };
 
 export const mapsApi = {
-    listLocations: async (category?: string, region?: string) => {
+    listLocations: async (
+        category?: string,
+        region?: string,
+        showUnverifiedSafety: boolean = false
+    ) => {
         const params = new URLSearchParams();
         if (category) params.set('category', category);
         if (region) params.set('region', region);
+        if (showUnverifiedSafety) params.set('show_unverified_safety', 'true');
         const query = params.toString() ? `?${params.toString()}` : '';
         return fetchApi<
             {
@@ -378,6 +383,8 @@ export const mapsApi = {
                 region?: string | null;
                 description?: string | null;
                 trek_id?: number | null;
+                is_verified?: boolean;
+                source_note?: string | null;
             }[]
         >(`/maps/locations${query}`);
     },

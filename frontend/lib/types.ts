@@ -245,4 +245,6 @@ export interface MapLocation {
   region?: string | null;
   description?: string | null;
   trek_id?: number | null;
+  is_verified?: boolean;
+  source_note?: string | null;
 }

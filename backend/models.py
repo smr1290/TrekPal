@@ -116,4 +116,7 @@ class MapLocation(Base):
     description = Column(Text, nullable=True)
     trek_id = Column(Integer, ForeignKey("treks.id", ondelete="SET NULL"), nullable=True)
     is_published = Column(Boolean, default=True, nullable=False)
+    # False = demo / approximate — never treat as live emergency guidance.
+    is_verified = Column(Boolean, default=False, nullable=False)
+    source_note = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
