@@ -217,3 +217,27 @@ def test_logout_route_is_registered():
         and "POST" in route.methods
     ]
     assert logout_routes
+
+
+def test_internal_ml_gate_helpers():
+    from config import internal_ml_routes_enabled
+
+    assert internal_ml_routes_enabled("development", "false") is True
+    assert internal_ml_routes_enabled("production", "false") is False
+    assert internal_ml_routes_enabled("production", "true") is True
+
+
+def test_ml_router_mount_matches_config():
+    from fastapi.routing import APIRoute
+    from config import ENABLE_INTERNAL_ML_ROUTES
+    from main import app
+
+    ml_paths = {
+        route.path
+        for route in app.routes
+        if isinstance(route, APIRoute) and route.path.startswith("/ml")
+    }
+    if ENABLE_INTERNAL_ML_ROUTES:
+        assert "/ml/risk" in ml_paths
+    else:
+        assert not ml_paths

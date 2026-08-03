@@ -13,6 +13,7 @@ from schemas import (
     TrekRecommendationItem,
     TrekRecommendationResponse,
 )
+from security import get_current_user
 import models
 
 router = APIRouter()
@@ -32,7 +33,11 @@ def _validate_features(payload: MLFeatureRequest) -> None:
 
 
 @router.post("/risk", response_model=RiskPredictionResponse)
-def ml_risk(payload: MLFeatureRequest):
+def ml_risk(
+    payload: MLFeatureRequest,
+    _current_user: models.User = Depends(get_current_user),
+):
+    """Internal estimate helper — requires auth; not mounted in production by default."""
     _validate_features(payload)
     risk, source = predict_risk(
         payload.altitude,
@@ -45,7 +50,10 @@ def ml_risk(payload: MLFeatureRequest):
 
 
 @router.post("/difficulty", response_model=DifficultyPredictionResponse)
-def ml_difficulty(payload: DifficultyRequest):
+def ml_difficulty(
+    payload: DifficultyRequest,
+    _current_user: models.User = Depends(get_current_user),
+):
     if payload.season not in VALID_SEASONS:
         raise HTTPException(status_code=400, detail="Invalid season")
     difficulty, source = predict_difficulty(payload.altitude, payload.duration, payload.season)
@@ -53,7 +61,10 @@ def ml_difficulty(payload: DifficultyRequest):
 
 
 @router.post("/budget", response_model=BudgetEstimateResponse)
-def ml_budget(payload: MLFeatureRequest):
+def ml_budget(
+    payload: MLFeatureRequest,
+    _current_user: models.User = Depends(get_current_user),
+):
     _validate_features(payload)
     budget, source = estimate_budget(
         payload.altitude,
@@ -71,7 +82,11 @@ def ml_budget(payload: MLFeatureRequest):
 
 
 @router.post("/recommend-treks", response_model=TrekRecommendationResponse)
-def ml_recommend_treks(payload: MLFeatureRequest, db: Session = Depends(get_db)):
+def ml_recommend_treks(
+    payload: MLFeatureRequest,
+    db: Session = Depends(get_db),
+    _current_user: models.User = Depends(get_current_user),
+):
     _validate_features(payload)
     treks = db.query(models.Trek).all()
     recommendations, source = recommend_treks(
@@ -90,7 +105,11 @@ def ml_recommend_treks(payload: MLFeatureRequest, db: Session = Depends(get_db))
 
 
 @router.post("/insights", response_model=MLInsightsResponse)
-def ml_insights(payload: MLFeatureRequest, db: Session = Depends(get_db)):
+def ml_insights(
+    payload: MLFeatureRequest,
+    db: Session = Depends(get_db),
+    _current_user: models.User = Depends(get_current_user),
+):
     """One call for prepare-page insights: risk, difficulty, budget, trek matches."""
     _validate_features(payload)
 

@@ -59,6 +59,25 @@ else:
     AUTH_COOKIE_SECURE = APP_ENV not in {"development", "dev", "test", "local"}
 
 
+def internal_ml_routes_enabled(
+    app_env: str | None = None,
+    enable_flag: str | None = None,
+) -> bool:
+    """
+    Internal /ml estimate endpoints are for local debugging only.
+
+    Production stays locked unless ENABLE_INTERNAL_ML=true is set explicitly.
+    """
+    env = (app_env if app_env is not None else APP_ENV).lower()
+    if env in {"development", "dev", "test", "local"}:
+        return True
+    flag = enable_flag if enable_flag is not None else _env("ENABLE_INTERNAL_ML", "false")
+    return (flag or "false").lower() in {"1", "true", "yes"}
+
+
+ENABLE_INTERNAL_ML_ROUTES = internal_ml_routes_enabled()
+
+
 # ---------- Groq AI (Phase 3) ----------
 
 GROQ_API_KEY = _env("GROQ_API_KEY")

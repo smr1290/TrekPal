@@ -1,3 +1,5 @@
+from config import ENABLE_INTERNAL_ML_ROUTES
+
 from .auth import router as auth_router
 from .prepare import router as prepare_router
 from .treks import router as treks_router
@@ -17,8 +19,11 @@ routers = [
     (gear_router, "/gear", ["Gear"]),
     (knowledge_router, "/knowledge", ["Knowledge"]),
     (chat_router, "/chat", ["AI Chat"]),
-    # Internal/dev estimates — Plan trip already exposes risk/budget to users.
-    (ml_router, "/ml", ["Internal ML"]),
     (trip_plans_router, "/trip-plans", ["Trip Planner"]),
     (maps_router, "/maps", ["Maps"]),
 ]
+
+# Internal estimate playground — Plan trip already exposes risk/budget to users.
+# Locked off in production unless ENABLE_INTERNAL_ML=true.
+if ENABLE_INTERNAL_ML_ROUTES:
+    routers.append((ml_router, "/ml", ["Internal ML"]))

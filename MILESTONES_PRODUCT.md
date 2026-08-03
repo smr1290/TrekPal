@@ -11,7 +11,7 @@ Ship quality, one coherent slice at a time.
 | **M5** | Knowledge trust: sources + article UX | Done |
 | **M6** | Maps content curation | Done |
 | **M7** | Auth hardening (httpOnly cookies) for deploy | Done |
-| **M8** | API tests + lock internal `/ml` | Planned |
+| **M8** | API tests + lock internal `/ml` | Done |
 | **M9** | Catalog media (trek/gear images) | Planned |
 
 ## Success path (shippable)
