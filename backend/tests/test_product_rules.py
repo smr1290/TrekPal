@@ -88,7 +88,7 @@ def test_rate_limiter_blocks_after_max():
 
 
 def test_unverified_emergency_hidden_by_default():
-    from services.map_visibility import is_visible_on_map
+    from services.map_visibility import is_visible_on_map, trust_label
 
     assert (
         is_visible_on_map(
@@ -122,6 +122,17 @@ def test_unverified_emergency_hidden_by_default():
         )
         is True
     )
+    assert (
+        is_visible_on_map(
+            category="tea_house",
+            is_verified=False,
+            show_unverified_safety=False,
+            verified_only=True,
+        )
+        is False
+    )
+    assert "Demo" in trust_label(category="hospital", is_verified=False)
+    assert trust_label(category="trailhead", is_verified=True) == "Verified landmark"
 
 
 def test_history_title_prefers_destination():

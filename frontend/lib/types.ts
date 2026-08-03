@@ -260,4 +260,5 @@ export interface MapLocation {
   trek_id?: number | null;
   is_verified?: boolean;
   source_note?: string | null;
+  trust_label?: string | null;
 }

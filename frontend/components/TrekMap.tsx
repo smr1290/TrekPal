@@ -96,6 +96,11 @@ export default function TrekMap({
                                 {loc.elevation_m != null ? ` · ${loc.elevation_m.toLocaleString()} m` : ''}
                                 {loc.is_verified ? ' · verified' : ' · unverified'}
                             </div>
+                            {loc.trust_label && (
+                                <div style={{ marginTop: 4, fontSize: 11, opacity: 0.85 }}>
+                                    {loc.trust_label}
+                                </div>
+                            )}
                             {loc.description && (
                                 <div style={{ marginTop: 6, fontSize: 12 }}>{loc.description}</div>
                             )}

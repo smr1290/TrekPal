@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
@@ -23,10 +24,10 @@ const CATEGORIES = [
     { id: 'emergency', label: 'Emergency' },
 ];
 
-const CACHE_KEY_BASE = 'trekpal_map_locations_v3';
+const CACHE_KEY_BASE = 'trekpal_map_locations_v4';
 
-function cacheKey(showUnverifiedSafety: boolean) {
-    return `${CACHE_KEY_BASE}_${showUnverifiedSafety ? 'all' : 'safe'}`;
+function cacheKey(showUnverifiedSafety: boolean, verifiedOnly: boolean) {
+    return `${CACHE_KEY_BASE}_${showUnverifiedSafety ? 'all' : 'safe'}_${verifiedOnly ? 'verified' : 'any'}`;
 }
 
 function categoryBadge(category: string) {
@@ -50,24 +51,30 @@ export default function MapsPage() {
     const [region, setRegion] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [fromCache, setFromCache] = useState(false);
     const [showUnverifiedSafety, setShowUnverifiedSafety] = useState(false);
+    const [verifiedOnly, setVerifiedOnly] = useState(false);
 
     useEffect(() => {
         const load = async () => {
             setIsLoading(true);
+            setLoadError(null);
             try {
-                const data = await mapsApi.listLocations(
-                    undefined,
-                    undefined,
-                    showUnverifiedSafety
-                );
+                const data = await mapsApi.listLocations({
+                    showUnverifiedSafety,
+                    verifiedOnly,
+                });
                 setLocations(data || []);
                 setFromCache(false);
-                localStorage.setItem(cacheKey(showUnverifiedSafety), JSON.stringify(data || []));
+                localStorage.setItem(
+                    cacheKey(showUnverifiedSafety, verifiedOnly),
+                    JSON.stringify(data || [])
+                );
             } catch (error) {
                 console.error('Map locations fetch failed, trying cache:', error);
-                const cached = localStorage.getItem(cacheKey(showUnverifiedSafety));
+                setLoadError('Could not reach the API. Trying cached places if available.');
+                const cached = localStorage.getItem(cacheKey(showUnverifiedSafety, verifiedOnly));
                 if (cached) {
                     setLocations(JSON.parse(cached) as MapLocation[]);
                     setFromCache(true);
@@ -79,7 +86,7 @@ export default function MapsPage() {
             }
         };
         void load();
-    }, [showUnverifiedSafety]);
+    }, [showUnverifiedSafety, verifiedOnly]);
 
     const regions = useMemo(() => {
         const set = new Set<string>();
@@ -104,32 +111,81 @@ export default function MapsPage() {
         <PageContainer className="pb-16">
             <PageHeader
                 title="Trek maps"
-                description="OpenStreetMap view of trailheads, tea houses, checkpoints, and landmarks — with elevation."
+                description="Curated OpenStreetMap landmarks for orientation — not live rescue routing."
             />
 
             <div className="mb-6 rounded-[var(--radius)] border border-[var(--warning)]/40 bg-[var(--warning-bg)] px-4 py-3 text-sm text-[var(--warning)]">
-                Unverified hospital and emergency pins are hidden by default — they are demo data,
-                not live rescue guidance. Verified markers are public landmarks with approximate
-                coordinates; always confirm locally.
+                Unverified hospital and emergency pins stay hidden by default. Even verified pins are
+                approximate public landmarks — always confirm locally with guides, lodges, or
+                official channels.{' '}
+                <Link href="/knowledge/nepal-emergency-contacts" className="font-semibold underline">
+                    Emergency contacts guide
+                </Link>
+                {' · '}
+                <Link href="/knowledge/trail-safety-basics" className="font-semibold underline">
+                    Trail safety
+                </Link>
             </div>
 
-            <label className="mb-6 flex cursor-pointer items-start gap-3 text-sm">
-                <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={showUnverifiedSafety}
-                    onChange={(e) => {
-                        setSelectedId(null);
-                        setShowUnverifiedSafety(e.target.checked);
-                    }}
-                />
-                <span>
-                    <span className="font-semibold">Show unverified medical / emergency pins</span>
-                    <span className="mt-1 block text-[var(--muted)]">
-                        Only for learning / demo. Do not use these for emergency decisions.
+            {loadError && (
+                <p className="mb-4 text-sm text-[var(--danger)]" role="alert">
+                    {loadError}
+                </p>
+            )}
+
+            <div className="mb-6 space-y-3">
+                <label className="flex cursor-pointer items-start gap-3 text-sm">
+                    <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={verifiedOnly}
+                        onChange={(e) => {
+                            setSelectedId(null);
+                            setVerifiedOnly(e.target.checked);
+                        }}
+                    />
+                    <span>
+                        <span className="font-semibold">Verified landmarks only</span>
+                        <span className="mt-1 block text-[var(--muted)]">
+                            Hide approximate / editorial tea-house and lodge cluster pins.
+                        </span>
                     </span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 text-sm">
+                    <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={showUnverifiedSafety}
+                        onChange={(e) => {
+                            setSelectedId(null);
+                            setShowUnverifiedSafety(e.target.checked);
+                        }}
+                    />
+                    <span>
+                        <span className="font-semibold">Show unverified medical / emergency pins</span>
+                        <span className="mt-1 block text-[var(--muted)]">
+                            Demo data only. Do not use these for emergency decisions.
+                        </span>
+                    </span>
+                </label>
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-[var(--muted)]">
+                <span className="inline-flex items-center gap-2">
+                    <span
+                        className="inline-block h-3 w-3 rounded-full border-2 border-white bg-[var(--accent)] shadow"
+                        aria-hidden
+                    />
+                    Solid border = verified
                 </span>
-            </label>
+                <span className="inline-flex items-center gap-2">
+                    <span
+                        className="inline-block h-3 w-3 rounded-full border-2 border-dashed border-white/90 bg-[var(--accent)]/70 shadow"
+                        aria-hidden
+                    />
+                    Dashed = approximate / demo
+                </span>
+            </div>
 
             <div className="mb-4 flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => (
@@ -137,7 +193,7 @@ export default function MapsPage() {
                         key={c.id}
                         type="button"
                         onClick={() => setCategory(c.id)}
-                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                        className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold transition ${
                             category === c.id
                                 ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
                                 : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]/40'
@@ -191,9 +247,11 @@ export default function MapsPage() {
                     description={
                         category === 'hospital' || category === 'emergency'
                             ? showUnverifiedSafety
-                                ? 'No hospital/emergency pins in this region yet. TrekPal does not invent rescue locations.'
-                                : 'Unverified medical pins are hidden by default so they are not mistaken for live rescue guidance. Turn on the toggle above only to preview demo data.'
-                            : 'No places match this filter. Try All categories or another region.'
+                                ? 'No hospital/emergency pins match this filter. TrekPal does not invent rescue locations.'
+                                : 'Unverified medical pins are hidden by default so they are not mistaken for live rescue guidance. Turn on the demo toggle only to preview curated demo data.'
+                            : verifiedOnly
+                              ? 'No verified landmarks match this filter. Turn off “Verified landmarks only” to see approximate pins.'
+                              : 'No places match this filter. Try All categories or another region.'
                     }
                 />
             ) : (
@@ -218,7 +276,10 @@ export default function MapsPage() {
                                             {selected.category.replace('_', ' ')}
                                         </Badge>
                                         <Badge variant={selected.is_verified ? 'success' : 'warning'}>
-                                            {selected.is_verified ? 'Verified landmark' : 'Unverified'}
+                                            {selected.trust_label ||
+                                                (selected.is_verified
+                                                    ? 'Verified landmark'
+                                                    : 'Unverified')}
                                         </Badge>
                                     </div>
                                     <h4 className="mt-3 font-[family-name:var(--font-display)] text-xl font-semibold">
@@ -246,7 +307,7 @@ export default function MapsPage() {
                                 </div>
                             ) : (
                                 <p className="mt-3 text-sm text-[var(--muted)]">
-                                    Click a marker to see elevation and verification status.
+                                    Click a marker to see elevation, trust label, and source note.
                                 </p>
                             )}
                         </Card>
@@ -269,7 +330,8 @@ export default function MapsPage() {
                                         >
                                             <span className="font-semibold">{loc.name}</span>
                                             <span className="mt-1 block text-xs text-[var(--muted)]">
-                                                {loc.is_verified ? 'Verified' : 'Unverified'}
+                                                {loc.trust_label ||
+                                                    (loc.is_verified ? 'Verified' : 'Unverified')}
                                                 {loc.elevation_m != null
                                                     ? ` · ${loc.elevation_m.toLocaleString()} m`
                                                     : ''}

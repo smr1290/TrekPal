@@ -297,8 +297,10 @@ class MapLocationItem(BaseModel):
     trek_id: int | None = None
     is_verified: bool = False
     source_note: str | None = None
+    trust_label: str | None = None
 
 
 class MapRegionSummary(BaseModel):
     region: str
     location_count: int
+    verified_count: int = 0
