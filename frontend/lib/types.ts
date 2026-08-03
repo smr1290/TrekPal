@@ -66,6 +66,8 @@ export interface TrekHistoryDetail {
   date?: string;
   destination?: string;
   trek_type?: string;
+  heuristic_version?: string | null;
+  risk_factors?: string[];
   recommended_gear: RecommendedGearItem[];
 }
 
@@ -82,6 +84,7 @@ export interface TrekPreparationResponse {
   risk_level: string;
   risk_source?: string;
   risk_factors?: string[];
+  heuristic_version?: string | null;
   safety_disclaimer?: string | null;
   ams_note?: string | null;
   budget_estimate?: {

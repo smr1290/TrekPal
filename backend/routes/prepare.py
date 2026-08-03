@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -7,6 +9,8 @@ from security import get_current_user
 from ml.predict import estimate_budget, predict_risk, recommend_treks
 from ml.rules import explain_risk_factors
 from ml.gear_recommend import ams_disclaimer, recommend_gear_picks
+from ml.version import HEURISTIC_VERSION
+from services.idempotency import find_recent_history
 import models
 
 router = APIRouter()
@@ -53,6 +57,69 @@ def prepare_trek(
         db.query(models.Trek).all(),
         limit=3,
     )
+    factors = explain_risk_factors(
+        altitude, experience_level, trek_type, season, duration
+    )
+
+    existing = find_recent_history(
+        db,
+        user_id=current_user.id,
+        destination=destination,
+        trek_type=trek_type,
+        altitude=altitude,
+        season=season,
+        duration=duration,
+    )
+    if existing:
+        gear_picks = recommend_gear_picks(
+            db,
+            altitude=altitude,
+            experience=experience_level,
+            trek_type=trek_type,
+            season=season,
+            duration=duration,
+            risk=existing.risk_level or risk,
+            destination=destination,
+        )
+        stored_factors = factors
+        raw = getattr(existing, "risk_factors_json", None)
+        if raw:
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    stored_factors = [str(x) for x in parsed]
+            except json.JSONDecodeError:
+                pass
+        return PrepareTrekResponse(
+            risk_level=existing.risk_level or risk,
+            risk_source=risk_source,
+            risk_factors=stored_factors,
+            heuristic_version=getattr(existing, "heuristic_version", None)
+            or HEURISTIC_VERSION,
+            safety_disclaimer=(
+                "Risk and budget figures are planning estimates only — not medical advice, "
+                "insurance guidance, or a guarantee of trail conditions."
+            ),
+            ams_note=ams_disclaimer(altitude),
+            budget_estimate=budget,
+            budget_source=budget_source,
+            recommended_treks=trek_recs,
+            recommend_source=recommend_source,
+            recommended_gear=[
+                RecommendedGearItem(
+                    gear_name=pick.gear.gear_name,
+                    photo_url=pick.gear.photo_url,
+                    category=pick.gear.category,
+                    description=pick.gear.description,
+                    priority=pick.priority,
+                    reason=pick.reason,
+                    quantity=pick.quantity,
+                    rent_hint=pick.rent_hint,
+                    slug=getattr(pick.gear, "slug", None) or pick.need_key,
+                )
+                for pick in gear_picks
+            ],
+        )
 
     history = models.UserTrekHistory(
         user_id=current_user.id,
@@ -63,6 +130,8 @@ def prepare_trek(
         planned_duration=duration,
         risk_level=risk,
         destination=destination,
+        heuristic_version=HEURISTIC_VERSION,
+        risk_factors_json=json.dumps(factors),
     )
 
     db.add(history)
@@ -92,9 +161,8 @@ def prepare_trek(
     return PrepareTrekResponse(
         risk_level=risk,
         risk_source=risk_source,
-        risk_factors=explain_risk_factors(
-            altitude, experience_level, trek_type, season, duration
-        ),
+        risk_factors=factors,
+        heuristic_version=HEURISTIC_VERSION,
         safety_disclaimer=(
             "Risk and budget figures are planning estimates only — not medical advice, "
             "insurance guidance, or a guarantee of trail conditions."

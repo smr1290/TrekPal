@@ -18,6 +18,7 @@ export default function SignupPage() {
         email: '',
         password: '',
         experience_level: 'Beginner',
+        goal: 'plan',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +51,10 @@ export default function SignupPage() {
                 formData.password,
                 formData.experience_level
             );
-            router.push('/dashboard');
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('trekpal_onboarding_goal', formData.goal);
+            }
+            router.push(formData.goal === 'research' ? '/treks' : '/dashboard');
         } catch {
             setErrors({ general: 'Something went wrong. Please try again later.' });
         } finally {
@@ -124,6 +128,17 @@ export default function SignupPage() {
                                 { value: 'Beginner', label: 'Beginner' },
                                 { value: 'Intermediate', label: 'Intermediate' },
                                 { value: 'Advanced', label: 'Advanced' },
+                            ]}
+                        />
+
+                        <Select
+                            label="What brings you here?"
+                            name="goal"
+                            value={formData.goal}
+                            onChange={handleChange}
+                            options={[
+                                { value: 'plan', label: 'Start planning a trek I’ve picked' },
+                                { value: 'research', label: 'Research which trek fits me' },
                             ]}
                         />
 

@@ -164,6 +164,34 @@ export default function DashboardPage() {
                     </Stagger>
                 </section>
 
+                {!isLoading && checklists.length === 0 && itineraries.length === 0 && (
+                    <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--accent)]/25 bg-[linear-gradient(160deg,var(--accent-soft),var(--surface))] p-6 sm:p-8">
+                        <p className="eyebrow">First steps</p>
+                        <h2 className="display-title mt-2 text-2xl sm:text-3xl">
+                            Start with a Nepal classic
+                        </h2>
+                        <p className="mt-3 max-w-xl text-sm text-[var(--muted)]">
+                            New here? Pick a route that matches your level, then jump into Plan trip.
+                        </p>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            {[
+                                { name: 'Poon Hill', href: '/treks' },
+                                { name: 'Annapurna Base Camp', href: '/treks' },
+                                { name: 'Everest Base Camp', href: '/treks' },
+                            ].map((t) => (
+                                <Link key={t.name} href={t.href}>
+                                    <Button variant="outline" size="sm">
+                                        {t.name}
+                                    </Button>
+                                </Link>
+                            ))}
+                            <Link href="/planner">
+                                <Button size="sm">Plan a trek</Button>
+                            </Link>
+                        </div>
+                    </section>
+                )}
+
                 <section className="grid gap-12 lg:grid-cols-2">
                     <Reveal>
                         <div>

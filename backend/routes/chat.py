@@ -13,7 +13,7 @@ from config import GROQ_API_KEY, GROQ_MODEL
 import models
 from schemas import ChatRequest, ChatResponse, ChatSource
 from security import get_current_user
-from services.rate_limit import chat_limiter
+from services.rate_limit import CHAT_RATE_LIMIT_PER_HOUR, allow_chat
 
 
 router = APIRouter()
@@ -130,26 +130,28 @@ async def _call_groq_chat(messages: list[dict[str, Any]]) -> str:
 
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(url, headers=headers, json=payload)
+    from services.ext_logging import log_external_call
 
-    if resp.status_code >= 400:
-        # Surface useful provider errors during setup (still avoid dumping headers/secrets).
-        detail = "Groq API error. Check model name and API key."
+    with log_external_call("groq", "chat", user_id=None, route="/chat/ask"):
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+
+        if resp.status_code >= 400:
+            detail = "Groq API error. Check model name and API key."
+            try:
+                err = resp.json()
+                msg = err.get("error", {}).get("message") if isinstance(err, dict) else None
+                if msg:
+                    detail = f"Groq API error: {msg}"
+            except Exception:
+                pass
+            raise HTTPException(status_code=502, detail=detail)
+
+        data = resp.json()
         try:
-            err = resp.json()
-            msg = err.get("error", {}).get("message") if isinstance(err, dict) else None
-            if msg:
-                detail = f"Groq API error: {msg}"
+            return data["choices"][0]["message"]["content"]
         except Exception:
-            pass
-        raise HTTPException(status_code=502, detail=detail)
-
-    data = resp.json()
-    try:
-        return data["choices"][0]["message"]["content"]
-    except Exception:
-        raise HTTPException(status_code=502, detail="Groq response format unexpected.")
+            raise HTTPException(status_code=502, detail="Groq response format unexpected.")
 
 
 @router.post("/ask", response_model=ChatResponse)
@@ -162,10 +164,13 @@ async def ask_chat(
     if not message:
         raise HTTPException(status_code=400, detail="message is required")
 
-    if not chat_limiter.allow(f"user:{current_user.id}"):
+    if not allow_chat(db, current_user.id):
         raise HTTPException(
             status_code=429,
-            detail="Chat rate limit exceeded (20 questions per hour). Try again later.",
+            detail=(
+                f"Chat rate limit exceeded ({CHAT_RATE_LIMIT_PER_HOUR} questions per hour). "
+                "Try again later."
+            ),
         )
 
     articles = _retrieve_relevant_articles(db, message, limit=4)

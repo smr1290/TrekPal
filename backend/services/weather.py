@@ -155,9 +155,12 @@ async def fetch_forecast(
         "forecast_days": max(1, min(days, 14)),
     }
     async with httpx.AsyncClient(timeout=20.0) as client:
-        resp = await client.get(OPEN_METEO_URL, params=params)
-        resp.raise_for_status()
-        return resp.json()
+        from services.ext_logging import log_external_call
+
+        with log_external_call("open_meteo", "forecast"):
+            resp = await client.get(OPEN_METEO_URL, params=params)
+            resp.raise_for_status()
+            return resp.json()
 
 
 def summarize_forecast(raw: dict, place: ResolvedPlace) -> dict:

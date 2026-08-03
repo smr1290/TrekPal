@@ -44,6 +44,8 @@ class UserTrekHistory(Base):
     planned_duration = Column(Integer)
     risk_level = Column(String(20))
     destination = Column(String(150), nullable=True)
+    heuristic_version = Column(String(40), nullable=True)
+    risk_factors_json = Column(Text, nullable=True)
 
     created_at = Column(TIMESTAMP, server_default=func.now())
 
@@ -105,6 +107,7 @@ class TripPlan(Base):
     risk_level = Column(String(20), nullable=True)
     plan_json = Column(Text, nullable=False)
     source = Column(String(20), nullable=False, default="ai")
+    heuristic_version = Column(String(40), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
 
 
@@ -128,3 +131,13 @@ class MapLocation(Base):
     is_verified = Column(Boolean, default=False, nullable=False)
     source_note = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
+
+
+class ChatRateLimit(Base):
+    """Durable chat usage counters per user/hour window (R10)."""
+
+    __tablename__ = "chat_rate_limits"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    window_start = Column(TIMESTAMP(timezone=True), primary_key=True)
+    count = Column(Integer, nullable=False, default=0)

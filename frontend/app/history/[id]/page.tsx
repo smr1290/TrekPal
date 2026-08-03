@@ -135,24 +135,36 @@ export default function HistoryDetailPage() {
                                     { label: 'Duration', value: `${detail.duration} days` },
                                     {
                                         label: 'Altitude',
-                                        value: `${detail.input_altitude?.toLocaleString() || '—'} m`,
+                                        value: detail.input_altitude
+                                            ? `${detail.input_altitude.toLocaleString()} m`
+                                            : '—',
                                     },
                                     {
-                                        label: 'Gear items',
-                                        value: String(detail.recommended_gear?.length || 0),
+                                        label: 'Heuristic',
+                                        value: detail.heuristic_version || 'legacy',
                                     },
-                                ].map((stat) => (
-                                    <div
-                                        key={stat.label}
-                                        className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
-                                    >
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                            {stat.label}
+                                ].map((item) => (
+                                    <div key={item.label}>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+                                            {item.label}
                                         </p>
-                                        <p className="mt-1 text-lg font-semibold">{stat.value}</p>
+                                        <p className="mt-1 font-semibold">{item.value}</p>
                                     </div>
                                 ))}
                             </div>
+
+                            {(detail.risk_factors || []).length > 0 && (
+                                <div className="mt-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-4">
+                                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
+                                        How we calculated this
+                                    </p>
+                                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-[var(--muted)]">
+                                        {detail.risk_factors!.map((factor) => (
+                                            <li key={factor}>{factor}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </Card>
 
                         <section>

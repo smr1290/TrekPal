@@ -7,6 +7,7 @@ from schemas import HistoryDetailResponse, HistoryListItem, RecommendedGearItem
 from security import get_current_user
 from ml.gear_recommend import recommend_gear_picks
 import models
+import json
 
 router = APIRouter()
 
@@ -101,6 +102,16 @@ def get_history_detail(
     history: models.UserTrekHistory = Depends(owned_history),
     db: Session = Depends(get_db),
 ):
+    factors: list[str] = []
+    raw = getattr(history, "risk_factors_json", None)
+    if raw:
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                factors = [str(item) for item in parsed]
+        except json.JSONDecodeError:
+            factors = []
+
     return HistoryDetailResponse(
         trek=_history_title(history),
         season=history.season,
@@ -110,6 +121,8 @@ def get_history_detail(
         date=history.created_at,
         destination=getattr(history, "destination", None),
         trek_type=history.trek_type,
+        heuristic_version=getattr(history, "heuristic_version", None),
+        risk_factors=factors,
         recommended_gear=_enrich_saved_gear(db, history),
     )
 

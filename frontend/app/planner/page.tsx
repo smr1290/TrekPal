@@ -178,6 +178,23 @@ function PlanTripInner() {
                 description="Packing checklists and day-by-day itineraries — with risk and weather context when you need it."
             />
 
+            {(prefill.destination || formData.destination) && (
+                <div className="mb-6 flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-[var(--accent)]/20 bg-[var(--accent-soft)]/50 px-4 py-3 text-sm">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--accent)]">
+                        Planning
+                    </span>
+                    <span className="font-semibold text-[var(--foreground)]">
+                        {prefill.destination || formData.destination}
+                    </span>
+                    <Link
+                        href="/treks"
+                        className="ml-auto text-xs font-semibold text-[var(--accent)] hover:underline"
+                    >
+                        Change trek →
+                    </Link>
+                </div>
+            )}
+
             <div className="mb-10 flex flex-wrap gap-2 border-b border-[var(--border)] pb-5">
                 <button
                     type="button"

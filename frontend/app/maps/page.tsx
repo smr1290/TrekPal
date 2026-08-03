@@ -171,6 +171,13 @@ export default function MapsPage() {
                 </label>
             </div>
 
+            {!showUnverifiedSafety && (
+                <p className="mb-4 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-xs text-[var(--muted)]">
+                    Hidden: unverified hospital and emergency pins stay off the map by default —
+                    so TrekPal never implies fake rescue coverage.
+                </p>
+            )}
+
             <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-[var(--muted)]">
                 <span className="inline-flex items-center gap-2">
                     <span

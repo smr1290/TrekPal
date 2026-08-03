@@ -28,16 +28,16 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 |----|--------|--------|--------|
 | **R1** | Auth & ownership hardening | Backend/Security | Done |
 | **R2** | Data integrity & migration hygiene | Backend/Engineering | Done |
-| **R3** | Goal-based IA audit & funnel rebuild | Frontend/UX | Pending |
-| **R4** | Heuristic explainability & versioning | Backend/Product-AI | Pending |
-| **R5** | Trip planner reliability (fallback + idempotency) | Backend/Reliability | Pending |
-| **R6** | Visual system maturity | Frontend/Design | Pending |
-| **R7** | Mobile-first correctness | Frontend/UX | Pending |
-| **R8** | Motion as feedback, not decoration | Frontend/UX | Pending |
-| **R9** | Trust & safety UX | Frontend/Content | Pending |
-| **R10** | Durable (Postgres) rate limiting | Backend/Architecture | Pending |
-| **R11** | Structured logging for Groq / Open-Meteo | Backend/Observability | Pending |
-| **R12** | First-run experience & goal onboarding | Frontend/UX | Pending |
+| **R3** | Goal-based IA audit & funnel rebuild | Frontend/UX | Done |
+| **R4** | Heuristic explainability & versioning | Backend/Product-AI | Done |
+| **R5** | Trip planner reliability (fallback + idempotency) | Backend/Reliability | Done |
+| **R6** | Visual system maturity | Frontend/Design | Partial |
+| **R7** | Mobile-first correctness | Frontend/UX | Partial |
+| **R8** | Motion as feedback, not decoration | Frontend/UX | Partial |
+| **R9** | Trust & safety UX | Frontend/Content | Done |
+| **R10** | Durable (Postgres) rate limiting | Backend/Architecture | Done |
+| **R11** | Structured logging for Groq / Open-Meteo | Backend/Observability | Done |
+| **R12** | First-run experience & goal onboarding | Frontend/UX | Done |
 
 ### Why this order
 

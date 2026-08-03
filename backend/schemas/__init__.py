@@ -109,6 +109,7 @@ class PrepareTrekResponse(BaseModel):
     risk_level: str
     risk_source: str = "rules"  # "estimate" | "rules"
     risk_factors: list[str] = []
+    heuristic_version: str | None = None
     safety_disclaimer: str | None = None
     ams_note: str | None = None
     recommended_gear: list[RecommendedGearItem]
@@ -139,6 +140,8 @@ class HistoryDetailResponse(BaseModel):
     date: datetime | None = None
     destination: str | None = None
     trek_type: str | None = None
+    heuristic_version: str | None = None
+    risk_factors: list[str] = []
     recommended_gear: list[RecommendedGearItem]
 
 
@@ -304,6 +307,7 @@ class TripPlanDetail(BaseModel):
     difficulty: str
     risk_level: str | None = None
     source: str
+    heuristic_version: str | None = None
     plan: dict
     created_at: datetime | None = None
 

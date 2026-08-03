@@ -373,7 +373,8 @@ body {
   border: 1px solid var(--border);
   background: var(--surface);
   padding: 0 0.875rem;
-  font-size: 0.875rem;
+  /* ≥16px avoids iOS zoom-on-focus (R7 mobile) */
+  font-size: 1rem;
   color: var(--foreground);
   outline: none;
   transition:

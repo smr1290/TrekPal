@@ -8,6 +8,8 @@ from ownership import owned_trip_plan
 from schemas import TripPlanDetail, TripPlanGenerateRequest, TripPlanListItem
 from security import get_current_user
 from services.trip_planner import generate_trip_plan
+from services.idempotency import find_recent_trip_plan
+from ml.version import HEURISTIC_VERSION
 import models
 
 router = APIRouter()
@@ -33,6 +35,7 @@ def _plan_detail(row: models.TripPlan) -> TripPlanDetail:
         difficulty=row.difficulty,
         risk_level=row.risk_level,
         source=row.source,
+        heuristic_version=getattr(row, "heuristic_version", None),
         plan=plan,
         created_at=row.created_at,
     )
@@ -63,6 +66,18 @@ async def generate_plan(
         if not trek:
             raise HTTPException(status_code=404, detail="Trek not found")
 
+    existing = find_recent_trip_plan(
+        db,
+        user_id=current_user.id,
+        destination=payload.destination.strip(),
+        duration_days=payload.duration_days,
+        season=payload.season,
+        difficulty=payload.difficulty,
+        experience_level=payload.experience_level,
+    )
+    if existing:
+        return _plan_detail(existing)
+
     plan, risk_level, source, final_days = await generate_trip_plan(
         db,
         destination=payload.destination.strip(),
@@ -88,6 +103,7 @@ async def generate_plan(
         risk_level=risk_level,
         plan_json=json.dumps(plan),
         source=source,
+        heuristic_version=HEURISTIC_VERSION,
     )
     db.add(row)
     db.commit()

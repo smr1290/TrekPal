@@ -311,21 +311,24 @@ async def _call_groq(messages: list[dict[str, Any]]) -> str:
     if not GROQ_API_KEY:
         raise RuntimeError("GROQ_API_KEY missing")
 
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        resp = await client.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
-            json={
-                "model": GROQ_MODEL,
-                "messages": messages,
-                "temperature": 0.25,
-                "max_tokens": 3500,
-                "response_format": {"type": "json_object"},
-            },
-        )
-    if resp.status_code >= 400:
-        raise RuntimeError(f"Groq error {resp.status_code}: {resp.text[:300]}")
-    return resp.json()["choices"][0]["message"]["content"]
+    from services.ext_logging import log_external_call
+
+    with log_external_call("groq", "trip_planner"):
+        async with httpx.AsyncClient(timeout=90.0) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+                json={
+                    "model": GROQ_MODEL,
+                    "messages": messages,
+                    "temperature": 0.25,
+                    "max_tokens": 3500,
+                    "response_format": {"type": "json_object"},
+                },
+            )
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Groq error {resp.status_code}: {resp.text[:300]}")
+        return resp.json()["choices"][0]["message"]["content"]
 
 
 def _extract_json(text: str) -> dict[str, Any]:
@@ -537,7 +540,12 @@ async def generate_trip_plan(
         plan["knowledge_sources"] = sources
         return plan, risk_level, "ai", final_days
     except Exception as exc:
-        print(f"[trip_planner] Falling back to template plan: {exc}")
+        from services.ext_logging import log_external_call
+
+        with log_external_call("groq", "trip_planner_fallback") as ctx:
+            ctx["fallback"] = True
+            ctx["error_type"] = type(exc).__name__
+            ctx["error"] = str(exc)[:240]
         plan = fallback_plan(
             destination,
             final_days,
