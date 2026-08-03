@@ -101,6 +101,7 @@ export default function HistoryPage() {
         <ProtectedRoute>
             <PageContainer>
                 <PageHeader
+                    eyebrow="Your saved trailwork"
                     title="My plans"
                     description="Saved packing checklists and full itineraries in one place."
                     action={
@@ -116,26 +117,18 @@ export default function HistoryPage() {
                     </p>
                 )}
 
-                <div className="mb-6 flex flex-wrap gap-2">
+                <div className="mb-8 flex flex-wrap gap-2">
                     <button
                         type="button"
                         onClick={() => setTab('checklists')}
-                        className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
-                            tab === 'checklists'
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-muted)] text-[var(--muted)]'
-                        }`}
+                        className={`chip ${tab === 'checklists' ? 'chip-active' : ''}`}
                     >
                         Checklists ({history.length})
                     </button>
                     <button
                         type="button"
                         onClick={() => setTab('itineraries')}
-                        className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
-                            tab === 'itineraries'
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-muted)] text-[var(--muted)]'
-                        }`}
+                        className={`chip ${tab === 'itineraries' ? 'chip-active' : ''}`}
                     >
                         Itineraries ({itineraries.length})
                     </button>

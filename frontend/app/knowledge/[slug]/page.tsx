@@ -83,7 +83,7 @@ export default function KnowledgeDetailPage() {
                                     <Badge variant="default">TrekPal editorial</Badge>
                                 )}
                             </div>
-                            <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight sm:text-4xl">
+                            <h1 className="display-title mt-5 text-3xl sm:text-4xl md:text-5xl">
                                 {article.title}
                             </h1>
                             <p className="mt-4 text-lg leading-relaxed text-[var(--muted)]">

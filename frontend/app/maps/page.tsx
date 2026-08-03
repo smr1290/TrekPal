@@ -110,6 +110,7 @@ export default function MapsPage() {
     return (
         <PageContainer className="pb-16">
             <PageHeader
+                eyebrow="Orient yourself"
                 title="Trek maps"
                 description="Curated OpenStreetMap landmarks for orientation — not live rescue routing."
             />
@@ -193,10 +194,8 @@ export default function MapsPage() {
                         key={c.id}
                         type="button"
                         onClick={() => setCategory(c.id)}
-                        className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold transition ${
-                            category === c.id
-                                ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
-                                : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]/40'
+                        className={`chip ${
+                            category === c.id ? 'chip-outline-active' : ''
                         }`}
                     >
                         {c.label}
@@ -208,11 +207,7 @@ export default function MapsPage() {
                 <button
                     type="button"
                     onClick={() => setRegion(null)}
-                    className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold ${
-                        region === null
-                            ? 'border-[var(--accent)] text-[var(--accent)]'
-                            : 'border-[var(--border)] text-[var(--muted)]'
-                    }`}
+                    className={`chip ${region === null ? 'chip-outline-active' : ''}`}
                 >
                     All regions
                 </button>
@@ -221,11 +216,7 @@ export default function MapsPage() {
                         key={r}
                         type="button"
                         onClick={() => setRegion(r)}
-                        className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold ${
-                            region === r
-                                ? 'border-[var(--accent)] text-[var(--accent)]'
-                                : 'border-[var(--border)] text-[var(--muted)]'
-                        }`}
+                        className={`chip ${region === r ? 'chip-outline-active' : ''}`}
                     >
                         {r}
                     </button>

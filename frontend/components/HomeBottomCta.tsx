@@ -9,25 +9,33 @@ export default function HomeBottomCta() {
 
     return (
         <div className="relative mx-auto max-w-xl text-center text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/65">
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-white/55">
                 TrekPal
             </p>
-            <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
-                A buddy for every ridge.
-            </h2>
-            <p className="mt-4 text-white/80">
+            <h2 className="display-title mt-4 text-4xl sm:text-5xl">A buddy for every ridge.</h2>
+            <p className="mt-5 text-base leading-relaxed text-white/72">
                 {isAuthenticated
-                    ? 'Your hub for plans, treks, and packing — continue from the dashboard.'
+                    ? 'Your lodge for plans, treks, and packing — continue from the dashboard.'
                     : 'Create a free account and prepare your next Nepal trek with calmer confidence.'}
             </p>
-            <div className="mt-8">
+            <div className="mt-9">
                 {isAuthenticated ? (
                     <Link href="/dashboard">
-                        <Button size="lg">Open dashboard</Button>
+                        <Button
+                            size="lg"
+                            className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
+                        >
+                            Open dashboard
+                        </Button>
                     </Link>
                 ) : (
                     <Link href="/signup">
-                        <Button size="lg">Create free account</Button>
+                        <Button
+                            size="lg"
+                            className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
+                        >
+                            Create free account
+                        </Button>
                     </Link>
                 )}
             </div>

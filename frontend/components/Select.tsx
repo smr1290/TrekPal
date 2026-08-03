@@ -21,7 +21,10 @@ export default function Select({
     return (
         <div className="mb-4 flex flex-col gap-1.5">
             {label && (
-                <label htmlFor={selectId} className="text-sm font-medium text-[var(--muted)]">
+                <label
+                    htmlFor={selectId}
+                    className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]"
+                >
                     {label}
                 </label>
             )}
@@ -29,9 +32,7 @@ export default function Select({
                 id={selectId}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? errorId : undefined}
-                className={`h-11 cursor-pointer rounded-[var(--radius)] border bg-[var(--surface)] px-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--accent)] ${
-                    error ? 'border-[var(--danger)]' : 'border-[var(--border)]'
-                } ${className}`}
+                className={`field-control cursor-pointer ${error ? '!border-[var(--danger)]' : ''} ${className}`}
                 {...props}
             >
                 {options.map((opt) => (

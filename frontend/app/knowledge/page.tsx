@@ -56,6 +56,7 @@ export default function KnowledgePage() {
     return (
         <PageContainer>
             <PageHeader
+                eyebrow="Trail wisdom"
                 title="Knowledge base"
                 description="Guides with sources you can open and verify — the same articles chat uses for grounded answers."
                 action={
@@ -72,7 +73,7 @@ export default function KnowledgePage() {
                 }
             />
 
-            <p className="mb-6 max-w-2xl text-sm text-[var(--muted)]">
+            <p className="mb-8 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">
                 Prefer articles marked with an external source for permits, medical, and safety
                 topics. TrekPal is preparation help — confirm critical details before you travel.
             </p>
@@ -83,15 +84,11 @@ export default function KnowledgePage() {
                 </p>
             )}
 
-            <div className="mb-8 flex flex-wrap gap-2">
+            <div className="mb-10 flex flex-wrap gap-2">
                 <button
                     type="button"
                     onClick={() => setActiveCategory(null)}
-                    className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold transition ${
-                        activeCategory === null
-                            ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
-                            : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]/40'
-                    }`}
+                    className={`chip ${activeCategory === null ? 'chip-outline-active' : ''}`}
                 >
                     All
                 </button>
@@ -100,10 +97,8 @@ export default function KnowledgePage() {
                         key={category}
                         type="button"
                         onClick={() => setActiveCategory(category)}
-                        className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold transition ${
-                            activeCategory === category
-                                ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
-                                : 'border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)]/40'
+                        className={`chip ${
+                            activeCategory === category ? 'chip-outline-active' : ''
                         }`}
                     >
                         {getKnowledgeCategoryLabel(category)}
@@ -126,7 +121,7 @@ export default function KnowledgePage() {
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredArticles.map((article) => (
                         <Link key={article.id} href={`/knowledge/${article.slug}`} className="group">
-                            <Card className="flex h-full flex-col transition group-hover:border-[var(--accent)]/35">
+                            <Card interactive className="flex h-full flex-col">
                                 <div className="flex flex-wrap gap-2">
                                     <Badge variant={getKnowledgeCategoryVariant(article.category)}>
                                         {getKnowledgeCategoryLabel(article.category)}
@@ -137,7 +132,7 @@ export default function KnowledgePage() {
                                         <Badge variant="default">Editorial</Badge>
                                     )}
                                 </div>
-                                <h3 className="mt-4 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight group-hover:text-[var(--accent)]">
+                                <h3 className="display-title mt-5 text-xl group-hover:text-[var(--accent)]">
                                     {article.title}
                                 </h3>
                                 <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--muted)]">
@@ -148,7 +143,7 @@ export default function KnowledgePage() {
                                         Source: {article.source_label}
                                     </p>
                                 )}
-                                <p className="mt-5 text-xs font-semibold text-[var(--accent)]">
+                                <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--accent)]">
                                     Read article →
                                 </p>
                             </Card>

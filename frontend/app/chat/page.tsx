@@ -73,11 +73,10 @@ export default function ChatPage() {
     return (
         <ProtectedRoute>
             <PageContainer>
-                <div className="mb-8">
-                    <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
-                        AI trek assistant
-                    </h1>
-                    <p className="mt-2 text-base leading-relaxed text-[var(--muted)]">
+                <div className="mb-10">
+                    <p className="eyebrow">Ask your buddy</p>
+                    <h1 className="display-title mt-3 text-4xl sm:text-5xl">AI trek assistant</h1>
+                    <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--muted)]">
                         Sign-in required. Answers are grounded in the knowledge base (limit 20
                         questions/hour). Not medical or legal advice.
                     </p>
@@ -103,7 +102,7 @@ export default function ChatPage() {
                                                 : ''
                                         }`}
                                     >
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
                                             {m.role === 'user' ? 'You' : 'TrekPal'}
                                         </p>
                                         <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">

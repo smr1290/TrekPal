@@ -59,6 +59,7 @@ export default function ProfilePage() {
         <ProtectedRoute>
             <PageContainer>
                 <PageHeader
+                    eyebrow="Your trail identity"
                     title="Profile"
                     description="Update your name and trek experience — this feeds risk and gear recommendations."
                 />

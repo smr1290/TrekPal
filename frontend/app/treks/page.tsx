@@ -72,9 +72,9 @@ export default function TreksPage() {
     return (
         <PageContainer>
             <PageHeader
-                eyebrow="Pick your trail"
+                eyebrow="Destination catalog"
                 title="Nepal treks"
-                description="Region, seasons, and highlights — then jump into Plan trip with details filled in."
+                description="Magazine-style trail guides — region, seasons, and highlights — then jump into Plan trip with details filled in."
                 action={
                     <div className="w-full sm:w-72">
                         <Input
@@ -89,33 +89,27 @@ export default function TreksPage() {
                 }
             />
 
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div className="mb-3 flex flex-wrap gap-2">
                 {['All', 'Easy', 'Moderate', 'Hard'].map((level) => (
                     <button
                         key={level}
                         type="button"
                         onClick={() => setDifficultyFilter(level)}
-                        className={`rounded-[var(--radius)] px-3 py-1.5 text-xs font-semibold ${
-                            difficultyFilter === level
-                                ? 'bg-[var(--accent)] text-white'
-                                : 'bg-[var(--surface-muted)] text-[var(--muted)]'
-                        }`}
+                        className={`chip ${difficultyFilter === level ? 'chip-active' : ''}`}
                     >
                         {level}
                     </button>
                 ))}
             </div>
 
-            <div className="mb-8 flex flex-wrap gap-2">
+            <div className="mb-10 flex flex-wrap gap-2">
                 {regions.map((region) => (
                     <button
                         key={region}
                         type="button"
                         onClick={() => setRegionFilter(region)}
-                        className={`rounded-[var(--radius)] border px-3 py-1.5 text-xs font-semibold ${
-                            regionFilter === region
-                                ? 'border-[var(--accent)] text-[var(--accent)]'
-                                : 'border-[var(--border)] text-[var(--muted)]'
+                        className={`chip ${
+                            regionFilter === region ? 'chip-outline-active' : ''
                         }`}
                     >
                         {region === 'All' ? 'All regions' : region}
@@ -133,7 +127,7 @@ export default function TreksPage() {
                     description="Try another search, difficulty, or region."
                 />
             ) : (
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid gap-7 lg:grid-cols-2">
                     {filteredTreks.map((trek) => {
                         const href = isAuthenticated
                             ? planHref(trek)
@@ -144,24 +138,30 @@ export default function TreksPage() {
                                 interactive
                                 className="flex flex-col overflow-hidden p-0"
                             >
-                                <div className="media-zoom">
+                                <div className="media-zoom relative">
                                     <CatalogImage
                                         src={trek.image_url}
                                         alt={trek.trek_name}
                                         fallbackLabel={trek.trek_name}
-                                        className="h-48 w-full"
+                                        className="h-56 w-full sm:h-64"
                                     />
-                                </div>
-                                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                                    <div
+                                        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[rgb(8_30_22_/0.55)] to-transparent"
+                                        aria-hidden
+                                    />
+                                    <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
                                         <Badge variant={getDifficultyVariant(trek.difficulty)}>
                                             {trek.difficulty}
                                         </Badge>
                                         {trek.region && (
-                                            <Badge variant="default">{trek.region}</Badge>
+                                            <Badge className="bg-white/90 text-[var(--foreground)] ring-white/40">
+                                                {trek.region}
+                                            </Badge>
                                         )}
                                     </div>
-                                    <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                </div>
+                                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                                    <h3 className="display-title text-2xl sm:text-3xl">
                                         {trek.trek_name}
                                     </h3>
                                     {trek.summary && (
@@ -170,38 +170,37 @@ export default function TreksPage() {
                                         </p>
                                     )}
                                     {trek.highlights && (
-                                        <p className="mt-3 text-sm text-[var(--foreground)]">
-                                            <span className="font-semibold">Highlights: </span>
+                                        <p className="mt-4 border-l-2 border-[var(--accent)]/40 pl-3 text-sm leading-relaxed text-[var(--foreground)]">
                                             {trek.highlights}
                                         </p>
                                     )}
-                                    <div className="mt-5 grid grid-cols-3 gap-3 border-t border-[var(--border)] pt-5 text-sm">
+                                    <div className="mt-6 grid grid-cols-3 gap-3 border-t border-[var(--border)] pt-5 text-sm">
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
                                                 Altitude
                                             </p>
-                                            <p className="mt-1 font-semibold">
+                                            <p className="mt-1.5 font-semibold">
                                                 {trek.max_altitude.toLocaleString()} m
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
                                                 Duration
                                             </p>
-                                            <p className="mt-1 font-semibold">
+                                            <p className="mt-1.5 font-semibold">
                                                 {trek.duration_days} days
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                                Best seasons
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+                                                Seasons
                                             </p>
-                                            <p className="mt-1 font-semibold">
+                                            <p className="mt-1.5 font-semibold">
                                                 {trek.best_seasons || '—'}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="mt-5">
+                                    <div className="mt-6">
                                         <Link href={href}>
                                             <Button fullWidth variant="primary">
                                                 Plan this trek

@@ -74,36 +74,41 @@ export default function DashboardPage() {
 
     return (
         <ProtectedRoute>
-            <div className="relative overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(160deg,#12352a_0%,#1a684c_48%,#2f7d62_100%)]">
+            <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(155deg,#0a3324_0%,#146649_52%,#1f7a58_100%)]">
                 <div
-                    className="pointer-events-none absolute -right-16 top-0 h-56 w-56 rounded-full bg-white/10 blur-2xl"
+                    className="pointer-events-none absolute -right-20 -top-10 h-72 w-72 rounded-full bg-white/10 blur-3xl"
                     aria-hidden
                 />
-                <PageContainer className="relative py-12 sm:py-16">
-                    <p className="anim-rise text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
-                        Your trail buddy
+                <div
+                    className="pointer-events-none absolute bottom-0 left-1/4 h-40 w-40 rounded-full bg-[rgb(180_220_200_/0.15)] blur-2xl"
+                    aria-hidden
+                />
+                <PageContainer className="relative py-14 sm:py-20">
+                    <p className="anim-rise text-[0.7rem] font-bold uppercase tracking-[0.2em] text-white/55">
+                        Your trail lodge
                     </p>
-                    <h1 className="anim-rise-delay mt-3 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                        Ready when you are, {firstName}.
+                    <h1 className="anim-rise-delay display-title mt-4 text-4xl text-white sm:text-5xl md:text-6xl">
+                        Ready when you are,
+                        <br className="hidden sm:block" /> {firstName}.
                     </h1>
-                    <p className="anim-rise-late mt-3 max-w-xl text-base leading-relaxed text-white/80">
+                    <p className="anim-rise-late mt-4 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
                         Pick up a packing list, check the forecast mindset, or revisit what you
                         already saved.
                     </p>
-                    <div className="anim-rise-late mt-6 flex flex-wrap items-center gap-3">
-                        <Badge className="border-white/20 bg-white/15 text-white">
+                    <div className="anim-rise-late mt-8 flex flex-wrap items-center gap-4">
+                        <Badge className="border-0 bg-white/15 text-white ring-white/20">
                             {user?.experience_level || 'Beginner'}
                         </Badge>
                         <Link
                             href="/profile"
-                            className="text-sm font-semibold text-white/85 hover:text-white"
+                            className="text-sm font-semibold text-white/80 hover:text-white"
                         >
                             Edit experience →
                         </Link>
-                        <Link href="/planner" className="sm:ml-auto">
+                        <Link href="/planner" className="w-full sm:ml-auto sm:w-auto">
                             <Button
                                 size="lg"
-                                className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
+                                className="w-full bg-white text-[var(--accent-deep)] shadow-[0_12px_28px_rgb(0_0_0_/0.2)] hover:bg-white/90 sm:w-auto"
                             >
                                 Plan a trek
                             </Button>
@@ -113,10 +118,13 @@ export default function DashboardPage() {
             </div>
 
             <PageContainer>
-                <section className="mb-14">
-                    <h2 className="mb-5 font-[family-name:var(--font-display)] text-2xl font-semibold">
-                        Where to next
-                    </h2>
+                <section className="mb-16">
+                    <div className="mb-6 flex items-end justify-between gap-4">
+                        <div>
+                            <p className="eyebrow">Start here</p>
+                            <h2 className="display-title mt-2 text-2xl sm:text-3xl">Where to next</h2>
+                        </div>
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {QUICK_LINKS.map((item) => (
                             <Link key={item.href} href={item.href} className="group">
@@ -124,15 +132,18 @@ export default function DashboardPage() {
                                     interactive
                                     className={`h-full ${
                                         item.primary
-                                            ? 'border-[var(--accent)]/35 bg-[var(--accent-soft)]'
+                                            ? 'border-[var(--accent)]/40 bg-[linear-gradient(160deg,var(--accent-soft),var(--surface))]'
                                             : ''
                                     }`}
                                 >
-                                    <h3 className="font-semibold group-hover:text-[var(--accent)]">
+                                    <h3 className="text-lg font-semibold tracking-tight group-hover:text-[var(--accent)]">
                                         {item.title}
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
                                         {item.description}
+                                    </p>
+                                    <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
+                                        Open →
                                     </p>
                                 </Card>
                             </Link>
@@ -140,15 +151,13 @@ export default function DashboardPage() {
                     </div>
                 </section>
 
-                <section className="grid gap-10 lg:grid-cols-2">
+                <section className="grid gap-12 lg:grid-cols-2">
                     <div>
-                        <div className="mb-4 flex items-center justify-between gap-3">
-                            <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold">
-                                Recent checklists
-                            </h2>
+                        <div className="mb-5 flex items-center justify-between gap-3">
+                            <h2 className="display-title text-2xl">Recent checklists</h2>
                             <Link
                                 href="/history"
-                                className="text-xs font-semibold text-[var(--accent)] hover:underline"
+                                className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
                             >
                                 My plans →
                             </Link>
@@ -170,8 +179,10 @@ export default function DashboardPage() {
                                 {checklists.map((item) => (
                                     <Link key={item.history_id} href={`/history/${item.history_id}`}>
                                         <Card interactive>
-                                            <p className="font-semibold">{item.trek_name}</p>
-                                            <p className="mt-1 text-xs text-[var(--muted)]">
+                                            <p className="font-semibold tracking-tight">
+                                                {item.trek_name}
+                                            </p>
+                                            <p className="mt-1.5 text-xs text-[var(--muted)]">
                                                 {item.season} · {item.duration} days · {item.risk_level}{' '}
                                                 risk
                                             </p>
@@ -183,13 +194,11 @@ export default function DashboardPage() {
                     </div>
 
                     <div>
-                        <div className="mb-4 flex items-center justify-between gap-3">
-                            <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold">
-                                Recent itineraries
-                            </h2>
+                        <div className="mb-5 flex items-center justify-between gap-3">
+                            <h2 className="display-title text-2xl">Recent itineraries</h2>
                             <Link
                                 href="/history"
-                                className="text-xs font-semibold text-[var(--accent)] hover:underline"
+                                className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
                             >
                                 My plans →
                             </Link>
@@ -214,10 +223,10 @@ export default function DashboardPage() {
                                         href={`/planner?tab=itinerary&plan=${item.id}`}
                                     >
                                         <Card interactive>
-                                            <p className="font-semibold">
+                                            <p className="font-semibold tracking-tight">
                                                 {item.title || item.destination}
                                             </p>
-                                            <p className="mt-1 text-xs text-[var(--muted)]">
+                                            <p className="mt-1.5 text-xs text-[var(--muted)]">
                                                 {item.destination} · {item.duration_days} days ·{' '}
                                                 {item.difficulty}
                                             </p>

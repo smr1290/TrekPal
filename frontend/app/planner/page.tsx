@@ -178,26 +178,18 @@ function PlanTripInner() {
                 description="Packing checklists and day-by-day itineraries — with risk and weather context when you need it."
             />
 
-            <div className="mb-8 flex flex-wrap gap-2 border-b border-[var(--border)] pb-4">
+            <div className="mb-10 flex flex-wrap gap-2 border-b border-[var(--border)] pb-5">
                 <button
                     type="button"
                     onClick={() => setTab('checklist')}
-                    className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
-                        tab === 'checklist'
-                            ? 'bg-[var(--accent)] text-white'
-                            : 'bg-[var(--surface-muted)] text-[var(--muted)] hover:text-[var(--foreground)]'
-                    }`}
+                    className={`chip ${tab === 'checklist' ? 'chip-active' : ''}`}
                 >
                     Quick checklist
                 </button>
                 <button
                     type="button"
                     onClick={() => setTab('itinerary')}
-                    className={`rounded-[var(--radius)] px-4 py-2 text-sm font-semibold ${
-                        tab === 'itinerary'
-                            ? 'bg-[var(--accent)] text-white'
-                            : 'bg-[var(--surface-muted)] text-[var(--muted)] hover:text-[var(--foreground)]'
-                    }`}
+                    className={`chip ${tab === 'itinerary' ? 'chip-active' : ''}`}
                 >
                     Full itinerary
                 </button>

@@ -69,7 +69,9 @@ export default function WeatherPanel({ destination }: { destination: string }) {
         <Card className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h3 className="text-sm font-semibold">Trail weather</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-[var(--foreground)]">
+                        Trail weather
+                    </h3>
                     <p className="mt-1 text-xs text-[var(--muted)]">
                         Open-Meteo forecast for known trek areas — orientation only.
                     </p>

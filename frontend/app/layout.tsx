@@ -18,9 +18,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "TrekPal — Your trail buddy",
+  title: "TrekPal — Your Himalayan destination buddy",
   description:
-    "Nepal trek preparation with packing lists, risk checks, weather watch-outs, and trusted guides.",
+    "Premium Nepal trek preparation: packing lists, risk checks, weather watch-outs, and trusted guides.",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className="app-shell flex min-h-screen flex-col font-[family-name:var(--font-sans)] text-[var(--foreground)]">
         <AuthProvider>
           <Navbar />
-          <main className="w-full flex-1 pt-16">{children}</main>
+          <main className="w-full flex-1 pt-[4.25rem]">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

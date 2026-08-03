@@ -1,32 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  /* Morning ridge — cool alpine mist, pine ink, trail green */
-  --background: #e8efea;
-  --surface: #fbfdfb;
-  --surface-muted: #f0f5f2;
-  --foreground: #12241c;
-  --muted: #4f6359;
-  --border: #c5d4cb;
+  /* High Lodge — misted alpine paper, pine ink, trail emerald */
+  --background: #dfe8e2;
+  --surface: #fafcfb;
+  --surface-muted: #eef3f0;
+  --foreground: #0c1c15;
+  --muted: #5a6e64;
+  --border: #c2d0c7;
+  --border-strong: #9eb0a5;
 
-  --accent: #1a684c;
-  --accent-hover: #14533c;
-  --accent-soft: #dceee5;
+  --accent: #146649;
+  --accent-hover: #0f523a;
+  --accent-soft: #d5ebe0;
   --accent-on: #ffffff;
-  --accent-deep: #0d3d2c;
+  --accent-deep: #0a3324;
+  --accent-mid: #1f7a58;
 
-  --success: #1f7a4d;
-  --success-bg: #e4f5ec;
-  --warning: #8a5f10;
-  --warning-bg: #f7edd4;
-  --danger: #a61f18;
-  --danger-bg: #fce8e6;
-  --info: #1a5a7a;
-  --info-bg: #e4f0f6;
+  --success: #1a6f47;
+  --success-bg: #e2f4ea;
+  --warning: #8a5a0a;
+  --warning-bg: #f6edd8;
+  --danger: #9e1c16;
+  --danger-bg: #fbe7e5;
+  --info: #165a76;
+  --info-bg: #e2eff5;
 
-  --radius: 14px;
-  --shadow: 0 10px 30px rgb(18 36 28 / 0.07);
-  --shadow-hover: 0 14px 36px rgb(18 36 28 / 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.65) inset, 0 12px 32px rgb(12 28 21 / 0.07);
+  --shadow-hover: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 18px 44px rgb(12 28 21 / 0.12);
+  --shadow-deep: 0 24px 60px rgb(10 51 36 / 0.18);
+  --ring: 0 0 0 3px rgb(20 102 73 / 0.22);
+
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 }
@@ -36,26 +43,43 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   margin: 0;
   padding: 0;
 }
 
-/* Soft ridge light + faint trail grain */
+/* Lodge atmosphere: ridge light + cool valley haze + soft grain */
 .app-shell {
+  position: relative;
   background-color: var(--background);
   background-image:
-    radial-gradient(ellipse 100% 60% at 50% -15%, #cfe4d8 0%, transparent 58%),
-    radial-gradient(ellipse 50% 40% at 100% 20%, rgb(29 107 79 / 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 35% at 0% 60%, rgb(29 95 138 / 0.06) 0%, transparent 45%),
-    linear-gradient(180deg, #f2f7f4 0%, var(--background) 45%);
+    radial-gradient(ellipse 110% 70% at 50% -20%, #c5ddd0 0%, transparent 55%),
+    radial-gradient(ellipse 45% 50% at 100% 10%, rgb(20 102 73 / 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 45% at -5% 70%, rgb(22 90 118 / 0.07) 0%, transparent 50%),
+    linear-gradient(180deg, #eef5f1 0%, var(--background) 42%);
   background-attachment: fixed;
   min-height: 100vh;
+}
+
+.app-shell::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.app-shell > * {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
@@ -77,56 +101,77 @@ body {
     transform: scale(1);
   }
   to {
-    transform: scale(1.06);
+    transform: scale(1.08);
   }
 }
 
 @keyframes mist-drift {
   from {
-    transform: translateX(-2%);
-    opacity: 0.55;
+    transform: translateX(-3%);
+    opacity: 0.4;
   }
   to {
-    transform: translateX(2%);
+    transform: translateX(3%);
+    opacity: 0.7;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
     opacity: 0.75;
   }
 }
 
 .anim-rise {
-  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .anim-rise-delay {
-  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  animation: rise-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
 }
 
 .anim-rise-late {
-  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+  animation: rise-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 
 .anim-fade {
-  animation: fade-in 1s ease-out both;
+  animation: fade-in 1.1s ease-out both;
 }
 
 .hero-kenburns {
-  animation: slow-zoom 18s ease-out forwards;
+  animation: slow-zoom 22s ease-out forwards;
 }
 
 .hero-mist {
-  animation: mist-drift 12s ease-in-out infinite alternate;
+  animation: mist-drift 14s ease-in-out infinite alternate;
+}
+
+.hero-glow {
+  animation: soft-pulse 8s ease-in-out infinite;
+}
+
+.surface-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .surface-interactive {
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .surface-interactive:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-hover);
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
 }
 
 .media-zoom {
@@ -134,22 +179,121 @@ body {
 }
 
 .media-zoom img {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .media-zoom:hover img {
-  transform: scale(1.04);
+  transform: scale(1.06);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.chip:hover {
+  border-color: var(--border-strong);
+  color: var(--foreground);
+}
+
+.chip-active {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-on);
+  box-shadow: 0 8px 18px rgb(20 102 73 / 0.22);
+}
+
+.chip-active:hover {
+  color: var(--accent-on);
+}
+
+.chip-outline-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.field-control {
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.field-control:focus {
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.display-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.nav-glass {
+  background: rgb(250 252 251 / 0.82);
+  border-bottom: 1px solid rgb(194 208 199 / 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.nav-glass-home {
+  background: rgb(10 51 36 / 0.28);
+  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.divider-trail {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-strong) 20%,
+    var(--border-strong) 80%,
+    transparent
+  );
 }
 
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #a9bdb2;
+  background: #9eb0a5;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8fa89a;
+  background: #7f9588;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -158,12 +302,15 @@ body {
   .anim-rise-late,
   .anim-fade,
   .hero-kenburns,
-  .hero-mist {
+  .hero-mist,
+  .hero-glow {
     animation: none !important;
   }
 
   .surface-interactive,
-  .media-zoom img {
+  .media-zoom img,
+  .chip,
+  .field-control {
     transition: none !important;
   }
 }

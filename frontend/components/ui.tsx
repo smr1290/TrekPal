@@ -12,21 +12,19 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <header className="mb-10 flex flex-col gap-5 border-b border-[var(--border)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+    <header className="mb-12 flex flex-col gap-6 border-b border-[var(--border)] pb-10 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
-        {eyebrow && (
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
-            {eyebrow}
-          </p>
-        )}
-        <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">
+        {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
+        <h1 className="display-title text-4xl text-[var(--foreground)] sm:text-5xl md:text-[3.25rem]">
           {title}
         </h1>
         {description && (
-          <p className="mt-3 text-base leading-relaxed text-[var(--muted)] sm:text-lg">{description}</p>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
+            {description}
+          </p>
         )}
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </header>
   );
 }
@@ -41,12 +39,13 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-[var(--radius)] border border-dashed border-[var(--border)] bg-[var(--surface-muted)] px-6 py-16 text-center">
-      <h3 className="text-lg font-semibold text-[var(--foreground)]">{title}</h3>
+    <div className="flex flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] bg-[var(--surface)]/70 px-6 py-20 text-center shadow-[var(--shadow)]">
+      <div className="mb-5 h-px w-12 bg-[var(--accent)]/50" aria-hidden />
+      <h3 className="display-title text-xl text-[var(--foreground)]">{title}</h3>
       {description && (
-        <p className="mt-2 max-w-sm text-sm text-[var(--muted)]">{description}</p>
+        <p className="mt-3 max-w-sm text-sm leading-relaxed text-[var(--muted)]">{description}</p>
       )}
-      {action && <div className="mt-6">{action}</div>}
+      {action && <div className="mt-7">{action}</div>}
     </div>
   );
 }
@@ -58,7 +57,7 @@ export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
         className="h-8 w-8 animate-pulse rounded-full border-2 border-[var(--border)] border-t-[var(--accent)]"
         aria-hidden
       />
-      <p className="text-sm font-medium">{label}</p>
+      <p className="text-sm font-medium tracking-wide">{label}</p>
     </div>
   );
 }
@@ -72,17 +71,18 @@ export function SkeletonGrid({
   columns?: string;
 }) {
   return (
-    <div className={`grid gap-5 ${columns}`} aria-busy="true" aria-label="Loading">
+    <div className={`grid gap-6 ${columns}`} aria-busy="true" aria-label="Loading">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow)]"
+          className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow)]"
         >
-          <div className="mb-4 h-4 w-20 animate-pulse rounded bg-[var(--border)]" />
-          <div className="mb-3 h-7 w-3/4 animate-pulse rounded bg-[var(--border)]" />
-          <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-5">
-            <div className="h-10 animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-10 animate-pulse rounded bg-[var(--surface-muted)]" />
+          <div className="h-40 animate-pulse bg-[var(--surface-muted)]" />
+          <div className="space-y-3 p-6">
+            <div className="h-3 w-20 animate-pulse rounded bg-[var(--surface-muted)]" />
+            <div className="h-5 w-2/3 animate-pulse rounded bg-[var(--surface-muted)]" />
+            <div className="h-3 w-full animate-pulse rounded bg-[var(--surface-muted)]" />
+            <div className="h-3 w-4/5 animate-pulse rounded bg-[var(--surface-muted)]" />
           </div>
         </div>
       ))}
@@ -92,21 +92,14 @@ export function SkeletonGrid({
 
 export function SkeletonList({ count = 3 }: { count?: number }) {
   return (
-    <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading">
+    <div className="space-y-3" aria-busy="true" aria-label="Loading">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex flex-col gap-4 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 sm:flex-row sm:items-center sm:justify-between"
+          className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow)]"
         >
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-32 animate-pulse rounded bg-[var(--border)]" />
-            <div className="h-7 w-48 animate-pulse rounded bg-[var(--border)]" />
-          </div>
-          <div className="flex gap-6">
-            <div className="h-10 w-16 animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-10 w-16 animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-10 w-16 animate-pulse rounded bg-[var(--surface-muted)]" />
-          </div>
+          <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--surface-muted)]" />
+          <div className="mt-3 h-3 w-1/3 animate-pulse rounded bg-[var(--surface-muted)]" />
         </div>
       ))}
     </div>

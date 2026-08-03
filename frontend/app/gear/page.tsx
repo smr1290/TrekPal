@@ -91,20 +91,16 @@ export default function GearPage() {
                 <EmptyState title="Gear unavailable" description={loadError} />
             ) : (
                 <div className="flex flex-col gap-10 md:flex-row md:gap-12">
-                    <aside className="shrink-0 md:w-52">
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                            Categories
-                        </p>
+                    <aside className="shrink-0 md:w-56">
+                        <p className="eyebrow mb-4">Categories</p>
                         <div className="flex flex-wrap gap-2 md:flex-col">
                             {categories.map((category) => (
                                 <button
                                     key={category}
                                     type="button"
                                     onClick={() => setSelectedCategory(category)}
-                                    className={`rounded-[var(--radius)] px-3 py-2 text-left text-sm font-medium ${
-                                        selectedCategory === category
-                                            ? 'bg-[var(--accent)] text-white'
-                                            : 'bg-[var(--surface)] text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]'
+                                    className={`chip md:w-full md:justify-start ${
+                                        selectedCategory === category ? 'chip-active' : ''
                                     }`}
                                 >
                                     {category}
@@ -132,18 +128,18 @@ export default function GearPage() {
                                                 src={item.photo_url}
                                                 alt={item.gear_name}
                                                 fallbackLabel={item.category || 'Gear'}
-                                                className="h-36 w-full"
+                                                className="h-40 w-full"
                                             />
                                         </div>
-                                        <div className="flex flex-1 flex-col p-5">
+                                        <div className="flex flex-1 flex-col p-6">
                                             <Badge variant="info" className="mb-3 w-fit">
                                                 {item.category}
                                             </Badge>
-                                            <h3 className="text-lg font-semibold">
+                                            <h3 className="text-lg font-semibold tracking-tight">
                                                 {item.gear_name}
                                             </h3>
                                             {item.quantity_hint && (
-                                                <p className="mt-1 text-xs font-medium">
+                                                <p className="mt-1.5 text-xs font-semibold text-[var(--accent)]">
                                                     Pack: {item.quantity_hint}
                                                 </p>
                                             )}
@@ -151,7 +147,7 @@ export default function GearPage() {
                                                 {item.description}
                                             </p>
                                             {item.rent_hint && (
-                                                <p className="mt-3 rounded-[var(--radius)] bg-[var(--surface-muted)] px-3 py-2 text-xs leading-relaxed text-[var(--muted)]">
+                                                <p className="mt-4 rounded-[var(--radius-sm)] border border-[var(--accent)]/15 bg-[var(--accent-soft)]/60 px-3 py-2.5 text-xs leading-relaxed text-[var(--accent-deep)]">
                                                     Nepal tip: {item.rent_hint}
                                                 </p>
                                             )}

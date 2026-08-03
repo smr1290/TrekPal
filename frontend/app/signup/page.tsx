@@ -59,18 +59,19 @@ export default function SignupPage() {
     };
 
     return (
-        <PageContainer className="flex min-h-[70vh] flex-col items-center justify-center">
+        <PageContainer className="flex min-h-[75vh] flex-col items-center justify-center">
             <div className="w-full max-w-md">
-                <div className="mb-8 text-center">
-                    <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
+                <div className="mb-10 text-center">
+                    <p className="eyebrow">Join TrekPal</p>
+                    <h1 className="display-title mt-3 text-4xl sm:text-5xl">
                         Meet your trail buddy
                     </h1>
-                    <p className="mt-2 text-[var(--muted)]">
-                        Set your experience level and start preparing with TrekPal.
+                    <p className="mt-3 text-[var(--muted)]">
+                        Set your experience level and start preparing for Nepal.
                     </p>
                 </div>
 
-                <Card className="p-8">
+                <Card className="p-8 sm:p-9">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
                         {errors.general && (
                             <div className="mb-4 rounded-[var(--radius)] border border-[var(--danger)]/30 bg-[var(--danger-bg)] p-3 text-sm text-[var(--danger)]">
