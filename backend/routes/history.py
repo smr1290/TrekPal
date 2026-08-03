@@ -124,3 +124,30 @@ def get_history_detail(
         trek_type=history.trek_type,
         recommended_gear=_enrich_saved_gear(db, history),
     )
+
+
+@router.delete("/history/{history_id}")
+def delete_history(
+    history_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Remove a saved packing checklist owned by the current user."""
+    history = (
+        db.query(models.UserTrekHistory)
+        .filter(
+            models.UserTrekHistory.id == history_id,
+            models.UserTrekHistory.user_id == current_user.id,
+        )
+        .first()
+    )
+    if not history:
+        raise HTTPException(status_code=404, detail="History not found")
+
+    # Child rows cascade via FK ondelete=CASCADE; delete explicitly for clarity.
+    db.query(models.TrekGearRecommendation).filter(
+        models.TrekGearRecommendation.history_id == history.id
+    ).delete(synchronize_session=False)
+    db.delete(history)
+    db.commit()
+    return {"ok": True, "deleted_id": history_id}

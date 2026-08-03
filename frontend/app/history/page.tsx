@@ -15,12 +15,25 @@ import { getRiskVariant } from '@/lib/badgeHelpers';
 
 type Tab = 'checklists' | 'itineraries';
 
+function checklistSubtitle(item: TrekHistory): string {
+    if (item.destination?.trim()) {
+        return item.trek_type ? `${item.trek_type} difficulty` : item.destination;
+    }
+    if (item.trek_type) {
+        return `Older save · ${item.trek_type} difficulty · no destination recorded`;
+    }
+    return 'Older save · no destination recorded';
+}
+
 export default function HistoryPage() {
     const { user } = useAuth();
     const [tab, setTab] = useState<Tab>('checklists');
     const [history, setHistory] = useState<TrekHistory[]>([]);
     const [itineraries, setItineraries] = useState<TripPlanSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [deletingChecklistId, setDeletingChecklistId] = useState<number | null>(null);
+    const [deletingPlanId, setDeletingPlanId] = useState<number | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -46,6 +59,44 @@ export default function HistoryPage() {
         void fetchAll();
     }, [user]);
 
+    const deleteChecklist = async (historyId: number, label: string) => {
+        const confirmed = window.confirm(
+            `Delete the packing checklist “${label}”? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        setActionError(null);
+        setDeletingChecklistId(historyId);
+        try {
+            await trekApi.deleteHistory(historyId);
+            setHistory((prev) => prev.filter((item) => item.history_id !== historyId));
+        } catch (error) {
+            console.error('Failed to delete checklist:', error);
+            setActionError('Could not delete that checklist. Please try again.');
+        } finally {
+            setDeletingChecklistId(null);
+        }
+    };
+
+    const deleteItinerary = async (planId: number, label: string) => {
+        const confirmed = window.confirm(
+            `Delete the itinerary “${label}”? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        setActionError(null);
+        setDeletingPlanId(planId);
+        try {
+            await tripPlanApi.delete(planId);
+            setItineraries((prev) => prev.filter((item) => item.id !== planId));
+        } catch (error) {
+            console.error('Failed to delete itinerary:', error);
+            setActionError('Could not delete that itinerary. Please try again.');
+        } finally {
+            setDeletingPlanId(null);
+        }
+    };
+
     return (
         <ProtectedRoute>
             <PageContainer>
@@ -58,6 +109,12 @@ export default function HistoryPage() {
                         </Link>
                     }
                 />
+
+                {actionError && (
+                    <p className="mb-4 text-sm text-[var(--danger)]" role="alert">
+                        {actionError}
+                    </p>
+                )}
 
                 <div className="mb-6 flex flex-wrap gap-2">
                     <button
@@ -100,28 +157,32 @@ export default function HistoryPage() {
                     ) : (
                         <div className="flex flex-col gap-4">
                             {history.map((item) => (
-                                <Link key={item.history_id} href={`/history/${item.history_id}`}>
-                                    <Card className="flex flex-col gap-6 transition hover:border-[var(--accent)]/40 sm:flex-row sm:items-center sm:justify-between">
-                                        <div>
-                                            <p className="text-xs font-medium text-[var(--muted)]">
-                                                Checklist ·{' '}
-                                                {new Date(item.date).toLocaleDateString()}
-                                            </p>
-                                            <h3 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
-                                                {item.trek_name}
-                                            </h3>
-                                            {item.trek_type && (
-                                                <p className="mt-1 text-sm text-[var(--muted)]">
-                                                    {item.trek_type} difficulty
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-6 sm:min-w-[280px]">
+                                <Card
+                                    key={item.history_id}
+                                    className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
+                                >
+                                    <Link
+                                        href={`/history/${item.history_id}`}
+                                        className="min-w-0 flex-1 transition hover:opacity-90"
+                                    >
+                                        <p className="text-xs font-medium text-[var(--muted)]">
+                                            Checklist ·{' '}
+                                            {new Date(item.date).toLocaleDateString()}
+                                        </p>
+                                        <h3 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                            {item.trek_name}
+                                        </h3>
+                                        <p className="mt-1 text-sm text-[var(--muted)]">
+                                            {checklistSubtitle(item)}
+                                        </p>
+                                        <div className="mt-4 grid grid-cols-3 gap-6 sm:max-w-md">
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
                                                     Duration
                                                 </p>
-                                                <p className="mt-1 font-semibold">{item.duration} days</p>
+                                                <p className="mt-1 font-semibold">
+                                                    {item.duration} days
+                                                </p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
@@ -141,8 +202,22 @@ export default function HistoryPage() {
                                                 </Badge>
                                             </div>
                                         </div>
-                                    </Card>
-                                </Link>
+                                    </Link>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="shrink-0 text-[var(--danger)] hover:border-[var(--danger)]"
+                                        disabled={deletingChecklistId === item.history_id}
+                                        onClick={() =>
+                                            void deleteChecklist(item.history_id, item.trek_name)
+                                        }
+                                    >
+                                        {deletingChecklistId === item.history_id
+                                            ? 'Deleting…'
+                                            : 'Delete'}
+                                    </Button>
+                                </Card>
                             ))}
                         </div>
                     )
@@ -159,30 +234,51 @@ export default function HistoryPage() {
                 ) : (
                     <div className="flex flex-col gap-4">
                         {itineraries.map((item) => (
-                            <Link key={item.id} href={`/planner?tab=itinerary&plan=${item.id}`}>
-                                <Card className="flex flex-col gap-4 transition hover:border-[var(--accent)]/40 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-xs font-medium text-[var(--muted)]">
-                                            Itinerary · {item.source}
-                                            {item.created_at
-                                                ? ` · ${new Date(item.created_at).toLocaleDateString()}`
-                                                : ''}
-                                        </p>
-                                        <h3 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
-                                            {item.title || item.destination}
-                                        </h3>
-                                        <p className="mt-1 text-sm text-[var(--muted)]">
-                                            {item.destination} · {item.duration_days} days ·{' '}
-                                            {item.difficulty}
-                                        </p>
-                                    </div>
+                            <Card
+                                key={item.id}
+                                className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                                <Link
+                                    href={`/planner?tab=itinerary&plan=${item.id}`}
+                                    className="min-w-0 flex-1 transition hover:opacity-90"
+                                >
+                                    <p className="text-xs font-medium text-[var(--muted)]">
+                                        Itinerary · {item.source}
+                                        {item.created_at
+                                            ? ` · ${new Date(item.created_at).toLocaleDateString()}`
+                                            : ''}
+                                    </p>
+                                    <h3 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                        {item.title || item.destination}
+                                    </h3>
+                                    <p className="mt-1 text-sm text-[var(--muted)]">
+                                        {item.destination} · {item.duration_days} days ·{' '}
+                                        {item.difficulty}
+                                    </p>
+                                </Link>
+                                <div className="flex shrink-0 flex-wrap items-center gap-3">
                                     {item.risk_level && (
                                         <Badge variant={getRiskVariant(item.risk_level)}>
                                             {item.risk_level} risk
                                         </Badge>
                                     )}
-                                </Card>
-                            </Link>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-[var(--danger)] hover:border-[var(--danger)]"
+                                        disabled={deletingPlanId === item.id}
+                                        onClick={() =>
+                                            void deleteItinerary(
+                                                item.id,
+                                                item.title || item.destination
+                                            )
+                                        }
+                                    >
+                                        {deletingPlanId === item.id ? 'Deleting…' : 'Delete'}
+                                    </Button>
+                                </div>
+                            </Card>
                         ))}
                     </div>
                 )}

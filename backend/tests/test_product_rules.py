@@ -146,3 +146,17 @@ def test_update_profile_schema_accepts_experience():
     payload = UpdateProfileRequest(full_name="Sam", experience_level="Advanced")
     assert payload.experience_level == "Advanced"
     assert payload.full_name == "Sam"
+
+
+def test_delete_plan_routes_are_registered():
+    """M4: users must be able to remove saved checklists and itineraries."""
+    from fastapi.routing import APIRoute
+    from main import app
+
+    delete_paths = {
+        (route.path, tuple(sorted(route.methods or [])))
+        for route in app.routes
+        if isinstance(route, APIRoute) and route.methods and "DELETE" in route.methods
+    }
+    assert ("/trek/history/{history_id}", ("DELETE",)) in delete_paths
+    assert ("/trip-plans/{plan_id}", ("DELETE",)) in delete_paths

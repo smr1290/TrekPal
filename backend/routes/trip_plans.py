@@ -147,3 +147,23 @@ def get_plan(
         plan=plan,
         created_at=row.created_at,
     )
+
+
+@router.delete("/{plan_id}")
+def delete_plan(
+    plan_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Remove a saved itinerary owned by the current user."""
+    row = (
+        db.query(models.TripPlan)
+        .filter(models.TripPlan.id == plan_id, models.TripPlan.user_id == current_user.id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Trip plan not found")
+
+    db.delete(row)
+    db.commit()
+    return {"ok": True, "deleted_id": plan_id}

@@ -73,7 +73,15 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
             throw new ApiError(response.status, formatErrorDetail(error.detail) || 'Request failed');
         }
 
-        return await response.json();
+        // DELETE (and some endpoints) may return an empty body.
+        if (response.status === 204) {
+            return undefined as T;
+        }
+        const text = await response.text();
+        if (!text) {
+            return undefined as T;
+        }
+        return JSON.parse(text) as T;
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;
@@ -236,6 +244,12 @@ export const trekApi = {
             }[];
         }>(`/trek/history/${history_id}`);
     },
+
+    deleteHistory: async (history_id: number) => {
+        return fetchApi<{ ok: boolean; deleted_id: number }>(`/trek/history/${history_id}`, {
+            method: 'DELETE',
+        });
+    },
 };
 
 export const gearApi = {
@@ -357,6 +371,12 @@ export const tripPlanApi = {
             plan: Record<string, unknown>;
             created_at?: string | null;
         }>(`/trip-plans/${planId}`);
+    },
+
+    delete: async (planId: number) => {
+        return fetchApi<{ ok: boolean; deleted_id: number }>(`/trip-plans/${planId}`, {
+            method: 'DELETE',
+        });
     },
 };
 
