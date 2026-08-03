@@ -138,3 +138,11 @@ def test_history_title_prefers_destination():
         trek_type = "Easy"
 
     assert _history_title(NoDest()) == "Easy"
+
+
+def test_update_profile_schema_accepts_experience():
+    from schemas import UpdateProfileRequest
+
+    payload = UpdateProfileRequest(full_name="Sam", experience_level="Advanced")
+    assert payload.experience_level == "Advanced"
+    assert payload.full_name == "Sam"

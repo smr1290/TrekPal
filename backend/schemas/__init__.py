@@ -38,6 +38,11 @@ class UserMeResponse(BaseModel):
     email: str
 
 
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = Field(default=None, min_length=1, max_length=100)
+    experience_level: str | None = None
+
+
 # ---------- Catalog ----------
 
 

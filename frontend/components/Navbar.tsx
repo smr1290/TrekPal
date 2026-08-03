@@ -21,6 +21,7 @@ export default function Navbar() {
         { href: '/maps', label: 'Maps', public: true },
         { href: '/planner', label: 'Plan trip', public: false },
         { href: '/history', label: 'My plans', public: false },
+        { href: '/profile', label: 'Profile', public: false },
         { href: '/chat', label: 'Chat', public: false },
     ];
 
@@ -30,7 +31,8 @@ export default function Navbar() {
         const active =
             pathname === href ||
             (href === '/planner' && (pathname.startsWith('/planner') || pathname.startsWith('/prepare'))) ||
-            (href === '/history' && pathname.startsWith('/history'));
+            (href === '/history' && pathname.startsWith('/history')) ||
+            (href === '/profile' && pathname.startsWith('/profile'));
         return `rounded-[var(--radius)] px-3 py-2 text-sm font-medium ${
             active
                 ? isHome && !mobileOpen

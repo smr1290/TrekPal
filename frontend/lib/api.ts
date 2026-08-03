@@ -84,7 +84,13 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
 export const authApi = {
     signup: async (full_name: string, email: string, password: string, experience_level: string) => {
-        return fetchApi<{ message: string; user_id: number }>('/auth/signup', {
+        return fetchApi<{
+            access_token: string;
+            token_type: string;
+            user_id: number;
+            full_name: string;
+            experience_level: string;
+        }>('/auth/signup', {
             method: 'POST',
             body: JSON.stringify({ full_name, email, password, experience_level }),
         });
@@ -110,6 +116,18 @@ export const authApi = {
             experience_level: string | null;
             email: string;
         }>('/auth/me');
+    },
+
+    updateMe: async (payload: { full_name?: string; experience_level?: string }) => {
+        return fetchApi<{
+            user_id: number;
+            full_name: string;
+            experience_level: string | null;
+            email: string;
+        }>('/auth/me', {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+        });
     },
 };
 

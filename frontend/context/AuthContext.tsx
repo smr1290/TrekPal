@@ -7,12 +7,14 @@ interface User {
     id: number;
     full_name: string;
     experience_level: string;
+    email?: string;
 }
 
 interface AuthContextType {
     user: User | null;
     login: (email: string, password: string) => Promise<void>;
     signup: (full_name: string, email: string, password: string, experience_level: string) => Promise<void>;
+    updateProfile: (payload: { full_name?: string; experience_level?: string }) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
     isLoading: boolean;
@@ -21,6 +23,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_KEY = 'trek_pal_user';
+
+function applySession(
+    setUser: (user: User | null) => void,
+    data: {
+        access_token: string;
+        user_id: number;
+        full_name: string;
+        experience_level: string | null;
+    }
+) {
+    setAccessToken(data.access_token);
+    const userData: User = {
+        id: data.user_id,
+        full_name: data.full_name,
+        experience_level: data.experience_level || '',
+    };
+    setUser(userData);
+    localStorage.setItem(USER_KEY, JSON.stringify(userData));
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -48,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     id: me.user_id,
                     full_name: me.full_name,
                     experience_level: me.experience_level || '',
+                    email: me.email,
                 };
                 setUser(userData);
                 localStorage.setItem(USER_KEY, JSON.stringify(userData));
@@ -70,15 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         const response = await authApi.login(email, password);
-        setAccessToken(response.access_token);
-
-        const userData: User = {
-            id: response.user_id,
-            full_name: response.full_name,
-            experience_level: response.experience_level,
-        };
-        setUser(userData);
-        localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        applySession(setUser, response);
     };
 
     const signup = async (
@@ -87,7 +101,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password: string,
         experience_level: string
     ) => {
-        await authApi.signup(full_name, email, password, experience_level);
+        const response = await authApi.signup(full_name, email, password, experience_level);
+        applySession(setUser, response);
+    };
+
+    const updateProfile = async (payload: { full_name?: string; experience_level?: string }) => {
+        const me = await authApi.updateMe(payload);
+        const userData: User = {
+            id: me.user_id,
+            full_name: me.full_name,
+            experience_level: me.experience_level || '',
+            email: me.email,
+        };
+        setUser(userData);
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
     };
 
     const logout = () => {
@@ -108,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 user,
                 login,
                 signup,
+                updateProfile,
                 logout,
                 isAuthenticated: !!user,
                 isLoading,

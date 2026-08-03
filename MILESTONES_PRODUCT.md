@@ -6,7 +6,7 @@ Ship quality, one coherent slice at a time.
 |-----------|--------|--------|
 | **M1** | Trust & clarity (copy, chat errors/sources, planner AI vs fallback, maps empty states, catalog errors) | Done |
 | **M2** | Treks → Plan trip funnel (Plan this trek + URL prefill + login return) | Done |
-| **M3** | Profile: edit experience level after signup | Next |
+| **M3** | Profile: edit experience level after signup | Done |
 | **M4** | My plans: delete checklist/itinerary | Planned |
 | **M5** | Knowledge trust: sources + article UX | Planned |
 | **M6** | Maps content curation | Planned |
