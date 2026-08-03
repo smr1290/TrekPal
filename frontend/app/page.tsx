@@ -64,7 +64,7 @@ export default function Home() {
                             <p className="text-sm font-semibold text-[var(--accent)]">03 · Pack</p>
                             <h3 className="mt-2 text-lg font-semibold">Leave with a list</h3>
                             <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-                                Save gear suggestions and reopen them from your history anytime.
+                                Save gear suggestions and reopen them from My plans anytime.
                             </p>
                         </li>
                     </ol>

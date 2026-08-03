@@ -24,8 +24,11 @@ type FormErrors = {
 };
 
 type Props = {
-    /** Prefill destination when switching from the itinerary tab. */
     initialDestination?: string;
+    initialAltitude?: string;
+    initialDuration?: string;
+    initialTrekType?: string;
+    initialSeason?: string;
     onRequestItinerary?: (draft: {
         destination: string;
         altitude: string;
@@ -35,18 +38,37 @@ type Props = {
     }) => void;
 };
 
-export default function PrepareTrekPanel({ initialDestination = '', onRequestItinerary }: Props) {
+export default function PrepareTrekPanel({
+    initialDestination = '',
+    initialAltitude = '',
+    initialDuration = '',
+    initialTrekType = 'Easy',
+    initialSeason = 'Spring',
+    onRequestItinerary,
+}: Props) {
     const { user } = useAuth();
     const [formData, setFormData] = useState({
-        trek_type: 'Easy',
-        altitude: '',
-        season: 'Spring',
-        duration: '',
+        trek_type: initialTrekType || 'Easy',
+        altitude: initialAltitude,
+        season: initialSeason || 'Spring',
+        duration: initialDuration,
         destination: initialDestination,
     });
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<TrekPreparationResponse | null>(null);
+
+    // Prefill when arriving from Treks catalog (URL params change).
+    React.useEffect(() => {
+        setFormData((prev) => ({
+            ...prev,
+            destination: initialDestination || prev.destination,
+            altitude: initialAltitude || prev.altitude,
+            duration: initialDuration || prev.duration,
+            trek_type: initialTrekType || prev.trek_type,
+            season: initialSeason || prev.season,
+        }));
+    }, [initialDestination, initialAltitude, initialDuration, initialTrekType, initialSeason]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

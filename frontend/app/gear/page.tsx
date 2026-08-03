@@ -11,6 +11,7 @@ import type { Gear } from '@/lib/types';
 export default function GearPage() {
     const [gearList, setGearList] = useState<Gear[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
     useEffect(() => {
@@ -18,14 +19,16 @@ export default function GearPage() {
             try {
                 const data = await gearApi.listGear();
                 setGearList(data || []);
-            } catch (error) {
-                console.error('Failed to fetch gear:', error);
+                setLoadError(null);
+            } catch {
+                setLoadError('Could not load gear. Check that the API is running.');
+                setGearList([]);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchGear();
+        void fetchGear();
     }, []);
 
     const rawCategories = Array.from(
@@ -42,11 +45,13 @@ export default function GearPage() {
         <PageContainer>
             <PageHeader
                 title="Pack kit"
-                description="Essential equipment you can match to season, altitude, and trek length."
+                description="Essential Nepal trek kit with quantities and Thamel/Pokhara rent tips. For a personalized list, use Plan trip."
             />
 
             {isLoading ? (
                 <SkeletonGrid count={4} />
+            ) : loadError ? (
+                <EmptyState title="Gear unavailable" description={loadError} />
             ) : (
                 <div className="flex flex-col gap-10 md:flex-row md:gap-12">
                     <aside className="md:w-52 shrink-0">

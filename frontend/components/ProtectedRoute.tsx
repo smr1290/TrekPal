@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingBlock } from '@/components/ui';
 import PageContainer from '@/components/PageContainer';
@@ -9,12 +9,15 @@ import PageContainer from '@/components/PageContainer';
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push('/login');
+            const search = typeof window !== 'undefined' ? window.location.search : '';
+            const next = `${pathname}${search}`;
+            router.push(`/login?next=${encodeURIComponent(next)}`);
         }
-    }, [isAuthenticated, isLoading, router]);
+    }, [isAuthenticated, isLoading, router, pathname]);
 
     if (isLoading) {
         return (

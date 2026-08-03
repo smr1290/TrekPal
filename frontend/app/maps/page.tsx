@@ -190,8 +190,10 @@ export default function MapsPage() {
                     title="No map points found"
                     description={
                         category === 'hospital' || category === 'emergency'
-                            ? 'Unverified medical pins are hidden. Enable the toggle above to preview demo data.'
-                            : 'Seeded map locations will appear here after the database migration.'
+                            ? showUnverifiedSafety
+                                ? 'No hospital/emergency pins in this region yet. TrekPal does not invent rescue locations.'
+                                : 'Unverified medical pins are hidden by default so they are not mistaken for live rescue guidance. Turn on the toggle above only to preview demo data.'
+                            : 'No places match this filter. Try All categories or another region.'
                     }
                 />
             ) : (
