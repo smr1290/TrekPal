@@ -172,3 +172,156 @@ Explain your reasoning instead of only providing code.
 When appropriate, use simple diagrams, flowcharts, or examples to improve understanding.
 
 Your goal is to make me capable of building and maintaining TrekPal independently while following professional software engineering practices.
+
+Instructions for Cursor / Claude (Phase 2 roadmap — read first)
+
+These Milestone 1–12 items are the **active** product roadmap (Phase 2 refinement).
+Older completed work is recorded as Phase 1 in `MILESTONES_PRODUCT.md` (P1-M1…P1-M10).
+In docs, Phase 2 IDs may also be called **R1–R12** (same order as Milestone 1–12 here).
+
+Work one milestone at a time, in the order given below. Do not start the next milestone until the current one is confirmed done.After finishing each milestone, stop and explain it in detail before moving on. For every milestone, give me:
+What changed — plain-English summary of what was built/modified, and why it serves the milestone's stated goal or addresses its stated risk.
+Files touched — every file created or edited, with a one-line note on what changed in each.
+How to verify it — exact steps I can take (clicks, URLs, endpoints, commands, logs) to confirm the change works myself.
+Trade-offs or shortcuts taken — anything simplified, deferred, or approximated, and why.
+What's still not done — anything in scope you didn't fully get to.
+Do not silently skip acceptance criteria. Each milestone has an "Acceptance" bar — if it can't be fully met, say so explicitly rather than marking it done.
+Ask before making structural decisions not specified here (new dependencies, new infra, schema changes beyond what's described, restructuring folders). Small implementation choices within a milestone don't need approval; architectural ones do.
+Every migration must be reversible. Test alembic downgrade -1 after writing each new migration, not just the upgrade path.
+Preserve the High Lodge brand (alpine mist greens, Fraunces + Manrope, no purple/glow clichés) and respect prefers-reduced-motion in every new UI addition.
+No compromises on quality or correctness within a milestone's own scope — no placeholder assets, no unstyled edge-case states, no skipped ownership/security checks, no skipped a11y/mobile checks — but don't let one milestone balloon into rebuilding unrelated parts of the app.
+Why this order
+
+Security and data integrity come first because everything else is built on top of trustworthy auth and clean data — polishing UI on top of an insecure or inconsistent backend just hides the cracks. IA and heuristic explainability come next because they shape what the visual and trust-UX work (later) actually has to represent. Visual, mobile, and motion polish follow once the underlying structure is settled. Trust & safety UX comes after heuristic explainability and trip planner reliability because it depends on that backend work existing to display. Rate limiting, logging, and onboarding close out the set — valuable, but lower urgency than correctness, security, and the core experience.
+
+The lens: goal-based UX (applies throughout)
+
+Every screen should answer: "What is the user trying to accomplish right now, and does this UI get them there in the fewest confident steps?"
+
+Page	User's real goal
+Home	"Is this trustworthy enough to give my email to?"
+Treks	"Which trek fits my skill/time/season?"
+Planner	"Am I actually ready, concretely?"
+History	"Can I get back into my plan without re-thinking it?"
+Knowledge	"Can I trust this specific fact before I act on it?"
+Maps	"Where am I relative to real landmarks, without false safety confidence?"
+Milestone 1 — Auth & ownership hardening
+
+Track: Backend/Security · Effort: Medium Risk addressed: private/mutating routes relying on inconsistent or copy-pasted ownership checks; unclear route existence leakage.
+
+Audit every router file for endpoints touching user-scoped data — confirm each depends on get_current_user where required. Produce a short table: route → auth required? → ownership check present?
+Extract repeated ownership-check logic into a single reusable dependency/helper (e.g. get_owned_resource(model, id, user)), and refactor existing routes to use it.
+Confirm /ml routes return 404 (not 403) when ENABLE_INTERNAL_ML_ROUTES is unset in a prod-like environment.
+
+Acceptance: every private/mutating route is covered by the audit table with no gaps; ownership logic exists in exactly one place; /ml routes are indistinguishable from nonexistent routes when disabled.
+
+Milestone 2 — Data integrity & migration hygiene
+
+Track: Backend/Engineering · Effort: Low-Medium Risk addressed: UserTrekHistory.destination has no hard FK to the trek catalog and no validation, risking garbage input that breaks weather/maps destination matching downstream.
+
+Decide and document: should destination remain freeform (supporting non-catalog treks) or be constrained? If freeform, add a lightweight validation layer (non-empty, reasonable length/format) rather than a hard FK.
+Add a DB-level check constraint or app-level validator accordingly.
+Confirm all migrations 001–012 downgrade cleanly; fix any that don't before adding new ones.
+
+Acceptance: invalid/garbage destination strings are rejected at the API boundary with a clear error, not silently saved; full migration chain (up and down) runs cleanly.
+
+Milestone 3 — Goal-based IA audit & funnel rebuild
+
+Track: Frontend/UX · Effort: Medium No-compromise bar: every primary flow reaches its goal in ≤3 decisive taps, with zero dead-end states.
+
+Map each of the 7 core pages against its real user goal (table form).
+For each page, list every UI element that doesn't serve that goal — cut or demote it.
+Rebuild /treks → Plan this trek → /planner as one continuous mental thread: destination context should visibly carry through (breadcrumb or persistent header chip), not reset.
+Add explicit empty states everywhere data can be absent (/history, /knowledge filters, /chat before first message), each with a clear next action.
+
+Acceptance: a first-time user given only the task "plan a trek to Poon Hill" completes it without hesitation-pauses.
+
+Milestone 4 — Heuristic explainability & versioning
+
+Track: Backend/Product-AI · Effort: Medium Risk addressed: risk/gear heuristics in backend/ml/ are opaque — no way to trace why a historical recommendation was produced, or what changed when logic is tweaked.
+
+Add a heuristic_version string field to UserTrekHistory (and TripPlan if applicable), set at save time.
+Update heuristic functions (risk, gear, budget) to return not just a score but a short list of contributing factors (e.g. ["altitude > 4000m", "season: winter", "experience: beginner"]).
+Persist or expose these factors so the frontend can later render a "how we calculated this" explanation (feeds Milestone 9).
+Write a migration for the new field(s).
+
+Acceptance: any saved history/plan row can be traced to the exact heuristic version and reasoning that produced it.
+
+Milestone 5 — Trip planner reliability (Groq fallback visibility + idempotency)
+
+Track: Backend/Reliability · Effort: Medium Risk addressed: silent fallback from Groq to rule-based generation hides real failures; duplicate plan/history rows possible from retries or double-submits.
+
+Add a field (response and/or logged) indicating which generation path was used: "groq" or "fallback".
+Add idempotency protection to POST /trip-plans/generate and POST /trek/prepare-trek: dedupe on (user_id, destination, created within N seconds), or accept a client-generated request ID and short-circuit on repeat.
+
+Acceptance: a simulated Groq failure visibly falls back and is distinguishable in logs/data from a successful call; a simulated double-submit does not create duplicate rows.
+
+Milestone 6 — Visual system maturity ("product-grade," not "portfolio-grade")
+
+Track: Frontend/Design · Effort: High No-compromise bar: no placeholder assets, no unstyled default states, consistent spacing/type scale everywhere.
+
+Replace catalog SVG placeholders with real trek/gear photography.
+Formalize the High Lodge spacing/type scale into design tokens so every card/button/section shares the same rhythm.
+Audit shared components (Card, Button, WeatherPanel, TrekMap) for unstyled states: hover, focus-visible, disabled, loading, error.
+Ensure .skeleton-shimmer loading states are used consistently everywhere data is fetched.
+
+Acceptance: screenshot every page in every state (empty/loading/error/populated) — nothing should look like a different app.
+
+Milestone 7 — Mobile-first correctness
+
+Track: Frontend/UX · Effort: Medium-High No-compromise bar: every page is genuinely good on a real phone, not just "doesn't break."
+
+Real-device pass on /planner (form-heavy), /maps (Leaflet touch interactions), /chat (mobile keyboard behavior).
+Verify: form inputs don't trigger unwanted zoom (font-size ≥16px), map gestures don't conflict with page scroll, sticky nav doesn't eat vertical space on small screens.
+
+Acceptance: complete the full plan-a-trek funnel on a real mid-range Android phone over throttled network, without a layout break or unreachable tap target.
+
+Milestone 8 — Motion as feedback, not decoration
+
+Track: Frontend/UX · Effort: Medium No-compromise bar: every animation communicates a state change; none exist purely for flair.
+
+Audit current Framer Motion usage: does each animation answer "what just happened?" Cut flair-only motion on interactive elements — keep it on hero/scroll-reveal only.
+Add motion feedback where missing: form submit → button micro-state, plan saved → confirmation, delete → item exit animation.
+Confirm every animation respects prefers-reduced-motion.
+Performance pass on scroll-heavy pages under a throttled CPU profile.
+
+Acceptance: disable all motion and confirm every flow is still fully usable and clear.
+
+Milestone 9 — Trust & safety UX (the real differentiator)
+
+Track: Frontend/Content · Effort: Medium No-compromise bar: every claim of fact is visibly sourced or visibly heuristic — no ambiguity. Depends on: Milestone 4 and 5 (heuristic explainability + fallback visibility).
+
+Knowledge articles: source attribution as a first-class visual element, not a footnote.
+Risk/gear estimates: surface the contributing factors from Milestone 4 as a visible "how we calculated this" affordance.
+Maps: make the reason for hidden pins visible in UI ("Hidden: unverified medical facility") rather than silently absent.
+
+Acceptance: a skeptical user reading any factual claim in the app can answer "why should I believe this?" without leaving the page.
+
+Milestone 10 — Durable rate limiting
+
+Track: Backend/Architecture · Effort: Medium Risk addressed: in-memory chat rate limit resets or double-allows across multiple API instances, with no usage audit trail.
+
+Replace in-memory rate limiting with a Postgres-backed table, e.g. chat_rate_limit(user_id, window_start, count), using an upsert-and-check pattern.
+Keep the existing 20/user/hour default, configurable via env var.
+
+Acceptance: rate limit correctly enforced when simulated across multiple instances sharing the same DB; usage history is queryable after the fact.
+
+Milestone 11 — Structured logging for external dependencies
+
+Track: Backend/Observability · Effort: Low-Medium Risk addressed: Groq and Open-Meteo calls are external dependencies outside your control; without logging, failures/latency are invisible until a user reports something vague.
+
+Add structured logging (stdout/file is fine) around Groq calls (chat + trip planner) and Open-Meteo calls: latency, success/failure, fallback-triggered events.
+Include enough context (route, user id — not full PII, timestamp) to trace issues after the fact.
+
+Acceptance: given a simulated slow or failing Groq/Open-Meteo call, the log output alone is enough to diagnose what happened without adding print statements after the fact.
+
+Milestone 12 — First-run experience & goal onboarding
+
+Track: Frontend/UX · Effort: Medium No-compromise bar: a brand-new signup understands what to do next without guessing.
+
+Right after signup, ask 1–2 lightweight questions (extend existing experience-level capture with a goal question: "research a trek" vs. "start planning one you've picked") and route accordingly.
+Dashboard for a zero-plan user should look meaningfully different from one with saved plans — an inviting next step (2–3 suggested treks matching experience level), not just an empty state.
+
+Acceptance: a new user's first 60 seconds post-signup involve zero re-reading or backtracking.
+
+Remember: explain in detail after finishing each milestone, per the instructions at the top of this file, before starting the next one. This is the single unified roadmap — frontend and backend work are interleaved by dependency, not split into separate tracks to run in parallel.

@@ -334,24 +334,30 @@ User inputs (destination, altitude, season, duration, experience, difficulty)
 
 ---
 
-## 11. Product milestones
+## Product milestones
 
-From `MILESTONES_PRODUCT.md`:
+### Phase 1 (done) — see `MILESTONES_PRODUCT.md`
+
+Trust, funnel, profile, deletes, knowledge/maps, httpOnly auth, API tests, catalog media, weather.
+
+### Phase 2 (active) — `.cursor/rules/milestones.mdc` Milestone 1–12 = **R1–R12**
 
 | ID | Focus | Status |
 |----|--------|--------|
-| M1 | Trust & clarity | Done |
-| M2 | Treks → Plan trip funnel | Done |
-| M3 | Profile experience edit | Done |
-| M4 | Delete plans | Done |
-| M5 | Knowledge sources UX | Done |
-| M6 | Maps curation | Done |
-| M7 | httpOnly cookies | Done |
-| M8 | API tests + lock `/ml` | Done |
-| M9 | Catalog media | Done |
-| M10 | Weather on Plan trip | Done |
+| R1 | Auth & ownership hardening | Pending |
+| R2 | Data integrity & migration hygiene | Pending |
+| R3 | Goal-based IA & funnel rebuild | Pending |
+| R4 | Heuristic explainability & versioning | Pending |
+| R5 | Trip planner reliability | Pending |
+| R6 | Visual system maturity | Pending |
+| R7 | Mobile-first correctness | Pending |
+| R8 | Motion as feedback | Pending |
+| R9 | Trust & safety UX | Pending |
+| R10 | Durable rate limiting | Pending |
+| R11 | Structured logging | Pending |
+| R12 | First-run onboarding | Pending |
 
-**Post-M10 UI:** dashboard hub, enriched trek/gear content, High Lodge design system, Framer Motion effects, button hover scale.
+Work **one at a time** from R1.
 
 ---
 
