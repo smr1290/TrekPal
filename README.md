@@ -1,8 +1,14 @@
 # TrekPal
 
-Nepal trekking preparation app — packing lists, risk bands, weather watch-outs, knowledge guides, maps, itineraries, and grounded AI chat.
+Nepal trekking preparation app — packing lists, risk bands, weather, knowledge, maps, itineraries, and grounded AI chat.
 
-**Full AI / Claude briefing (architecture, APIs, milestones, refining prompts):** see [`CLAUDE.md`](./CLAUDE.md).
+## Full project context (for Claude / AI)
+
+**Use this file when asking Claude for refining tips:**
+
+→ **[`CLAUDE.md`](./CLAUDE.md)** — complete architecture, routes, APIs, models, auth, design system, milestones, gaps, and prompt starters.
+
+Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) (M1–M10).
 
 ---
 
@@ -14,10 +20,9 @@ Nepal trekking preparation app — packing lists, risk bands, weather watch-outs
 ## Quick start
 
 ```powershell
-# API + Postgres
 docker compose up -d --build
+docker compose exec -T api alembic upgrade head
 
-# Frontend
 cd frontend
 npm install
 npm run dev
@@ -25,22 +30,8 @@ npm run dev
 
 - App: http://localhost:3000  
 - API docs: http://localhost:8000/docs  
-- Copy `backend/.env.example` → `backend/.env` (set `JWT_SECRET`; add `GROQ_API_KEY` for chat/planner AI)  
+- Env: copy `backend/.env.example` → `backend/.env` (`JWT_SECRET`; optional `GROQ_API_KEY`)  
 
-Migrations:
+## Status
 
-```powershell
-docker compose exec -T api alembic upgrade head
-```
-
-## Product status
-
-Milestones **M1–M10** are done (trust, funnel, profile, deletes, knowledge sources, maps curation, httpOnly auth, API tests, catalog media, weather). Details: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md).
-
-## Using Claude for refining tips
-
-1. Open [`CLAUDE.md`](./CLAUDE.md).  
-2. Paste/attach it into Claude.  
-3. Ask e.g. *“Top 10 refining tips ranked by impact vs effort.”*  
-
-Prompt starters are listed at the bottom of `CLAUDE.md`.
+Product milestones **M1–M10** are done. Details in `MILESTONES_PRODUCT.md` and the full map in `CLAUDE.md`.
