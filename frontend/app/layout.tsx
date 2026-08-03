@@ -18,9 +18,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "TrekPal — Your trek companion",
+  title: "TrekPal — Your trail buddy",
   description:
-    "Plan safer treks with gear lists, risk checks, and a clear preparation history.",
+    "Nepal trek preparation with packing lists, risk checks, weather watch-outs, and trusted guides.",
 };
 
 export default function RootLayout({

@@ -72,8 +72,9 @@ export default function TreksPage() {
     return (
         <PageContainer>
             <PageHeader
+                eyebrow="Pick your trail"
                 title="Nepal treks"
-                description="Short trail guides with region, seasons, and highlights — then jump into Plan trip with details filled."
+                description="Region, seasons, and highlights — then jump into Plan trip with details filled in."
                 action={
                     <div className="w-full sm:w-72">
                         <Input
@@ -140,14 +141,17 @@ export default function TreksPage() {
                         return (
                             <Card
                                 key={trek.id}
-                                className="flex flex-col overflow-hidden p-0 transition hover:border-[var(--accent)]/35"
+                                interactive
+                                className="flex flex-col overflow-hidden p-0"
                             >
-                                <CatalogImage
-                                    src={trek.image_url}
-                                    alt={trek.trek_name}
-                                    fallbackLabel={trek.trek_name}
-                                    className="h-48 w-full"
-                                />
+                                <div className="media-zoom">
+                                    <CatalogImage
+                                        src={trek.image_url}
+                                        alt={trek.trek_name}
+                                        fallbackLabel={trek.trek_name}
+                                        className="h-48 w-full"
+                                    />
+                                </div>
                                 <div className="flex flex-1 flex-col p-5 sm:p-6">
                                     <div className="mb-3 flex flex-wrap items-center gap-2">
                                         <Badge variant={getDifficultyVariant(trek.difficulty)}>

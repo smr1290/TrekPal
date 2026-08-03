@@ -72,7 +72,7 @@ export default function Navbar() {
                 <Link
                     href={isAuthenticated ? '/dashboard' : '/'}
                     onClick={closeMobile}
-                    className={`font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight ${
+                    className={`font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight ${
                         isHome ? 'text-white' : 'text-[var(--foreground)]'
                     }`}
                 >

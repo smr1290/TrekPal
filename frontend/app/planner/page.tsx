@@ -173,8 +173,9 @@ function PlanTripInner() {
     return (
         <PageContainer className="pb-16">
             <PageHeader
+                eyebrow="Prep with your buddy"
                 title="Plan your trek"
-                description="One place for packing checklists and full day-by-day itineraries — pick the depth you need."
+                description="Packing checklists and day-by-day itineraries — with risk and weather context when you need it."
             />
 
             <div className="mb-8 flex flex-wrap gap-2 border-b border-[var(--border)] pb-4">

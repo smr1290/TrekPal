@@ -61,8 +61,9 @@ export default function GearPage() {
     return (
         <PageContainer>
             <PageHeader
-                title="Pack kit"
-                description="Nepal teahouse essentials with pack quantities and Thamel/Pokhara rent tips. For a list matched to your trek, use Plan trip."
+                eyebrow="What goes in the pack"
+                title="Gear for Nepal"
+                description="Teahouse essentials with pack quantities and Thamel/Pokhara rent tips. For a list matched to your trek, use Plan trip."
                 action={
                     <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                         <div className="w-full sm:w-64">
@@ -123,14 +124,17 @@ export default function GearPage() {
                                 {filteredGear.map((item) => (
                                     <Card
                                         key={item.id}
+                                        interactive
                                         className="flex flex-col overflow-hidden p-0"
                                     >
-                                        <CatalogImage
-                                            src={item.photo_url}
-                                            alt={item.gear_name}
-                                            fallbackLabel={item.category || 'Gear'}
-                                            className="h-36 w-full"
-                                        />
+                                        <div className="media-zoom">
+                                            <CatalogImage
+                                                src={item.photo_url}
+                                                alt={item.gear_name}
+                                                fallbackLabel={item.category || 'Gear'}
+                                                className="h-36 w-full"
+                                            />
+                                        </div>
                                         <div className="flex flex-1 flex-col p-5">
                                             <Badge variant="info" className="mb-3 w-fit">
                                                 {item.category}

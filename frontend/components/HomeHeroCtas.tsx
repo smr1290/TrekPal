@@ -9,7 +9,7 @@ export default function HomeHeroCtas() {
 
     if (isAuthenticated) {
         return (
-            <div className="anim-rise-delay mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/dashboard">
                     <Button size="lg" className="min-w-44">
                         Open dashboard
@@ -29,10 +29,10 @@ export default function HomeHeroCtas() {
     }
 
     return (
-        <div className="anim-rise-delay mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link href="/signup">
                 <Button size="lg" className="min-w-44">
-                    Start packing
+                    Meet your buddy
                 </Button>
             </Link>
             <Link href="/treks">

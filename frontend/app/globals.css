@@ -1,30 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  /* Cool mist / alpine — light outdoor, not cream-terracotta */
-  --background: #eef2f0;
-  --surface: #ffffff;
-  --surface-muted: #f5f8f6;
-  --foreground: #15201c;
-  --muted: #5a6b64;
-  --border: #cfd9d3;
+  /* Morning ridge — cool alpine mist, pine ink, trail green */
+  --background: #e8efea;
+  --surface: #fbfdfb;
+  --surface-muted: #f0f5f2;
+  --foreground: #12241c;
+  --muted: #4f6359;
+  --border: #c5d4cb;
 
-  --accent: #1d6b4f;
-  --accent-hover: #165a42;
-  --accent-soft: #e3f0ea;
+  --accent: #1a684c;
+  --accent-hover: #14533c;
+  --accent-soft: #dceee5;
   --accent-on: #ffffff;
+  --accent-deep: #0d3d2c;
 
   --success: #1f7a4d;
   --success-bg: #e4f5ec;
-  --warning: #9a6b12;
-  --warning-bg: #f8efd6;
-  --danger: #b42318;
+  --warning: #8a5f10;
+  --warning-bg: #f7edd4;
+  --danger: #a61f18;
   --danger-bg: #fce8e6;
-  --info: #1d5f8a;
-  --info-bg: #e5f1f8;
+  --info: #1a5a7a;
+  --info-bg: #e4f0f6;
 
-  --radius: 12px;
-  --shadow: 0 1px 2px rgb(21 32 28 / 0.06), 0 8px 24px rgb(21 32 28 / 0.06);
+  --radius: 14px;
+  --shadow: 0 10px 30px rgb(18 36 28 / 0.07);
+  --shadow-hover: 0 14px 36px rgb(18 36 28 / 0.12);
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 }
@@ -38,18 +40,22 @@ body {
   padding: 0;
 }
 
-/* Soft trail texture */
+/* Soft ridge light + faint trail grain */
 .app-shell {
-  background:
-    radial-gradient(ellipse 90% 50% at 50% -10%, #d9ebe3 0%, transparent 55%),
-    linear-gradient(180deg, #f3f6f4 0%, var(--background) 40%);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 100% 60% at 50% -15%, #cfe4d8 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 100% 20%, rgb(29 107 79 / 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 35% at 0% 60%, rgb(29 95 138 / 0.06) 0%, transparent 45%),
+    linear-gradient(180deg, #f2f7f4 0%, var(--background) 45%);
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -66,25 +72,98 @@ body {
   }
 }
 
+@keyframes slow-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes mist-drift {
+  from {
+    transform: translateX(-2%);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateX(2%);
+    opacity: 0.75;
+  }
+}
+
 .anim-rise {
-  animation: rise-in 0.7s ease-out both;
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .anim-rise-delay {
-  animation: rise-in 0.7s ease-out 0.15s both;
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.anim-rise-late {
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
 }
 
 .anim-fade {
   animation: fade-in 1s ease-out both;
 }
 
+.hero-kenburns {
+  animation: slow-zoom 18s ease-out forwards;
+}
+
+.hero-mist {
+  animation: mist-drift 12s ease-in-out infinite alternate;
+}
+
+.surface-interactive {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.surface-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.media-zoom {
+  overflow: hidden;
+}
+
+.media-zoom img {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.media-zoom:hover img {
+  transform: scale(1.04);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #b7c4bd;
+  background: #a9bdb2;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9aaba2;
+  background: #8fa89a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-rise-delay,
+  .anim-rise-late,
+  .anim-fade,
+  .hero-kenburns,
+  .hero-mist {
+    animation: none !important;
+  }
+
+  .surface-interactive,
+  .media-zoom img {
+    transition: none !important;
+  }
 }

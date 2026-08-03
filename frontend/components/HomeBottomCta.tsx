@@ -9,13 +9,16 @@ export default function HomeBottomCta() {
 
     return (
         <div className="relative mx-auto max-w-xl text-center text-white">
-            <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
-                Walk lighter. Plan clearer.
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/65">
+                TrekPal
+            </p>
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
+                A buddy for every ridge.
             </h2>
             <p className="mt-4 text-white/80">
                 {isAuthenticated
                     ? 'Your hub for plans, treks, and packing — continue from the dashboard.'
-                    : 'Create a free account and prepare your next trek in minutes.'}
+                    : 'Create a free account and prepare your next Nepal trek with calmer confidence.'}
             </p>
             <div className="mt-8">
                 {isAuthenticated ? (

@@ -56,10 +56,12 @@ export default function LoginPage() {
         <PageContainer className="flex min-h-[70vh] flex-col items-center justify-center">
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold">
+                    <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
                         Welcome back
                     </h1>
-                    <p className="mt-2 text-[var(--muted)]">Sign in to continue your trail plans.</p>
+                    <p className="mt-2 text-[var(--muted)]">
+                        Sign in — your trail buddy is waiting.
+                    </p>
                 </div>
 
                 <Card className="p-8">

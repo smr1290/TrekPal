@@ -4,19 +4,26 @@ export function PageHeader({
   title,
   description,
   action,
+  eyebrow,
 }: {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  eyebrow?: string;
 }) {
   return (
-    <header className="mb-10 flex flex-col gap-4 border-b border-[var(--border)] pb-8 sm:flex-row sm:items-end sm:justify-between">
+    <header className="mb-10 flex flex-col gap-5 border-b border-[var(--border)] pb-8 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-4xl">
+        {eyebrow && (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 text-base leading-relaxed text-[var(--muted)]">{description}</p>
+          <p className="mt-3 text-base leading-relaxed text-[var(--muted)] sm:text-lg">{description}</p>
         )}
       </div>
       {action}

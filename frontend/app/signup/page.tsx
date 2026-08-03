@@ -62,11 +62,11 @@ export default function SignupPage() {
         <PageContainer className="flex min-h-[70vh] flex-col items-center justify-center">
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold">
-                        Join TrekPal
+                    <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold sm:text-4xl">
+                        Meet your trail buddy
                     </h1>
                     <p className="mt-2 text-[var(--muted)]">
-                        Set your experience level and start preparing smarter.
+                        Set your experience level and start preparing with TrekPal.
                     </p>
                 </div>
 
