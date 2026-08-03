@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -33,7 +34,9 @@ export default function RootLayout({
       <body className="app-shell flex min-h-screen flex-col font-[family-name:var(--font-sans)] text-[var(--foreground)]">
         <AuthProvider>
           <Navbar />
-          <main className="w-full flex-1 pt-[4.25rem]">{children}</main>
+          <main className="w-full flex-1 pt-[4.25rem]">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </AuthProvider>
       </body>

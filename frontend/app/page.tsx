@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import HomeHeroCtas from '@/components/HomeHeroCtas';
 import HomeBottomCta from '@/components/HomeBottomCta';
+import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
 
 const HERO_IMAGE = '/hero.jpg';
 
@@ -35,6 +36,14 @@ export default function Home() {
                     className="hero-glow pointer-events-none absolute left-1/2 top-1/4 h-64 w-[28rem] -translate-x-1/2 rounded-full bg-[rgb(180_220_200_/0.12)] blur-3xl"
                     aria-hidden
                 />
+                <div
+                    className="ambient-orb left-[12%] top-[30%] h-40 w-40 bg-[rgb(31_122_88_/0.25)]"
+                    aria-hidden
+                />
+                <div
+                    className="ambient-orb ambient-orb-slow right-[8%] top-[45%] h-52 w-52 bg-[rgb(22_90_118_/0.18)]"
+                    aria-hidden
+                />
 
                 <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-28 sm:px-6 sm:pb-28 sm:pt-24">
                     <p className="anim-rise mb-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-white/60">
@@ -56,8 +65,9 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="border-b border-[var(--border)] bg-[var(--accent-deep)] px-4 py-5 sm:px-6">
-                <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <section className="relative overflow-hidden border-b border-white/10 bg-[var(--accent-deep)] px-4 py-5 sm:px-6">
+                <div className="aurora-band" aria-hidden />
+                <div className="relative mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/50">
                         Destinations we plan for
                     </p>
@@ -74,22 +84,28 @@ export default function Home() {
 
             <section className="relative overflow-hidden px-4 py-28 sm:px-6">
                 <div
-                    className="pointer-events-none absolute -right-24 top-16 h-72 w-72 rounded-full bg-[var(--accent-soft)] blur-3xl"
+                    className="ambient-orb -right-24 top-16 h-72 w-72 bg-[var(--accent-soft)]"
+                    aria-hidden
+                />
+                <div
+                    className="ambient-orb ambient-orb-slow -left-16 bottom-10 h-56 w-56 bg-[rgb(22_90_118_/0.12)]"
                     aria-hidden
                 />
                 <div className="relative mx-auto max-w-5xl">
-                    <p className="eyebrow text-center">How TrekPal walks with you</p>
-                    <h2 className="display-title mt-4 text-center text-3xl text-[var(--foreground)] sm:text-5xl">
-                        Less guesswork.
-                        <br className="hidden sm:block" /> More trail confidence.
-                    </h2>
-                    <p className="mx-auto mt-5 max-w-lg text-center text-[var(--muted)]">
-                        Built for Himalayan prep — not generic packing apps.
-                    </p>
+                    <Reveal>
+                        <p className="eyebrow text-center">How TrekPal walks with you</p>
+                        <h2 className="display-title mt-4 text-center text-3xl text-[var(--foreground)] sm:text-5xl">
+                            Less guesswork.
+                            <br className="hidden sm:block" /> More trail confidence.
+                        </h2>
+                        <p className="mx-auto mt-5 max-w-lg text-center text-[var(--muted)]">
+                            Built for Himalayan prep — not generic packing apps.
+                        </p>
+                    </Reveal>
 
                     <div className="divider-trail mx-auto mt-14 max-w-md" />
 
-                    <ol className="mt-14 grid gap-14 md:grid-cols-3 md:gap-10">
+                    <Stagger className="mt-14 grid gap-14 md:grid-cols-3 md:gap-10">
                         {[
                             {
                                 n: '01',
@@ -106,17 +122,8 @@ export default function Home() {
                                 title: 'Pack with a buddy',
                                 body: 'Get a Nepal-aware checklist with rent tips, then save it for the trail.',
                             },
-                        ].map((step, i) => (
-                            <li
-                                key={step.n}
-                                className={
-                                    i === 0
-                                        ? 'anim-rise'
-                                        : i === 1
-                                          ? 'anim-rise-delay'
-                                          : 'anim-rise-late'
-                                }
-                            >
+                        ].map((step) => (
+                            <StaggerItem key={step.n}>
                                 <p className="font-[family-name:var(--font-display)] text-5xl text-[var(--accent)]/80">
                                     {step.n}
                                 </p>
@@ -126,18 +133,18 @@ export default function Home() {
                                 <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
                                     {step.body}
                                 </p>
-                            </li>
+                            </StaggerItem>
                         ))}
-                    </ol>
+                    </Stagger>
 
-                    <div className="mt-16 text-center">
+                    <Reveal className="mt-16 text-center" delay={0.15}>
                         <Link
                             href="/treks"
                             className="text-sm font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
                         >
                             Explore the trek catalog →
                         </Link>
-                    </div>
+                    </Reveal>
                 </div>
             </section>
 
@@ -150,7 +157,9 @@ export default function Home() {
                     sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-[rgb(8_30_22_/0.84)]" aria-hidden />
-                <HomeBottomCta />
+                <Reveal>
+                    <HomeBottomCta />
+                </Reveal>
             </section>
         </div>
     );

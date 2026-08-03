@@ -9,6 +9,7 @@ import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { knowledgeApi } from '@/lib/api';
 import type { KnowledgeArticle } from '@/lib/types';
+import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
 import {
     getKnowledgeCategoryLabel,
     getKnowledgeCategoryVariant,
@@ -118,10 +119,11 @@ export default function KnowledgePage() {
                     }
                 />
             ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredArticles.map((article) => (
-                        <Link key={article.id} href={`/knowledge/${article.slug}`} className="group">
-                            <Card interactive className="flex h-full flex-col">
+                        <StaggerItem key={article.id}>
+                        <Link href={`/knowledge/${article.slug}`} className="group block h-full">
+                            <Card interactive spotlight className="flex h-full flex-col">
                                 <div className="flex flex-wrap gap-2">
                                     <Badge variant={getKnowledgeCategoryVariant(article.category)}>
                                         {getKnowledgeCategoryLabel(article.category)}
@@ -148,8 +150,9 @@ export default function KnowledgePage() {
                                 </p>
                             </Card>
                         </Link>
+                        </StaggerItem>
                     ))}
-                </div>
+                </Stagger>
             )}
         </PageContainer>
     );

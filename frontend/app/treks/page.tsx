@@ -13,6 +13,7 @@ import { trekApi } from '@/lib/api';
 import type { Trek } from '@/lib/types';
 import { getDifficultyVariant } from '@/lib/badgeHelpers';
 import { useAuth } from '@/context/AuthContext';
+import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
 
 function planHref(trek: Trek) {
     const params = new URLSearchParams({
@@ -70,7 +71,12 @@ export default function TreksPage() {
     });
 
     return (
-        <PageContainer>
+        <PageContainer className="relative">
+            <div
+                className="ambient-orb -right-20 top-10 h-56 w-56 bg-[var(--accent-soft)]"
+                aria-hidden
+            />
+            <Reveal>
             <PageHeader
                 eyebrow="Destination catalog"
                 title="Nepal treks"
@@ -88,6 +94,7 @@ export default function TreksPage() {
                     </div>
                 }
             />
+            </Reveal>
 
             <div className="mb-3 flex flex-wrap gap-2">
                 {['All', 'Easy', 'Moderate', 'Hard'].map((level) => (
@@ -127,16 +134,17 @@ export default function TreksPage() {
                     description="Try another search, difficulty, or region."
                 />
             ) : (
-                <div className="grid gap-7 lg:grid-cols-2">
+                <Stagger className="grid gap-7 lg:grid-cols-2">
                     {filteredTreks.map((trek) => {
                         const href = isAuthenticated
                             ? planHref(trek)
                             : `/login?next=${encodeURIComponent(planHref(trek))}`;
                         return (
+                            <StaggerItem key={trek.id}>
                             <Card
-                                key={trek.id}
                                 interactive
-                                className="flex flex-col overflow-hidden p-0"
+                                spotlight
+                                className="flex h-full flex-col overflow-hidden p-0"
                             >
                                 <div className="media-zoom relative">
                                     <CatalogImage
@@ -209,9 +217,10 @@ export default function TreksPage() {
                                     </div>
                                 </div>
                             </Card>
+                            </StaggerItem>
                         );
                     })}
-                </div>
+                </Stagger>
             )}
         </PageContainer>
     );

@@ -12,6 +12,7 @@ import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { gearApi } from '@/lib/api';
 import type { Gear } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
 
 export default function GearPage() {
     const { isAuthenticated } = useAuth();
@@ -59,7 +60,12 @@ export default function GearPage() {
     }, [gearList, selectedCategory, searchTerm]);
 
     return (
-        <PageContainer>
+        <PageContainer className="relative">
+            <div
+                className="ambient-orb -left-16 top-20 h-52 w-52 bg-[var(--accent-soft)]"
+                aria-hidden
+            />
+            <Reveal>
             <PageHeader
                 eyebrow="What goes in the pack"
                 title="Gear for Nepal"
@@ -84,6 +90,7 @@ export default function GearPage() {
                     </div>
                 }
             />
+            </Reveal>
 
             {isLoading ? (
                 <SkeletonGrid count={4} />
@@ -116,45 +123,47 @@ export default function GearPage() {
                                 description="Try another filter or search term."
                             />
                         ) : (
-                            <div className="grid gap-5 sm:grid-cols-2">
+                            <Stagger className="grid gap-5 sm:grid-cols-2">
                                 {filteredGear.map((item) => (
-                                    <Card
-                                        key={item.id}
-                                        interactive
-                                        className="flex flex-col overflow-hidden p-0"
-                                    >
-                                        <div className="media-zoom">
-                                            <CatalogImage
-                                                src={item.photo_url}
-                                                alt={item.gear_name}
-                                                fallbackLabel={item.category || 'Gear'}
-                                                className="h-40 w-full"
-                                            />
-                                        </div>
-                                        <div className="flex flex-1 flex-col p-6">
-                                            <Badge variant="info" className="mb-3 w-fit">
-                                                {item.category}
-                                            </Badge>
-                                            <h3 className="text-lg font-semibold tracking-tight">
-                                                {item.gear_name}
-                                            </h3>
-                                            {item.quantity_hint && (
-                                                <p className="mt-1.5 text-xs font-semibold text-[var(--accent)]">
-                                                    Pack: {item.quantity_hint}
+                                    <StaggerItem key={item.id}>
+                                        <Card
+                                            interactive
+                                            spotlight
+                                            className="flex h-full flex-col overflow-hidden p-0"
+                                        >
+                                            <div className="media-zoom">
+                                                <CatalogImage
+                                                    src={item.photo_url}
+                                                    alt={item.gear_name}
+                                                    fallbackLabel={item.category || 'Gear'}
+                                                    className="h-40 w-full"
+                                                />
+                                            </div>
+                                            <div className="flex flex-1 flex-col p-6">
+                                                <Badge variant="info" className="mb-3 w-fit">
+                                                    {item.category}
+                                                </Badge>
+                                                <h3 className="text-lg font-semibold tracking-tight">
+                                                    {item.gear_name}
+                                                </h3>
+                                                {item.quantity_hint && (
+                                                    <p className="mt-1.5 text-xs font-semibold text-[var(--accent)]">
+                                                        Pack: {item.quantity_hint}
+                                                    </p>
+                                                )}
+                                                <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">
+                                                    {item.description}
                                                 </p>
-                                            )}
-                                            <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">
-                                                {item.description}
-                                            </p>
-                                            {item.rent_hint && (
-                                                <p className="mt-4 rounded-[var(--radius-sm)] border border-[var(--accent)]/15 bg-[var(--accent-soft)]/60 px-3 py-2.5 text-xs leading-relaxed text-[var(--accent-deep)]">
-                                                    Nepal tip: {item.rent_hint}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </Card>
+                                                {item.rent_hint && (
+                                                    <p className="mt-4 rounded-[var(--radius-sm)] border border-[var(--accent)]/15 bg-[var(--accent-soft)]/60 px-3 py-2.5 text-xs leading-relaxed text-[var(--accent-deep)]">
+                                                        Nepal tip: {item.rent_hint}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </Card>
+                                    </StaggerItem>
                                 ))}
-                            </div>
+                            </Stagger>
                         )}
                     </div>
                 </div>

@@ -53,8 +53,12 @@ export default function LoginPage() {
     };
 
     return (
-        <PageContainer className="flex min-h-[75vh] flex-col items-center justify-center">
-            <div className="w-full max-w-md">
+        <PageContainer className="relative flex min-h-[75vh] flex-col items-center justify-center">
+            <div
+                className="ambient-orb left-1/4 top-24 h-48 w-48 bg-[var(--accent-soft)]"
+                aria-hidden
+            />
+            <div className="relative w-full max-w-md">
                 <div className="mb-10 text-center">
                     <p className="eyebrow justify-center">Welcome back</p>
                     <h1 className="display-title mt-3 text-4xl sm:text-5xl">Sign in</h1>
@@ -63,7 +67,7 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <Card className="p-8 sm:p-9">
+                <Card className="glass-panel p-8 sm:p-9" spotlight>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
                         {errors.general && (
                             <div className="mb-4 rounded-[var(--radius)] border border-[var(--danger)]/30 bg-[var(--danger-bg)] p-3 text-sm text-[var(--danger)]">

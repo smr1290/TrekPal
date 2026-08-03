@@ -15,7 +15,7 @@ export default function Button({
     ...props
 }: ButtonProps) {
     const base =
-        'inline-flex items-center justify-center font-semibold tracking-wide rounded-[var(--radius-sm)] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] active:scale-[0.98]';
+        'btn-shine relative inline-flex items-center justify-center overflow-hidden font-semibold tracking-wide rounded-[var(--radius-sm)] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] active:scale-[0.98]';
 
     const variants = {
         primary:
@@ -39,7 +39,7 @@ export default function Button({
             className={`${base} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
             {...props}
         >
-            {children}
+            <span className="relative z-[1]">{children}</span>
         </button>
     );
 }

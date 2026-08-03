@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -13,7 +13,15 @@ export default function Navbar() {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const isHome = pathname === '/';
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 16);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const links: NavLink[] = isAuthenticated
         ? [
@@ -60,7 +68,11 @@ export default function Navbar() {
     const closeMobile = () => setMobileOpen(false);
 
     return (
-        <nav className={`fixed top-0 left-0 z-50 h-[4.25rem] w-full ${isHome ? 'nav-glass-home' : 'nav-glass'}`}>
+        <nav
+            className={`fixed top-0 left-0 z-50 h-[4.25rem] w-full transition-[box-shadow,background-color] duration-300 ${
+                isHome ? 'nav-glass-home' : 'nav-glass'
+            } ${scrolled ? 'nav-elevated' : ''}`}
+        >
             <div className="relative mx-auto flex h-full w-full max-w-6xl items-center justify-between px-4 sm:px-6">
                 <Link
                     href={isAuthenticated ? '/dashboard' : '/'}

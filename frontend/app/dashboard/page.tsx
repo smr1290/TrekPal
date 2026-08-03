@@ -8,6 +8,7 @@ import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import { EmptyState, SkeletonList } from '@/components/ui';
+import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
 import { useAuth } from '@/context/AuthContext';
 import { trekApi, tripPlanApi } from '@/lib/api';
 import type { TrekHistory, TripPlanSummary } from '@/lib/types';
@@ -75,12 +76,13 @@ export default function DashboardPage() {
     return (
         <ProtectedRoute>
             <div className="relative overflow-hidden border-b border-white/10 bg-[linear-gradient(155deg,#0a3324_0%,#146649_52%,#1f7a58_100%)]">
+                <div className="aurora-band" aria-hidden />
                 <div
-                    className="pointer-events-none absolute -right-20 -top-10 h-72 w-72 rounded-full bg-white/10 blur-3xl"
+                    className="ambient-orb -right-20 -top-10 h-72 w-72 bg-white/15"
                     aria-hidden
                 />
                 <div
-                    className="pointer-events-none absolute bottom-0 left-1/4 h-40 w-40 rounded-full bg-[rgb(180_220_200_/0.15)] blur-2xl"
+                    className="ambient-orb ambient-orb-slow bottom-0 left-1/4 h-40 w-40 bg-[rgb(180_220_200_/0.25)]"
                     aria-hidden
                 />
                 <PageContainer className="relative py-14 sm:py-20">
@@ -118,124 +120,142 @@ export default function DashboardPage() {
             </div>
 
             <PageContainer>
-                <section className="mb-16">
-                    <div className="mb-6 flex items-end justify-between gap-4">
-                        <div>
-                            <p className="eyebrow">Start here</p>
-                            <h2 className="display-title mt-2 text-2xl sm:text-3xl">Where to next</h2>
+                <section className="relative mb-16">
+                    <div
+                        className="ambient-orb -right-10 top-0 h-48 w-48 bg-[var(--accent-soft)]"
+                        aria-hidden
+                    />
+                    <Reveal>
+                        <div className="mb-6 flex items-end justify-between gap-4">
+                            <div>
+                                <p className="eyebrow">Start here</p>
+                                <h2 className="display-title mt-2 text-2xl sm:text-3xl">
+                                    Where to next
+                                </h2>
+                            </div>
                         </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    </Reveal>
+                    <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {QUICK_LINKS.map((item) => (
-                            <Link key={item.href} href={item.href} className="group">
-                                <Card
-                                    interactive
-                                    className={`h-full ${
-                                        item.primary
-                                            ? 'border-[var(--accent)]/40 bg-[linear-gradient(160deg,var(--accent-soft),var(--surface))]'
-                                            : ''
-                                    }`}
-                                >
-                                    <h3 className="text-lg font-semibold tracking-tight group-hover:text-[var(--accent)]">
-                                        {item.title}
-                                    </h3>
-                                    <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-                                        {item.description}
-                                    </p>
-                                    <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
-                                        Open →
-                                    </p>
-                                </Card>
-                            </Link>
+                            <StaggerItem key={item.href}>
+                                <Link href={item.href} className="group block h-full">
+                                    <Card
+                                        interactive
+                                        spotlight
+                                        className={`h-full ${
+                                            item.primary
+                                                ? 'border-[var(--accent)]/40 bg-[linear-gradient(160deg,var(--accent-soft),var(--surface))]'
+                                                : ''
+                                        }`}
+                                    >
+                                        <h3 className="text-lg font-semibold tracking-tight group-hover:text-[var(--accent)]">
+                                            {item.title}
+                                        </h3>
+                                        <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                                            {item.description}
+                                        </p>
+                                        <p className="mt-4 text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent)] opacity-0 transition-opacity group-hover:opacity-100">
+                                            Open →
+                                        </p>
+                                    </Card>
+                                </Link>
+                            </StaggerItem>
                         ))}
-                    </div>
+                    </Stagger>
                 </section>
 
                 <section className="grid gap-12 lg:grid-cols-2">
-                    <div>
-                        <div className="mb-5 flex items-center justify-between gap-3">
-                            <h2 className="display-title text-2xl">Recent checklists</h2>
-                            <Link
-                                href="/history"
-                                className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
-                            >
-                                My plans →
-                            </Link>
-                        </div>
-                        {isLoading ? (
-                            <SkeletonList count={2} />
-                        ) : checklists.length === 0 ? (
-                            <EmptyState
-                                title="No checklists yet"
-                                description="Run a packing checklist — TrekPal will remember it."
-                                action={
-                                    <Link href="/planner?tab=checklist">
-                                        <Button size="sm">Open checklist</Button>
-                                    </Link>
-                                }
-                            />
-                        ) : (
-                            <div className="space-y-3">
-                                {checklists.map((item) => (
-                                    <Link key={item.history_id} href={`/history/${item.history_id}`}>
-                                        <Card interactive>
-                                            <p className="font-semibold tracking-tight">
-                                                {item.trek_name}
-                                            </p>
-                                            <p className="mt-1.5 text-xs text-[var(--muted)]">
-                                                {item.season} · {item.duration} days · {item.risk_level}{' '}
-                                                risk
-                                            </p>
-                                        </Card>
-                                    </Link>
-                                ))}
+                    <Reveal>
+                        <div>
+                            <div className="mb-5 flex items-center justify-between gap-3">
+                                <h2 className="display-title text-2xl">Recent checklists</h2>
+                                <Link
+                                    href="/history"
+                                    className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
+                                >
+                                    My plans →
+                                </Link>
                             </div>
-                        )}
-                    </div>
+                            {isLoading ? (
+                                <SkeletonList count={2} />
+                            ) : checklists.length === 0 ? (
+                                <EmptyState
+                                    title="No checklists yet"
+                                    description="Run a packing checklist — TrekPal will remember it."
+                                    action={
+                                        <Link href="/planner?tab=checklist">
+                                            <Button size="sm">Open checklist</Button>
+                                        </Link>
+                                    }
+                                />
+                            ) : (
+                                <div className="space-y-3">
+                                    {checklists.map((item) => (
+                                        <Link
+                                            key={item.history_id}
+                                            href={`/history/${item.history_id}`}
+                                        >
+                                            <Card interactive spotlight>
+                                                <p className="font-semibold tracking-tight">
+                                                    {item.trek_name}
+                                                </p>
+                                                <p className="mt-1.5 text-xs text-[var(--muted)]">
+                                                    {item.season} · {item.duration} days ·{' '}
+                                                    {item.risk_level} risk
+                                                </p>
+                                            </Card>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </Reveal>
 
-                    <div>
-                        <div className="mb-5 flex items-center justify-between gap-3">
-                            <h2 className="display-title text-2xl">Recent itineraries</h2>
-                            <Link
-                                href="/history"
-                                className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
-                            >
-                                My plans →
-                            </Link>
-                        </div>
-                        {isLoading ? (
-                            <SkeletonList count={2} />
-                        ) : itineraries.length === 0 ? (
-                            <EmptyState
-                                title="No itineraries yet"
-                                description="Generate a day-by-day plan when you are ready."
-                                action={
-                                    <Link href="/planner?tab=itinerary">
-                                        <Button size="sm">Open itinerary</Button>
-                                    </Link>
-                                }
-                            />
-                        ) : (
-                            <div className="space-y-3">
-                                {itineraries.map((item) => (
-                                    <Link
-                                        key={item.id}
-                                        href={`/planner?tab=itinerary&plan=${item.id}`}
-                                    >
-                                        <Card interactive>
-                                            <p className="font-semibold tracking-tight">
-                                                {item.title || item.destination}
-                                            </p>
-                                            <p className="mt-1.5 text-xs text-[var(--muted)]">
-                                                {item.destination} · {item.duration_days} days ·{' '}
-                                                {item.difficulty}
-                                            </p>
-                                        </Card>
-                                    </Link>
-                                ))}
+                    <Reveal delay={0.08}>
+                        <div>
+                            <div className="mb-5 flex items-center justify-between gap-3">
+                                <h2 className="display-title text-2xl">Recent itineraries</h2>
+                                <Link
+                                    href="/history"
+                                    className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--accent)] hover:underline"
+                                >
+                                    My plans →
+                                </Link>
                             </div>
-                        )}
-                    </div>
+                            {isLoading ? (
+                                <SkeletonList count={2} />
+                            ) : itineraries.length === 0 ? (
+                                <EmptyState
+                                    title="No itineraries yet"
+                                    description="Generate a day-by-day plan when you are ready."
+                                    action={
+                                        <Link href="/planner?tab=itinerary">
+                                            <Button size="sm">Open itinerary</Button>
+                                        </Link>
+                                    }
+                                />
+                            ) : (
+                                <div className="space-y-3">
+                                    {itineraries.map((item) => (
+                                        <Link
+                                            key={item.id}
+                                            href={`/planner?tab=itinerary&plan=${item.id}`}
+                                        >
+                                            <Card interactive spotlight>
+                                                <p className="font-semibold tracking-tight">
+                                                    {item.title || item.destination}
+                                                </p>
+                                                <p className="mt-1.5 text-xs text-[var(--muted)]">
+                                                    {item.destination} · {item.duration_days} days ·{' '}
+                                                    {item.difficulty}
+                                                </p>
+                                            </Card>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </Reveal>
                 </section>
             </PageContainer>
         </ProtectedRoute>

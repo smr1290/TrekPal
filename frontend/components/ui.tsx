@@ -77,12 +77,12 @@ export function SkeletonGrid({
           key={i}
           className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow)]"
         >
-          <div className="h-40 animate-pulse bg-[var(--surface-muted)]" />
+          <div className="h-40 skeleton-shimmer" />
           <div className="space-y-3 p-6">
-            <div className="h-3 w-20 animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-5 w-2/3 animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-3 w-full animate-pulse rounded bg-[var(--surface-muted)]" />
-            <div className="h-3 w-4/5 animate-pulse rounded bg-[var(--surface-muted)]" />
+            <div className="h-3 w-20 skeleton-shimmer rounded" />
+            <div className="h-5 w-2/3 skeleton-shimmer rounded" />
+            <div className="h-3 w-full skeleton-shimmer rounded" />
+            <div className="h-3 w-4/5 skeleton-shimmer rounded" />
           </div>
         </div>
       ))}
@@ -98,8 +98,8 @@ export function SkeletonList({ count = 3 }: { count?: number }) {
           key={i}
           className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow)]"
         >
-          <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--surface-muted)]" />
-          <div className="mt-3 h-3 w-1/3 animate-pulse rounded bg-[var(--surface-muted)]" />
+          <div className="h-4 w-1/2 skeleton-shimmer rounded" />
+          <div className="mt-3 h-3 w-1/3 skeleton-shimmer rounded" />
         </div>
       ))}
     </div>
