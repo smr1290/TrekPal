@@ -243,6 +243,17 @@ def test_ml_router_mount_matches_config():
         assert not ml_paths
 
 
+def test_ownership_helper_is_single_source():
+    """R1: user-scoped id lookups go through ownership.get_owned_resource."""
+    import ownership
+    from routes import history as history_routes
+    from routes import trip_plans as trip_plan_routes
+
+    assert callable(ownership.get_owned_resource)
+    assert history_routes.owned_history is ownership.owned_history
+    assert trip_plan_routes.owned_trip_plan is ownership.owned_trip_plan
+
+
 def test_catalog_media_paths_are_public_svgs():
     """M9: seeded media URLs must point at frontend /public/catalog assets."""
     from services.catalog_media import CATEGORY_IMAGES, TREK_IMAGES, is_catalog_svg_path

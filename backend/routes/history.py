@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from db import get_db
+from ownership import owned_history
 from schemas import HistoryDetailResponse, HistoryListItem, RecommendedGearItem
 from security import get_current_user
 from ml.gear_recommend import recommend_gear_picks
@@ -97,22 +98,9 @@ def get_user_history(
 
 @router.get("/history/{history_id}", response_model=HistoryDetailResponse)
 def get_history_detail(
-    history_id: int,
-    current_user: models.User = Depends(get_current_user),
+    history: models.UserTrekHistory = Depends(owned_history),
     db: Session = Depends(get_db),
 ):
-    history = (
-        db.query(models.UserTrekHistory)
-        .filter(
-            models.UserTrekHistory.id == history_id,
-            models.UserTrekHistory.user_id == current_user.id,
-        )
-        .first()
-    )
-
-    if not history:
-        raise HTTPException(status_code=404, detail="History not found")
-
     return HistoryDetailResponse(
         trek=_history_title(history),
         season=history.season,
@@ -128,23 +116,11 @@ def get_history_detail(
 
 @router.delete("/history/{history_id}")
 def delete_history(
-    history_id: int,
-    current_user: models.User = Depends(get_current_user),
+    history: models.UserTrekHistory = Depends(owned_history),
     db: Session = Depends(get_db),
 ):
     """Remove a saved packing checklist owned by the current user."""
-    history = (
-        db.query(models.UserTrekHistory)
-        .filter(
-            models.UserTrekHistory.id == history_id,
-            models.UserTrekHistory.user_id == current_user.id,
-        )
-        .first()
-    )
-    if not history:
-        raise HTTPException(status_code=404, detail="History not found")
-
-    # Child rows cascade via FK ondelete=CASCADE; delete explicitly for clarity.
+    history_id = history.id
     db.query(models.TrekGearRecommendation).filter(
         models.TrekGearRecommendation.history_id == history.id
     ).delete(synchronize_session=False)

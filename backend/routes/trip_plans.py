@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from db import get_db
+from ownership import owned_trip_plan
 from schemas import TripPlanDetail, TripPlanGenerateRequest, TripPlanListItem
 from security import get_current_user
 from services.trip_planner import generate_trip_plan
@@ -15,6 +16,26 @@ VALID_DIFFICULTY = {"Easy", "Moderate", "Hard"}
 VALID_EXPERIENCE = {"Beginner", "Intermediate", "Advanced"}
 VALID_SEASONS = {"Spring", "Summer", "Autumn", "Winter"}
 VALID_TRAVELER_TYPES = {"nepali", "foreign"}
+
+
+def _plan_detail(row: models.TripPlan) -> TripPlanDetail:
+    try:
+        plan = json.loads(row.plan_json)
+    except json.JSONDecodeError:
+        plan = {"summary": row.plan_json}
+    return TripPlanDetail(
+        id=row.id,
+        title=row.title,
+        destination=row.destination,
+        season=row.season,
+        duration_days=row.duration_days,
+        experience_level=row.experience_level,
+        difficulty=row.difficulty,
+        risk_level=row.risk_level,
+        source=row.source,
+        plan=plan,
+        created_at=row.created_at,
+    )
 
 
 @router.post("/generate", response_model=TripPlanDetail)
@@ -72,19 +93,7 @@ async def generate_plan(
     db.commit()
     db.refresh(row)
 
-    return TripPlanDetail(
-        id=row.id,
-        title=row.title,
-        destination=row.destination,
-        season=row.season,
-        duration_days=row.duration_days,
-        experience_level=row.experience_level,
-        difficulty=row.difficulty,
-        risk_level=row.risk_level,
-        source=row.source,
-        plan=plan,
-        created_at=row.created_at,
-    )
+    return _plan_detail(row)
 
 
 @router.get("/", response_model=list[TripPlanListItem])
@@ -116,54 +125,17 @@ def list_plans(
 
 
 @router.get("/{plan_id}", response_model=TripPlanDetail)
-def get_plan(
-    plan_id: int,
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    row = (
-        db.query(models.TripPlan)
-        .filter(models.TripPlan.id == plan_id, models.TripPlan.user_id == current_user.id)
-        .first()
-    )
-    if not row:
-        raise HTTPException(status_code=404, detail="Trip plan not found")
-
-    try:
-        plan = json.loads(row.plan_json)
-    except json.JSONDecodeError:
-        plan = {"summary": row.plan_json}
-
-    return TripPlanDetail(
-        id=row.id,
-        title=row.title,
-        destination=row.destination,
-        season=row.season,
-        duration_days=row.duration_days,
-        experience_level=row.experience_level,
-        difficulty=row.difficulty,
-        risk_level=row.risk_level,
-        source=row.source,
-        plan=plan,
-        created_at=row.created_at,
-    )
+def get_plan(row: models.TripPlan = Depends(owned_trip_plan)):
+    return _plan_detail(row)
 
 
 @router.delete("/{plan_id}")
 def delete_plan(
-    plan_id: int,
-    current_user: models.User = Depends(get_current_user),
+    row: models.TripPlan = Depends(owned_trip_plan),
     db: Session = Depends(get_db),
 ):
     """Remove a saved itinerary owned by the current user."""
-    row = (
-        db.query(models.TripPlan)
-        .filter(models.TripPlan.id == plan_id, models.TripPlan.user_id == current_user.id)
-        .first()
-    )
-    if not row:
-        raise HTTPException(status_code=404, detail="Trip plan not found")
-
+    plan_id = row.id
     db.delete(row)
     db.commit()
     return {"ok": True, "deleted_id": plan_id}
