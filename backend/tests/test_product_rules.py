@@ -254,6 +254,40 @@ def test_ownership_helper_is_single_source():
     assert trip_plan_routes.owned_trip_plan is ownership.owned_trip_plan
 
 
+def test_destination_validation_rejects_garbage():
+    from services.destination import validate_destination
+    import pytest
+
+    assert validate_destination(None) is None
+    assert validate_destination("  Poon Hill  ") == "Poon Hill"
+    with pytest.raises(ValueError):
+        validate_destination("x")
+    with pytest.raises(ValueError):
+        validate_destination("A" * 151)
+    with pytest.raises(ValueError):
+        validate_destination("Bad\x00Name")
+    with pytest.raises(ValueError):
+        validate_destination("Trek <script>")
+    with pytest.raises(ValueError):
+        validate_destination(None, required=True)
+
+
+def test_prepare_schema_rejects_bad_destination():
+    from pydantic import ValidationError
+    from schemas import PrepareTrekRequest
+    import pytest
+
+    with pytest.raises(ValidationError):
+        PrepareTrekRequest(
+            trek_type="Easy",
+            experience_level="Beginner",
+            altitude=3000,
+            season="Autumn",
+            duration=5,
+            destination="!!",
+        )
+
+
 def test_catalog_media_paths_are_public_svgs():
     """M9: seeded media URLs must point at frontend /public/catalog assets."""
     from services.catalog_media import CATEGORY_IMAGES, TREK_IMAGES, is_catalog_svg_path

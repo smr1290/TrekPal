@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from services.destination import validate_destination
 
 
 # ---------- Auth ----------
@@ -81,6 +83,14 @@ class PrepareTrekRequest(BaseModel):
     season: str
     duration: int = Field(gt=0)
     destination: str | None = None
+
+    @field_validator("destination")
+    @classmethod
+    def _validate_destination(cls, value: str | None) -> str | None:
+        try:
+            return validate_destination(value, required=False)
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
 
 
 class RecommendedGearItem(BaseModel):
@@ -259,6 +269,16 @@ class TripPlanGenerateRequest(BaseModel):
     trek_id: int | None = None
     # nepali = Nepal citizen/local traveler; foreign = international visitor
     traveler_type: str = "foreign"
+
+    @field_validator("destination")
+    @classmethod
+    def _validate_destination(cls, value: str) -> str:
+        try:
+            cleaned = validate_destination(value, required=True)
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
+        assert cleaned is not None
+        return cleaned
 
 
 class TripPlanListItem(BaseModel):

@@ -27,7 +27,7 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 | ID | Focus | Track | Status |
 |----|--------|--------|--------|
 | **R1** | Auth & ownership hardening | Backend/Security | Done |
-| **R2** | Data integrity & migration hygiene | Backend/Engineering | Pending |
+| **R2** | Data integrity & migration hygiene | Backend/Engineering | Done |
 | **R3** | Goal-based IA audit & funnel rebuild | Frontend/UX | Pending |
 | **R4** | Heuristic explainability & versioning | Backend/Product-AI | Pending |
 | **R5** | Trip planner reliability (fallback + idempotency) | Backend/Reliability | Pending |
