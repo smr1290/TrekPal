@@ -140,6 +140,8 @@ class KnowledgeArticleListItem(BaseModel):
     category: str
     summary: str
     trek_id: int | None = None
+    has_source: bool = False
+    source_label: str | None = None
 
 
 class KnowledgeArticleDetail(BaseModel):
@@ -151,8 +153,12 @@ class KnowledgeArticleDetail(BaseModel):
     content: str
     trek_id: int | None = None
     source_url: str | None = None
+    source_label: str | None = None
+    has_source: bool = False
+    disclaimer: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    related: list[KnowledgeArticleListItem] = []
 
 
 # ---------- AI Chat (Phase 3) ----------
@@ -162,9 +168,14 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class ChatSource(BaseModel):
+    slug: str
+    title: str
+
+
 class ChatAnswer(BaseModel):
     answer: str
-    sources: list[str]  # list of knowledge article slugs used for grounding
+    sources: list[ChatSource]
 
 
 class ChatResponse(BaseModel):

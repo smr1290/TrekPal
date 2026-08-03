@@ -9,7 +9,7 @@ import Button from '@/components/Button';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { EmptyState, LoadingBlock } from '@/components/ui';
 import { ApiError, chatApi } from '@/lib/api';
-import type { ChatAnswer, ChatResponse } from '@/lib/types';
+import type { ChatAnswer, ChatResponse, ChatSource } from '@/lib/types';
 
 type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
@@ -34,7 +34,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [sources, setSources] = useState<string[]>([]);
+    const [sources, setSources] = useState<ChatSource[]>([]);
 
     const hasConversation = messages.length > 0;
 
@@ -123,17 +123,22 @@ export default function ChatPage() {
                                 Knowledge articles used to ground your answer — open them to verify.
                             </p>
 
-                            <div className="mt-4 space-y-2">
+                            <div className="mt-4 space-y-3">
                                 {sources.length === 0 ? (
                                     <p className="text-sm text-[var(--muted)]">No sources yet.</p>
                                 ) : (
                                     sources.map((s) => (
                                         <Link
-                                            key={s}
-                                            href={`/knowledge/${s}`}
-                                            className="block text-sm font-semibold text-[var(--accent)] hover:underline"
+                                            key={s.slug}
+                                            href={`/knowledge/${s.slug}`}
+                                            className="block rounded-[var(--radius)] border border-[var(--border)] p-3 transition hover:border-[var(--accent)]/40"
                                         >
-                                            {s}
+                                            <p className="text-sm font-semibold text-[var(--accent)]">
+                                                {s.title}
+                                            </p>
+                                            <p className="mt-1 text-xs text-[var(--muted)]">
+                                                Open article to verify →
+                                            </p>
                                         </Link>
                                     ))
                                 )}

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from db import get_db
 from config import GROQ_API_KEY, GROQ_MODEL
 import models
-from schemas import ChatRequest, ChatResponse
+from schemas import ChatRequest, ChatResponse, ChatSource
 from security import get_current_user
 from services.rate_limit import chat_limiter
 
@@ -172,6 +172,6 @@ async def ask_chat(
     prompt_messages = _build_prompt(message, articles)
     answer = await _call_groq_chat(prompt_messages)
 
-    sources = [a.slug for a in articles]
+    sources = [ChatSource(slug=a.slug, title=a.title) for a in articles]
     return ChatResponse(result={"answer": answer, "sources": sources})
 

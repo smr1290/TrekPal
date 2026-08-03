@@ -76,6 +76,7 @@ class KnowledgeArticle(Base):
     content = Column(Text, nullable=False)
     trek_id = Column(Integer, ForeignKey("treks.id", ondelete="SET NULL"), nullable=True)
     source_url = Column(Text, nullable=True)
+    source_label = Column(String(200), nullable=True)
     is_published = Column(Boolean, default=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

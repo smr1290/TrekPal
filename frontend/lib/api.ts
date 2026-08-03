@@ -277,6 +277,8 @@ export const knowledgeApi = {
                 category: string;
                 summary: string;
                 trek_id?: number | null;
+                has_source?: boolean;
+                source_label?: string | null;
             }[]
         >(`/knowledge${query}`);
     },
@@ -291,8 +293,20 @@ export const knowledgeApi = {
             content: string;
             trek_id?: number | null;
             source_url?: string | null;
+            source_label?: string | null;
+            has_source?: boolean;
+            disclaimer?: string | null;
             created_at?: string | null;
             updated_at?: string | null;
+            related?: {
+                id: number;
+                title: string;
+                slug: string;
+                category: string;
+                summary: string;
+                has_source?: boolean;
+                source_label?: string | null;
+            }[];
         }>(`/knowledge/${encodeURIComponent(slug)}`);
     },
 };
@@ -302,7 +316,7 @@ export const chatApi = {
         return fetchApi<{
             result: {
                 answer: string;
-                sources: string[];
+                sources: { slug: string; title: string }[];
             };
         }>('/chat/ask', {
             method: 'POST',

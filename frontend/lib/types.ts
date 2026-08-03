@@ -147,18 +147,27 @@ export interface KnowledgeArticle {
   category: string;
   summary: string;
   trek_id?: number | null;
+  has_source?: boolean;
+  source_label?: string | null;
 }
 
 export interface KnowledgeArticleDetail extends KnowledgeArticle {
   content: string;
   source_url?: string | null;
+  disclaimer?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  related?: KnowledgeArticle[];
+}
+
+export interface ChatSource {
+  slug: string;
+  title: string;
 }
 
 export interface ChatAnswer {
   answer: string;
-  sources: string[];
+  sources: ChatSource[];
 }
 
 export interface ChatResponse {

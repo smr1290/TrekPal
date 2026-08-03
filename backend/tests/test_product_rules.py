@@ -160,3 +160,25 @@ def test_delete_plan_routes_are_registered():
     }
     assert ("/trek/history/{history_id}", ("DELETE",)) in delete_paths
     assert ("/trip-plans/{plan_id}", ("DELETE",)) in delete_paths
+
+
+def test_knowledge_disclaimers_are_category_specific():
+    from services.knowledge_trust import disclaimer_for_category, has_external_source
+
+    medical = disclaimer_for_category("medical")
+    assert "not a medical" in medical.lower() or "diagnosis" in medical.lower()
+
+    permit = disclaimer_for_category("permit")
+    assert "change" in permit.lower()
+
+    assert has_external_source("https://wwwnc.cdc.gov/travel/page/travel-to-high-altitudes")
+    assert not has_external_source(None)
+    assert not has_external_source("ftp://example.com")
+
+
+def test_chat_source_schema_includes_title():
+    from schemas import ChatSource
+
+    source = ChatSource(slug="altitude-sickness-basics", title="Altitude sickness: signs and what to do")
+    assert source.slug == "altitude-sickness-basics"
+    assert "Altitude" in source.title
