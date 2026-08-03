@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -12,10 +15,14 @@ export default function Button({
     fullWidth = false,
     children,
     className = '',
+    disabled,
+    type = 'button',
     ...props
 }: ButtonProps) {
+    const reduce = useReducedMotion();
+
     const base =
-        'btn-shine relative inline-flex items-center justify-center overflow-hidden font-semibold tracking-wide rounded-[var(--radius-sm)] transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] active:scale-[0.98]';
+        'btn-shine relative inline-flex items-center justify-center overflow-hidden font-semibold tracking-wide rounded-[var(--radius-sm)] transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]';
 
     const variants = {
         primary:
@@ -35,11 +42,16 @@ export default function Button({
     };
 
     return (
-        <button
+        <motion.button
+            type={type}
+            disabled={disabled}
+            whileHover={reduce || disabled ? undefined : { scale: 1.025 }}
+            whileTap={reduce || disabled ? undefined : { scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 26 }}
             className={`${base} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
             {...props}
         >
             <span className="relative z-[1]">{children}</span>
-        </button>
+        </motion.button>
     );
 }
