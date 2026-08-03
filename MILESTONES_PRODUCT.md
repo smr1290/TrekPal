@@ -13,9 +13,11 @@ Ship quality, one coherent slice at a time.
 | **M7** | Auth hardening (httpOnly cookies) for deploy | Done |
 | **M8** | API tests + lock internal `/ml` | Done |
 | **M9** | Catalog media (trek/gear images) | Done |
+| **M10** | Weather intelligence (Open-Meteo forecasts + trail alerts on Plan trip) | Done |
 
 ## Success path (shippable)
 
 1. Browse trek → Plan this trek → checklist → itinerary → My plans  
 2. Chat errors are actionable; sources open knowledge pages  
 3. Maps never imply unverified hospitals are live rescue  
+4. Plan trip shows destination weather watch-outs before you commit dates  

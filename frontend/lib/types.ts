@@ -264,3 +264,53 @@ export interface MapLocation {
   source_note?: string | null;
   trust_label?: string | null;
 }
+
+export interface WeatherDay {
+  date: string;
+  temp_max_c?: number | null;
+  temp_min_c?: number | null;
+  precipitation_mm?: number | null;
+  snowfall_cm?: number | null;
+  wind_max_kmh?: number | null;
+  weather_code?: number | null;
+  summary: string;
+  warnings: string[];
+}
+
+export interface WeatherForecast {
+  destination_label: string;
+  latitude: number;
+  longitude: number;
+  elevation_m?: number | null;
+  timezone: string;
+  source: string;
+  explanation: string;
+  warnings: string[];
+  days: WeatherDay[];
+  matched_query?: string | null;
+}
+
+export interface WeatherDay {
+  date: string;
+  temp_max_c?: number | null;
+  temp_min_c?: number | null;
+  precipitation_mm?: number | null;
+  snowfall_cm?: number | null;
+  wind_max_kmh?: number | null;
+  weather_code?: number | null;
+  summary: string;
+  warnings: string[];
+}
+
+export interface WeatherForecast {
+  destination_label: string;
+  latitude: number;
+  longitude: number;
+  elevation_m?: number | null;
+  timezone: string;
+  source: string;
+  explanation: string;
+  warnings: string[];
+  days: WeatherDay[];
+  matched_query?: string | null;
+}

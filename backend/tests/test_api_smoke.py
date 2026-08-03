@@ -134,3 +134,17 @@ def test_gear_list_includes_photo_urls():
     gear = response.json()
     assert gear
     assert any(g.get("photo_url") for g in gear)
+
+
+def test_weather_forecast_for_known_destination():
+    response = client.get("/weather/forecast", params={"destination": "Poon Hill", "days": 3})
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["source"] == "open-meteo"
+    assert data["days"]
+    assert "Poon" in data["destination_label"] or "Ghorepani" in data["destination_label"]
+
+
+def test_weather_forecast_unknown_destination():
+    response = client.get("/weather/forecast", params={"destination": "Atlantis Ridge"})
+    assert response.status_code == 404

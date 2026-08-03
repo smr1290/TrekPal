@@ -426,3 +426,34 @@ export const mapsApi = {
         >(`/maps/locations${query}`);
     },
 };
+
+export const weatherApi = {
+    forecast: async (destination: string, days: number = 7) => {
+        const params = new URLSearchParams({
+            destination,
+            days: String(days),
+        });
+        return fetchApi<{
+            destination_label: string;
+            latitude: number;
+            longitude: number;
+            elevation_m?: number | null;
+            timezone: string;
+            source: string;
+            explanation: string;
+            warnings: string[];
+            days: {
+                date: string;
+                temp_max_c?: number | null;
+                temp_min_c?: number | null;
+                precipitation_mm?: number | null;
+                snowfall_cm?: number | null;
+                wind_max_kmh?: number | null;
+                weather_code?: number | null;
+                summary: string;
+                warnings: string[];
+            }[];
+            matched_query?: string | null;
+        }>(`/weather/forecast?${params.toString()}`);
+    },
+};

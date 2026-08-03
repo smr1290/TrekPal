@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import CatalogImage from '@/components/CatalogImage';
+import WeatherPanel from '@/components/WeatherPanel';
 import { EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
@@ -418,6 +419,8 @@ export default function PrepareTrekPanel({
                     )}
                 </section>
             </div>
+
+            <WeatherPanel destination={formData.destination} />
         </div>
     );
 }

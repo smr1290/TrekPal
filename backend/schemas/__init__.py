@@ -306,3 +306,31 @@ class MapRegionSummary(BaseModel):
     region: str
     location_count: int
     verified_count: int = 0
+
+
+# ---------- Weather (M10) ----------
+
+
+class WeatherDay(BaseModel):
+    date: str
+    temp_max_c: float | None = None
+    temp_min_c: float | None = None
+    precipitation_mm: float | None = None
+    snowfall_cm: float | None = None
+    wind_max_kmh: float | None = None
+    weather_code: int | None = None
+    summary: str
+    warnings: list[str] = []
+
+
+class WeatherForecastResponse(BaseModel):
+    destination_label: str
+    latitude: float
+    longitude: float
+    elevation_m: int | None = None
+    timezone: str
+    source: str
+    explanation: str
+    warnings: list[str] = []
+    days: list[WeatherDay] = []
+    matched_query: str | None = None

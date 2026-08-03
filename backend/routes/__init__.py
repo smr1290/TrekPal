@@ -10,6 +10,7 @@ from .chat import router as chat_router
 from .ml import router as ml_router
 from .trip_plans import router as trip_plans_router
 from .maps import router as maps_router
+from .weather import router as weather_router
 
 routers = [
     (auth_router, "/auth", ["Authentication"]),
@@ -21,6 +22,7 @@ routers = [
     (chat_router, "/chat", ["AI Chat"]),
     (trip_plans_router, "/trip-plans", ["Trip Planner"]),
     (maps_router, "/maps", ["Maps"]),
+    (weather_router, "/weather", ["Weather"]),
 ]
 
 # Internal estimate playground — Plan trip already exposes risk/budget to users.

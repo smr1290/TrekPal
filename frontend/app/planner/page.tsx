@@ -12,6 +12,7 @@ import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import PageContainer from '@/components/PageContainer';
 import PrepareTrekPanel from '@/components/PrepareTrekPanel';
+import WeatherPanel from '@/components/WeatherPanel';
 import { PageHeader, EmptyState, LoadingBlock } from '@/components/ui';
 import { tripPlanApi } from '@/lib/api';
 import type { TripPlanContent, TripPlanDetail, TripPlanSummary } from '@/lib/types';
@@ -221,6 +222,8 @@ function PlanTripInner() {
                     }}
                 />
             ) : (
+                <div className="space-y-6">
+                    <WeatherPanel destination={formData.destination} />
                 <div className="grid items-start gap-10 lg:grid-cols-[360px_1fr]">
                     <section className="space-y-6">
                         <Card className="p-6">
@@ -555,6 +558,7 @@ function PlanTripInner() {
                             </div>
                         )}
                     </section>
+                </div>
                 </div>
             )}
         </PageContainer>
