@@ -49,6 +49,15 @@ if APP_ENV not in {"development", "dev", "test", "local"}:
 _cors = _env("CORS_ORIGINS", "http://localhost:3000") or "http://localhost:3000"
 CORS_ORIGINS = [origin.strip() for origin in _cors.split(",") if origin.strip()]
 
+# httpOnly session cookie (M7). Browser sends it automatically with credentials: 'include'.
+AUTH_COOKIE_NAME = _env("AUTH_COOKIE_NAME", "trekpal_access") or "trekpal_access"
+_cookie_secure_override = _env("AUTH_COOKIE_SECURE")
+if _cookie_secure_override is not None:
+    AUTH_COOKIE_SECURE = _cookie_secure_override.lower() in {"1", "true", "yes"}
+else:
+    # Secure cookies require HTTPS. Local Docker/dev is HTTP, so keep Secure off there.
+    AUTH_COOKIE_SECURE = APP_ENV not in {"development", "dev", "test", "local"}
+
 
 # ---------- Groq AI (Phase 3) ----------
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from db import get_db
@@ -9,7 +9,14 @@ from schemas import (
     UpdateProfileRequest,
     UserMeResponse,
 )
-from security import create_access_token, get_current_user, hash_password, verify_password
+from security import (
+    clear_auth_cookie,
+    create_access_token,
+    get_current_user,
+    hash_password,
+    set_auth_cookie,
+    verify_password,
+)
 import models
 
 router = APIRouter()
@@ -27,8 +34,15 @@ def _token_for_user(user: models.User) -> TokenResponse:
     )
 
 
+def _attach_session(response: Response, user: models.User) -> TokenResponse:
+    """Issue JWT in JSON (API clients) and httpOnly cookie (browser)."""
+    payload = _token_for_user(user)
+    set_auth_cookie(response, payload.access_token)
+    return payload
+
+
 @router.post("/signup", response_model=TokenResponse)
-def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+def signup(payload: SignupRequest, response: Response, db: Session = Depends(get_db)):
     if payload.experience_level not in VALID_EXPERIENCE:
         raise HTTPException(status_code=400, detail="Invalid experience level")
 
@@ -48,11 +62,11 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     # Auto-login after signup so the product funnel starts immediately.
-    return _token_for_user(new_user)
+    return _attach_session(response, new_user)
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == payload.email).first()
 
     # Same 401 for unknown email and bad password (avoid user enumeration)
@@ -62,7 +76,14 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password",
         )
 
-    return _token_for_user(user)
+    return _attach_session(response, user)
+
+
+@router.post("/logout")
+def logout(response: Response):
+    """Clear the httpOnly session cookie (browser logout)."""
+    clear_auth_cookie(response)
+    return {"ok": True}
 
 
 @router.get("/me", response_model=UserMeResponse)

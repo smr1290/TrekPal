@@ -1,12 +1,18 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET
+from config import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    AUTH_COOKIE_NAME,
+    AUTH_COOKIE_SECURE,
+    JWT_ALGORITHM,
+    JWT_SECRET,
+)
 from db import get_db
 import models
 
@@ -28,18 +34,38 @@ def create_access_token(user_id: int) -> str:
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-    db: Session = Depends(get_db),
-) -> models.User:
-    if credentials is None or credentials.scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+def resolve_access_token(*, bearer: str | None, cookie: str | None) -> str | None:
+    """Prefer Authorization Bearer (API clients), then httpOnly cookie (browser)."""
+    if bearer and bearer.strip():
+        return bearer.strip()
+    if cookie and cookie.strip():
+        return cookie.strip()
+    return None
 
-    token = credentials.credentials
+
+def set_auth_cookie(response: Response, token: str) -> None:
+    """Store the JWT where JavaScript cannot read it (XSS mitigation)."""
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=AUTH_COOKIE_SECURE,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME,
+        path="/",
+        secure=AUTH_COOKIE_SECURE,
+        samesite="lax",
+    )
+
+
+def _user_from_token(token: str, db: Session) -> models.User:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         sub = payload.get("sub")
@@ -65,3 +91,24 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+
+def get_current_user(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> models.User:
+    bearer = (
+        credentials.credentials
+        if credentials is not None and credentials.scheme.lower() == "bearer"
+        else None
+    )
+    cookie = request.cookies.get(AUTH_COOKIE_NAME)
+    token = resolve_access_token(bearer=bearer, cookie=cookie)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return _user_from_token(token, db)

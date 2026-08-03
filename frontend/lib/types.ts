@@ -136,7 +136,7 @@ export interface AuthContextType {
   } | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (full_name: string, email: string, password: string, experience_level: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 

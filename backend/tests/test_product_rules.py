@@ -193,3 +193,27 @@ def test_chat_source_schema_includes_title():
     source = ChatSource(slug="altitude-sickness-basics", title="Altitude sickness: signs and what to do")
     assert source.slug == "altitude-sickness-basics"
     assert "Altitude" in source.title
+
+
+def test_resolve_access_token_prefers_bearer_then_cookie():
+    from security import resolve_access_token
+
+    assert resolve_access_token(bearer="bearer-token", cookie="cookie-token") == "bearer-token"
+    assert resolve_access_token(bearer=None, cookie="cookie-token") == "cookie-token"
+    assert resolve_access_token(bearer="  ", cookie="cookie-token") == "cookie-token"
+    assert resolve_access_token(bearer=None, cookie=None) is None
+
+
+def test_logout_route_is_registered():
+    from fastapi.routing import APIRoute
+    from main import app
+
+    logout_routes = [
+        route
+        for route in app.routes
+        if isinstance(route, APIRoute)
+        and route.path == "/auth/logout"
+        and route.methods
+        and "POST" in route.methods
+    ]
+    assert logout_routes

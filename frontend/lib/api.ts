@@ -1,7 +1,12 @@
 // API client utility for TrekPal backend
+//
+// M7: Session JWT lives in an httpOnly cookie set by the API.
+// The browser sends it via credentials: 'include'. We no longer store
+// the access token in localStorage (XSS could steal it from there).
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const TOKEN_KEY = 'trek_pal_token';
+/** Legacy key — cleared on load so old JWTs are not left readable by scripts. */
+const LEGACY_TOKEN_KEY = 'trek_pal_token';
 
 export class ApiError extends Error {
     constructor(public status: number, message: string) {
@@ -10,18 +15,10 @@ export class ApiError extends Error {
     }
 }
 
-export function getAccessToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setAccessToken(token: string | null) {
+/** Remove any pre-M7 JWT left in localStorage. */
+export function clearLegacyAccessToken() {
     if (typeof window === 'undefined') return;
-    if (token) {
-        localStorage.setItem(TOKEN_KEY, token);
-    } else {
-        localStorage.removeItem(TOKEN_KEY);
-    }
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
 }
 
 function formatErrorDetail(detail: unknown): string {
@@ -45,27 +42,23 @@ function formatErrorDetail(detail: unknown): string {
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    const token = getAccessToken();
 
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(options.headers as Record<string, string> | undefined),
     };
 
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
-    }
-
     try {
         const response = await fetch(url, {
             ...options,
             headers,
+            credentials: 'include',
         });
 
         if (!response.ok) {
-            // Expired / invalid session — clear local auth so UI can recover.
+            // Expired / invalid session — clear local profile cache so UI can recover.
             if (response.status === 401 && typeof window !== 'undefined') {
-                setAccessToken(null);
+                clearLegacyAccessToken();
                 localStorage.removeItem('trek_pal_user');
                 window.dispatchEvent(new Event('trekpal:auth-expired'));
             }
@@ -114,6 +107,12 @@ export const authApi = {
         }>('/auth/login', {
             method: 'POST',
             body: JSON.stringify({ email, password }),
+        });
+    },
+
+    logout: async () => {
+        return fetchApi<{ ok: boolean }>('/auth/logout', {
+            method: 'POST',
         });
     },
 

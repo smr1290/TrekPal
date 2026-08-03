@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authApi, setAccessToken, getAccessToken } from '@/lib/api';
+import { authApi, clearLegacyAccessToken } from '@/lib/api';
 
 interface User {
     id: number;
@@ -15,7 +15,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     signup: (full_name: string, email: string, password: string, experience_level: string) => Promise<void>;
     updateProfile: (payload: { full_name?: string; experience_level?: string }) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     isAuthenticated: boolean;
     isLoading: boolean;
 }
@@ -24,21 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_KEY = 'trek_pal_user';
 
-function applySession(
-    setUser: (user: User | null) => void,
-    data: {
-        access_token: string;
-        user_id: number;
-        full_name: string;
-        experience_level: string | null;
-    }
-) {
-    setAccessToken(data.access_token);
-    const userData: User = {
-        id: data.user_id,
-        full_name: data.full_name,
-        experience_level: data.experience_level || '',
-    };
+function cacheUser(setUser: (user: User | null) => void, userData: User) {
     setUser(userData);
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
 }
@@ -49,30 +35,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const clearSession = () => {
         setUser(null);
-        setAccessToken(null);
+        clearLegacyAccessToken();
         localStorage.removeItem(USER_KEY);
     };
 
     useEffect(() => {
         const hydrate = async () => {
-            const token = getAccessToken();
-            if (!token) {
-                localStorage.removeItem(USER_KEY);
-                setUser(null);
-                setIsLoading(false);
-                return;
-            }
+            // Drop any pre-M7 JWT so scripts cannot read it from localStorage.
+            clearLegacyAccessToken();
 
             try {
+                // Cookie is sent automatically with credentials: 'include'.
                 const me = await authApi.me();
-                const userData: User = {
+                cacheUser(setUser, {
                     id: me.user_id,
                     full_name: me.full_name,
                     experience_level: me.experience_level || '',
                     email: me.email,
-                };
-                setUser(userData);
-                localStorage.setItem(USER_KEY, JSON.stringify(userData));
+                });
             } catch {
                 clearSession();
             } finally {
@@ -85,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const onExpired = () => {
             setUser(null);
             localStorage.removeItem(USER_KEY);
+            clearLegacyAccessToken();
         };
         window.addEventListener('trekpal:auth-expired', onExpired);
         return () => window.removeEventListener('trekpal:auth-expired', onExpired);
@@ -92,7 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         const response = await authApi.login(email, password);
-        applySession(setUser, response);
+        // access_token is also set as httpOnly cookie by the API — do not store it in JS.
+        cacheUser(setUser, {
+            id: response.user_id,
+            full_name: response.full_name,
+            experience_level: response.experience_level || '',
+        });
     };
 
     const signup = async (
@@ -102,22 +88,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         experience_level: string
     ) => {
         const response = await authApi.signup(full_name, email, password, experience_level);
-        applySession(setUser, response);
+        cacheUser(setUser, {
+            id: response.user_id,
+            full_name: response.full_name,
+            experience_level: response.experience_level || '',
+        });
     };
 
     const updateProfile = async (payload: { full_name?: string; experience_level?: string }) => {
         const me = await authApi.updateMe(payload);
-        const userData: User = {
+        cacheUser(setUser, {
             id: me.user_id,
             full_name: me.full_name,
             experience_level: me.experience_level || '',
             email: me.email,
-        };
-        setUser(userData);
-        localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        });
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await authApi.logout();
+        } catch {
+            // Still clear local UI state even if the network call fails.
+        }
         clearSession();
     };
 

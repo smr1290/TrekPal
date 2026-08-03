@@ -84,9 +84,10 @@ export default function Navbar() {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    logout();
-                                    router.push('/');
-                                    closeMobile();
+                                    void logout().then(() => {
+                                        router.push('/');
+                                        closeMobile();
+                                    });
                                 }}
                                 className={`text-xs font-semibold ${
                                     isHome
@@ -159,9 +160,10 @@ export default function Navbar() {
                                 type="button"
                                 className="text-sm font-semibold text-[var(--muted)] hover:text-[var(--danger)]"
                                 onClick={() => {
-                                    logout();
-                                    router.push('/');
-                                    closeMobile();
+                                    void logout().then(() => {
+                                        router.push('/');
+                                        closeMobile();
+                                    });
                                 }}
                             >
                                 Logout
