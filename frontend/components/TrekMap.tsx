@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -59,6 +59,17 @@ export default function TrekMap({
     selectedId?: number | null;
     onSelect?: (id: number) => void;
 }) {
+    const [wheelZoom, setWheelZoom] = useState(false);
+
+    useEffect(() => {
+        // Desktop: wheel zoom OK. Mobile: keep page scroll usable (R7).
+        const mq = window.matchMedia('(min-width: 768px)');
+        const apply = () => setWheelZoom(mq.matches);
+        apply();
+        mq.addEventListener('change', apply);
+        return () => mq.removeEventListener('change', apply);
+    }, []);
+
     const center = useMemo<[number, number]>(() => {
         if (!locations.length) return [28.3949, 84.124]; // Nepal center-ish
         const lat = locations.reduce((s, l) => s + l.latitude, 0) / locations.length;
@@ -67,50 +78,59 @@ export default function TrekMap({
     }, [locations]);
 
     return (
-        <MapContainer
-            center={center}
-            zoom={8}
-            className="h-full w-full rounded-[var(--radius)]"
-            scrollWheelZoom
-        >
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <FitBounds locations={locations} />
-            {locations.map((loc) => (
-                <Marker
-                    key={loc.id}
-                    position={[loc.latitude, loc.longitude]}
-                    icon={categoryIcon(loc.category, loc.is_verified)}
-                    opacity={selectedId && selectedId !== loc.id ? 0.55 : 1}
-                    eventHandlers={{
-                        click: () => onSelect?.(loc.id),
-                    }}
-                >
-                    <Popup>
-                        <div className="min-w-[160px]">
-                            <strong>{loc.name}</strong>
-                            <div style={{ marginTop: 4, fontSize: 12 }}>
-                                {loc.category.replace('_', ' ')}
-                                {loc.elevation_m != null ? ` · ${loc.elevation_m.toLocaleString()} m` : ''}
-                                {loc.is_verified ? ' · verified' : ' · unverified'}
-                            </div>
-                            {loc.trust_label && (
-                                <div style={{ marginTop: 4, fontSize: 11, opacity: 0.85 }}>
-                                    {loc.trust_label}
+        <div className="map-touch-shell h-full w-full">
+            <MapContainer
+                center={center}
+                zoom={8}
+                className="h-full w-full rounded-[var(--radius)]"
+                scrollWheelZoom={wheelZoom}
+                dragging
+                touchZoom
+                doubleClickZoom
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <FitBounds locations={locations} />
+                {locations.map((loc) => (
+                    <Marker
+                        key={loc.id}
+                        position={[loc.latitude, loc.longitude]}
+                        icon={categoryIcon(loc.category, loc.is_verified)}
+                        opacity={selectedId && selectedId !== loc.id ? 0.55 : 1}
+                        eventHandlers={{
+                            click: () => onSelect?.(loc.id),
+                        }}
+                    >
+                        <Popup>
+                            <div className="min-w-[160px]">
+                                <strong>{loc.name}</strong>
+                                <div style={{ marginTop: 4, fontSize: 12 }}>
+                                    {loc.category.replace('_', ' ')}
+                                    {loc.elevation_m != null
+                                        ? ` · ${loc.elevation_m.toLocaleString()} m`
+                                        : ''}
+                                    {loc.is_verified ? ' · verified' : ' · unverified'}
                                 </div>
-                            )}
-                            {loc.description && (
-                                <div style={{ marginTop: 6, fontSize: 12 }}>{loc.description}</div>
-                            )}
-                            {loc.source_note && (
-                                <div style={{ marginTop: 6, fontSize: 11, opacity: 0.8 }}>{loc.source_note}</div>
-                            )}
-                        </div>
-                    </Popup>
-                </Marker>
-            ))}
-        </MapContainer>
+                                {loc.trust_label && (
+                                    <div style={{ marginTop: 4, fontSize: 11, opacity: 0.85 }}>
+                                        {loc.trust_label}
+                                    </div>
+                                )}
+                                {loc.description && (
+                                    <div style={{ marginTop: 6, fontSize: 12 }}>{loc.description}</div>
+                                )}
+                                {loc.source_note && (
+                                    <div style={{ marginTop: 6, fontSize: 11, opacity: 0.8 }}>
+                                        {loc.source_note}
+                                    </div>
+                                )}
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
+            </MapContainer>
+        </div>
     );
 }

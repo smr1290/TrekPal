@@ -89,7 +89,7 @@ export default function WeatherPanel({ destination }: { destination: string }) {
                     <LoadingBlock label="Loading forecast…" />
                 </div>
             ) : error ? (
-                <p className="mt-4 text-sm text-[var(--muted)]" role="status">
+                <p className="state-error mt-4" role="status">
                     {error}
                 </p>
             ) : forecast ? (

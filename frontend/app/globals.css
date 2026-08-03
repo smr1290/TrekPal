@@ -36,6 +36,31 @@
 
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* High Lodge rhythm tokens (R6) — shared spacing / type scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --leading-tight: 1.15;
+  --leading-body: 1.625;
+  --section-gap: var(--space-12);
+  --tap-min: 2.75rem; /* ≥44px mobile targets (R7) */
 }
 
 body {
@@ -387,6 +412,52 @@ body {
   box-shadow: var(--ring);
 }
 
+.field-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  background: var(--surface-muted);
+}
+
+.field-control[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.state-error {
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.state-success {
+  border: 1px solid color-mix(in srgb, var(--success) 35%, var(--border));
+  background: var(--success-bg);
+  color: var(--success);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* Maps: contain overscroll so page scroll and pinch-zoom don't fight (R7) */
+.map-touch-shell {
+  overscroll-behavior: contain;
+  touch-action: manipulation;
+  min-height: 16rem;
+}
+
+@media (max-width: 639px) {
+  .nav-shell {
+    height: 3.5rem;
+  }
+
+  .chip {
+    min-height: var(--tap-min);
+    padding-inline: 1rem;
+  }
+}
+
 .eyebrow {
   font-size: 0.7rem;
   font-weight: 700;
@@ -464,5 +535,13 @@ body {
   .field-control,
   .card-spotlight::before {
     transition: none !important;
+  }
+
+  .surface-interactive:hover {
+    transform: none !important;
+  }
+
+  .media-zoom:hover img {
+    transform: none !important;
   }
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Card from '@/components/Card';
 import PageContainer from '@/components/PageContainer';
 import Input from '@/components/Input';
@@ -11,7 +12,7 @@ import { EmptyState, LoadingBlock } from '@/components/ui';
 import { ApiError, chatApi } from '@/lib/api';
 import type { ChatAnswer, ChatResponse, ChatSource } from '@/lib/types';
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string };
+type ChatMessage = { role: 'user' | 'assistant'; content: string; id: string };
 
 function chatErrorMessage(error: unknown): string {
     if (error instanceof ApiError) {
@@ -31,16 +32,25 @@ function chatErrorMessage(error: unknown): string {
 }
 
 export default function ChatPage() {
+    const reduce = useReducedMotion();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [sources, setSources] = useState<ChatSource[]>([]);
+    const threadRef = useRef<HTMLDivElement>(null);
 
     const hasConversation = messages.length > 0;
 
     const placeholder = useMemo(() => {
         return 'Try: "What gear do I need for an Everest Base Camp trek?"';
     }, []);
+
+    useEffect(() => {
+        threadRef.current?.scrollTo({
+            top: threadRef.current.scrollHeight,
+            behavior: reduce ? 'auto' : 'smooth',
+        });
+    }, [messages, isLoading, reduce]);
 
     const send = async () => {
         const text = input.trim();
@@ -49,12 +59,22 @@ export default function ChatPage() {
         setIsLoading(true);
         setSources([]);
         setInput('');
-        setMessages((prev) => [...prev, { role: 'user', content: text }]);
+        setMessages((prev) => [
+            ...prev,
+            { role: 'user', content: text, id: `u-${Date.now()}` },
+        ]);
 
         try {
             const data: ChatResponse = await chatApi.ask(text);
             const answer: ChatAnswer = data.result;
-            setMessages((prev) => [...prev, { role: 'assistant', content: answer.answer }]);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: answer.answer,
+                    id: `a-${Date.now()}`,
+                },
+            ]);
             setSources(answer.sources || []);
         } catch (error) {
             console.error('Chat error:', error);
@@ -63,6 +83,7 @@ export default function ChatPage() {
                 {
                     role: 'assistant',
                     content: chatErrorMessage(error),
+                    id: `e-${Date.now()}`,
                 },
             ]);
         } finally {
@@ -72,10 +93,10 @@ export default function ChatPage() {
 
     return (
         <ProtectedRoute>
-            <PageContainer>
-                <div className="mb-10">
+            <PageContainer className="pb-28 sm:pb-16">
+                <div className="mb-8 sm:mb-10">
                     <p className="eyebrow">Ask your buddy</p>
-                    <h1 className="display-title mt-3 text-4xl sm:text-5xl">AI trek assistant</h1>
+                    <h1 className="display-title mt-3 text-3xl sm:text-5xl">AI trek assistant</h1>
                     <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--muted)]">
                         Sign-in required. Answers are grounded in the knowledge base (limit 20
                         questions/hour). Not medical or legal advice.
@@ -83,7 +104,10 @@ export default function ChatPage() {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-                    <div className="min-h-[420px]">
+                    <div
+                        ref={threadRef}
+                        className="max-h-[min(55vh,28rem)] min-h-[280px] overflow-y-auto overscroll-contain sm:max-h-none sm:min-h-[420px] sm:overflow-visible"
+                    >
                         {!hasConversation && !isLoading ? (
                             <EmptyState
                                 title="Start a conversation"
@@ -93,29 +117,37 @@ export default function ChatPage() {
 
                         {hasConversation ? (
                             <div className="space-y-4">
-                                {messages.map((m, idx) => (
-                                    <Card
-                                        key={idx}
-                                        className={`p-5 ${
-                                            m.role === 'user'
-                                                ? 'border-[var(--accent)]/25 bg-[var(--accent-soft)]'
-                                                : ''
-                                        }`}
-                                    >
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
-                                            {m.role === 'user' ? 'You' : 'TrekPal'}
-                                        </p>
-                                        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
-                                            {m.content}
-                                        </p>
-                                    </Card>
-                                ))}
+                                <AnimatePresence initial={false}>
+                                    {messages.map((m) => (
+                                        <motion.div
+                                            key={m.id}
+                                            initial={reduce ? false : { opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.25 }}
+                                        >
+                                            <Card
+                                                className={`p-5 ${
+                                                    m.role === 'user'
+                                                        ? 'border-[var(--accent)]/25 bg-[var(--accent-soft)]'
+                                                        : ''
+                                                }`}
+                                            >
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                                                    {m.role === 'user' ? 'You' : 'TrekPal'}
+                                                </p>
+                                                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+                                                    {m.content}
+                                                </p>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                                 {isLoading ? <LoadingBlock label="Thinking…" /> : null}
                             </div>
                         ) : null}
                     </div>
 
-                    <aside>
+                    <aside className="hidden lg:block">
                         <Card className="p-5">
                             <h2 className="text-sm font-semibold text-[var(--foreground)]">Sources</h2>
                             <p className="mt-2 text-xs text-[var(--muted)]">
@@ -146,29 +178,38 @@ export default function ChatPage() {
                     </aside>
                 </div>
 
-                <div className="mt-8">
-                    <Input
-                        label="Your question"
-                        placeholder={placeholder}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                void send();
-                            }
-                        }}
-                        disabled={isLoading}
-                        className="!mb-0"
-                    />
-                    <div className="flex justify-end gap-3">
-                        <Button
-                            onClick={() => void send()}
-                            disabled={isLoading || !input.trim()}
-                            className="mt-2"
-                        >
-                            Send
-                        </Button>
+                {/* Sticky composer: stays above mobile keyboard chrome (R7) */}
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--surface)]/95 px-4 py-3 backdrop-blur-md supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mt-8 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+                    <div className="mx-auto w-full max-w-6xl">
+                        {sources.length > 0 ? (
+                            <p className="mb-2 text-xs text-[var(--muted)] lg:hidden">
+                                {sources.length} source{sources.length === 1 ? '' : 's'} linked — open
+                                from desktop sidebar or Knowledge.
+                            </p>
+                        ) : null}
+                        <Input
+                            label="Your question"
+                            placeholder={placeholder}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    void send();
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="!mb-0"
+                        />
+                        <div className="mt-2 flex justify-end">
+                            <Button
+                                onClick={() => void send()}
+                                loading={isLoading}
+                                disabled={!input.trim() && !isLoading}
+                            >
+                                {isLoading ? 'Sending…' : 'Send'}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </PageContainer>

@@ -34,7 +34,7 @@ export default function RootLayout({
       <body className="app-shell flex min-h-screen flex-col font-[family-name:var(--font-sans)] text-[var(--foreground)]">
         <AuthProvider>
           <Navbar />
-          <main className="w-full flex-1 pt-[4.25rem]">
+          <main className="w-full flex-1 pt-14 sm:pt-[4.25rem]">
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />

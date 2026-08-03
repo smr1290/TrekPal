@@ -13,7 +13,7 @@ import Badge from '@/components/Badge';
 import PageContainer from '@/components/PageContainer';
 import PrepareTrekPanel from '@/components/PrepareTrekPanel';
 import WeatherPanel from '@/components/WeatherPanel';
-import { PageHeader, EmptyState, LoadingBlock } from '@/components/ui';
+import { PageHeader, EmptyState, LoadingBlock, SuccessBanner } from '@/components/ui';
 import { tripPlanApi } from '@/lib/api';
 import type { TripPlanContent, TripPlanDetail, TripPlanSummary } from '@/lib/types';
 import { getDifficultyVariant, getRiskVariant } from '@/lib/badgeHelpers';
@@ -67,6 +67,7 @@ function PlanTripInner() {
     const [plan, setPlan] = useState<TripPlanDetail | null>(null);
     const [savedPlans, setSavedPlans] = useState<TripPlanSummary[]>([]);
     const [loadingSaved, setLoadingSaved] = useState(true);
+    const [justSaved, setJustSaved] = useState(false);
 
     const loadSaved = async () => {
         try {
@@ -156,6 +157,8 @@ function PlanTripInner() {
             });
             setPlan(result as TripPlanDetail);
             await loadSaved();
+            setJustSaved(true);
+            window.setTimeout(() => setJustSaved(false), 4000);
         } catch {
             setErrors({
                 general:
@@ -177,6 +180,10 @@ function PlanTripInner() {
                 title="Plan your trek"
                 description="Packing checklists and day-by-day itineraries — with risk and weather context when you need it."
             />
+
+            {justSaved ? (
+                <SuccessBanner message="Plan saved to My plans. You can reopen it anytime from History." />
+            ) : null}
 
             {(prefill.destination || formData.destination) && (
                 <div className="mb-6 flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-[var(--accent)]/20 bg-[var(--accent-soft)]/50 px-4 py-3 text-sm">
@@ -323,7 +330,7 @@ function PlanTripInner() {
                                     Using your profile experience: <strong>{user?.experience_level}</strong>
                                 </p>
 
-                                <Button type="submit" fullWidth size="lg" disabled={isGenerating}>
+                                <Button type="submit" fullWidth size="lg" loading={isGenerating}>
                                     {isGenerating ? 'Generating plan…' : 'Generate trip plan'}
                                 </Button>
                             </form>

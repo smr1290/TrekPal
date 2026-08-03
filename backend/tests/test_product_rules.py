@@ -288,9 +288,11 @@ def test_prepare_schema_rejects_bad_destination():
         )
 
 
-def test_catalog_media_paths_are_public_svgs():
-    """M9: seeded media URLs must point at frontend /public/catalog assets."""
-    from services.catalog_media import CATEGORY_IMAGES, TREK_IMAGES, is_catalog_svg_path
+def test_catalog_media_paths_are_public_photos():
+    """R6: seeded media URLs must point at frontend /public/catalog photography."""
+    from services.catalog_media import CATEGORY_IMAGES, TREK_IMAGES, is_catalog_media_path
 
-    assert all(is_catalog_svg_path(url, folder="treks") for url in TREK_IMAGES.values())
-    assert all(is_catalog_svg_path(url, folder="gear") for url in CATEGORY_IMAGES.values())
+    assert all(is_catalog_media_path(url, folder="treks") for url in TREK_IMAGES.values())
+    assert all(is_catalog_media_path(url, folder="gear") for url in CATEGORY_IMAGES.values())
+    assert all(url.endswith(".jpg") for url in TREK_IMAGES.values())
+    assert all(url.endswith(".jpg") for url in CATEGORY_IMAGES.values())

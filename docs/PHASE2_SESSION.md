@@ -5,27 +5,28 @@
 | ID | Notes |
 |----|--------|
 | **R1** | `ownership.py`, audit doc, history/trip-plans use shared deps; `/ml` stays unmounted → 404 |
-| **R2** | Freeform destination + API validation + migration `013` check constraints. Live alembic up/down not run (Docker Desktop was off) |
+| **R2** | Freeform destination + API validation + migration `013` check constraints |
 | **R3** | Planner destination context chip; Treks→Planner thread clearer |
 | **R4** | `HEURISTIC_VERSION`, persist factors/version on history + trip plans (`014`) |
-| **R5** | 30s idempotency window on prepare + trip-plan generate; fallback source already stored; structured fallback log |
+| **R5** | 30s idempotency window on prepare + trip-plan generate; fallback source already stored |
+| **R6** | Real catalog JPGs + migration `016`; spacing/type tokens; shared empty/loading/error/success states |
+| **R7** | Compact mobile nav, map touch vs scroll, chat sticky composer, 16px inputs, tap targets |
+| **R8** | Cut button hover flair; loading/saved/delete/chat feedback motion; reduced-motion respected |
 | **R9** | History “how we calculated this”; maps “Hidden: unverified…” copy |
 | **R10** | Postgres `chat_rate_limits` (`015`) + `allow_chat()`; env `CHAT_RATE_LIMIT_PER_HOUR` |
 | **R11** | JSON structured logs around Groq / Open-Meteo |
 | **R12** | Signup goal question → treks or dashboard; empty dashboard “First steps” strip |
 
-## Partial / deferred
+## Ops still on you
 
-| ID | Why |
-|----|-----|
-| **R6** | Tokens/states already strong; real photography + full screenshot audit needs assets + Docker |
-| **R7** | Input font ≥16px set; full real-phone funnel pass still needed |
-| **R8** | Button motion + reduced-motion already exist; full flair audit incomplete |
+Docker Desktop was off during this session (start was skipped). When back:
 
-## When you’re back
+```powershell
+docker compose up -d --build
+docker compose exec -T api alembic upgrade head
+# optional: alembic downgrade -1 then upgrade head to prove 016
+```
 
-1. Start Docker Desktop  
-2. `docker compose up -d --build`  
-3. `docker compose exec -T api alembic upgrade head`  
-4. Smoke: signup goal → plan trek → history factors → chat rate limit  
-5. Optional: finish R6 photography / R7 phone pass / R8 motion audit  
+Smoke: signup goal → plan trek → history factors → chat rate limit → treks show photos → phone funnel on /planner /maps /chat.
+
+See also `docs/R6_R8_NOTES.md`.

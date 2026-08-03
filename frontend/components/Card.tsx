@@ -34,8 +34,11 @@ export default function Card({
             ref={ref}
             onMouseMove={handleMove}
             className={`rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow)] ${
-                interactive ? 'surface-interactive' : ''
+                interactive
+                    ? 'surface-interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]'
+                    : ''
             } ${enableSpotlight ? 'card-spotlight' : ''} ${className}`}
+            tabIndex={interactive ? 0 : undefined}
             {...props}
         >
             {children}

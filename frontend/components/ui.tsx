@@ -52,13 +52,31 @@ export function EmptyState({
 
 export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20 text-[var(--muted)]">
-      <div
-        className="h-8 w-8 animate-pulse rounded-full border-2 border-[var(--border)] border-t-[var(--accent)]"
-        aria-hidden
-      />
+    <div
+      className="flex flex-col items-center justify-center gap-4 py-16 text-[var(--muted)]"
+      aria-busy="true"
+      aria-label={label}
+    >
+      <div className="h-10 w-40 skeleton-shimmer rounded-[var(--radius-sm)]" />
+      <div className="h-3 w-28 skeleton-shimmer rounded" />
       <p className="text-sm font-medium tracking-wide">{label}</p>
     </div>
+  );
+}
+
+export function ErrorBanner({ message }: { message: string }) {
+  return (
+    <p className="state-error mb-4" role="alert">
+      {message}
+    </p>
+  );
+}
+
+export function SuccessBanner({ message }: { message: string }) {
+  return (
+    <p className="state-success mb-4" role="status">
+      {message}
+    </p>
   );
 }
 

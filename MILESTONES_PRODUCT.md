@@ -31,9 +31,9 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 | **R3** | Goal-based IA audit & funnel rebuild | Frontend/UX | Done |
 | **R4** | Heuristic explainability & versioning | Backend/Product-AI | Done |
 | **R5** | Trip planner reliability (fallback + idempotency) | Backend/Reliability | Done |
-| **R6** | Visual system maturity | Frontend/Design | Partial |
-| **R7** | Mobile-first correctness | Frontend/UX | Partial |
-| **R8** | Motion as feedback, not decoration | Frontend/UX | Partial |
+| **R6** | Visual system maturity | Frontend/Design | Done* |
+| **R7** | Mobile-first correctness | Frontend/UX | Done* |
+| **R8** | Motion as feedback, not decoration | Frontend/UX | Done* |
 | **R9** | Trust & safety UX | Frontend/Content | Done |
 | **R10** | Durable (Postgres) rate limiting | Backend/Architecture | Done |
 | **R11** | Structured logging for Groq / Open-Meteo | Backend/Observability | Done |
@@ -57,3 +57,5 @@ Security and data integrity first → IA and heuristic explainability → visual
 ### After each Phase 2 milestone
 
 Explain: what changed, files touched, how to verify, trade-offs, what's still not done. Meet the Acceptance bar or say explicitly if you cannot.
+
+\* **R6–R8 Done*** means implementation landed in repo; full acceptance still needs a live browser/phone pass after `alembic upgrade head` (Docker was unavailable in the gym session). See `docs/R6_R8_NOTES.md`.

@@ -69,7 +69,7 @@ export default function Navbar() {
 
     return (
         <nav
-            className={`fixed top-0 left-0 z-50 h-[4.25rem] w-full transition-[box-shadow,background-color] duration-300 ${
+            className={`nav-shell fixed top-0 left-0 z-50 h-14 w-full transition-[box-shadow,background-color] duration-300 sm:h-[4.25rem] ${
                 isHome ? 'nav-glass-home' : 'nav-glass'
             } ${scrolled ? 'nav-elevated' : ''}`}
         >
@@ -172,7 +172,7 @@ export default function Navbar() {
 
                     <button
                         type="button"
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-sm)] border md:hidden ${
+                        className={`inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] border md:hidden ${
                             isHome
                                 ? 'border-white/25 text-white'
                                 : 'border-[var(--border)] text-[var(--foreground)]'
