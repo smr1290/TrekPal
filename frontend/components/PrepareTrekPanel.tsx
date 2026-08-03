@@ -148,7 +148,12 @@ export default function PrepareTrekPanel({
                                 <span className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
                                     Your experience
                                 </span>
-                                <span className="text-sm font-semibold">{user?.experience_level}</span>
+                                <a
+                                    href="/profile"
+                                    className="text-sm font-semibold text-[var(--accent)] hover:underline"
+                                >
+                                    {user?.experience_level} · Edit
+                                </a>
                             </div>
 
                             <div className="grid gap-2 sm:grid-cols-2">
