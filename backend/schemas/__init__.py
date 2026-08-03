@@ -52,6 +52,8 @@ class TrekListItem(BaseModel):
     max_altitude: int | None = None
     duration_days: int | None = None
     difficulty: str | None = None
+    image_url: str | None = None
+    image_credit: str | None = None
 
 
 class GearListItem(BaseModel):

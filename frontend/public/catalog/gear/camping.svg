@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Camping">
+  <rect width="640" height="400" fill="#f4f7f5"/>
+  <rect x="40" y="40" width="560" height="320" rx="28" fill="#334155" opacity="0.15"/>
+  <g fill="#334155" transform="translate(220 110) scale(1.4)"><path d="M90 20 L140 110 H40 Z"/><rect x="78" y="95" width="24" height="20"/></g>
+</svg>

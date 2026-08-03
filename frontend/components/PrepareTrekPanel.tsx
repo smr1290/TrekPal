@@ -7,6 +7,7 @@ import Select from '@/components/Select';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
+import CatalogImage from '@/components/CatalogImage';
 import { EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
@@ -333,18 +334,12 @@ export default function PrepareTrekPanel({
                                 <ul className="divide-y divide-[var(--border)]">
                                     {(result.recommended_gear || []).map((gear, index) => (
                                         <li key={index} className="flex gap-4 px-5 py-4">
-                                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--accent-soft)] text-xs font-medium text-[var(--accent)]">
-                                                {gear.photo_url ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={gear.photo_url}
-                                                        alt=""
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    (gear.category || 'Gear').slice(0, 4)
-                                                )}
-                                            </div>
+                                            <CatalogImage
+                                                src={gear.photo_url}
+                                                alt={gear.gear_name}
+                                                fallbackLabel={(gear.category || 'Gear').slice(0, 4)}
+                                                className="h-14 w-14 shrink-0 rounded-lg"
+                                            />
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-start justify-between gap-2">
                                                     <h5 className="font-semibold">{gear.gear_name}</h5>

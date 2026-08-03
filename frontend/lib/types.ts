@@ -14,13 +14,15 @@ export interface Trek {
   max_altitude: number;
   duration_days: number;
   difficulty: string;
+  image_url?: string | null;
+  image_credit?: string | null;
 }
 
 export interface Gear {
   id: number;
   gear_name: string;
   category: string;
-  photo_url: string;
+  photo_url?: string | null;
   description: string;
   slug?: string;
   quantity_hint?: string;

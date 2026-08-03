@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Footwear">
+  <rect width="640" height="400" fill="#f4f7f5"/>
+  <rect x="40" y="40" width="560" height="320" rx="28" fill="#0f766e" opacity="0.15"/>
+  <g fill="#0f766e" transform="translate(220 110) scale(1.4)"><path d="M20 90c20-40 60-50 100-40 20 5 40 10 55 25v20c-25-5-45-5-70 5-20 8-40 15-60 10z"/><path d="M35 95h95v12H35z" opacity="0.35"/></g>
+</svg>

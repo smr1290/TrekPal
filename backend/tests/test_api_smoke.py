@@ -118,3 +118,19 @@ def test_authenticated_ml_risk_when_mounted():
     data = response.json()
     assert data["risk_level"] in {"Low", "Moderate", "High"}
     assert data.get("source")
+
+
+def test_trek_list_includes_image_fields():
+    response = client.get("/trek/list")
+    assert response.status_code == 200
+    treks = response.json()
+    assert treks
+    assert any(t.get("image_url") for t in treks)
+
+
+def test_gear_list_includes_photo_urls():
+    response = client.get("/gear/")
+    assert response.status_code == 200
+    gear = response.json()
+    assert gear
+    assert any(g.get("photo_url") for g in gear)

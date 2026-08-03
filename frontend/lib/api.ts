@@ -200,6 +200,8 @@ export const trekApi = {
                 max_altitude: number;
                 duration_days: number;
                 difficulty: string;
+                image_url?: string | null;
+                image_credit?: string | null;
             }[]
         >('/trek/list');
     },

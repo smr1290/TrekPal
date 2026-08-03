@@ -6,6 +6,7 @@ import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import CatalogImage from '@/components/CatalogImage';
 import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
@@ -115,40 +116,53 @@ export default function TreksPage() {
                         return (
                             <Card
                                 key={trek.id}
-                                className="flex flex-col transition hover:border-[var(--accent)]/35"
+                                className="flex flex-col overflow-hidden p-0 transition hover:border-[var(--accent)]/35"
                             >
-                                <div className="mb-5 flex items-center justify-between">
-                                    <Badge variant={getDifficultyVariant(trek.difficulty)}>
-                                        {trek.difficulty}
-                                    </Badge>
-                                </div>
-                                <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
-                                    {trek.trek_name}
-                                </h3>
-                                <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-5">
-                                    <div>
-                                        <p className="text-xs font-medium text-[var(--muted)]">
-                                            Max altitude
-                                        </p>
-                                        <p className="mt-1 text-base font-semibold">
-                                            {trek.max_altitude.toLocaleString()} m
-                                        </p>
+                                <CatalogImage
+                                    src={trek.image_url}
+                                    alt={trek.trek_name}
+                                    fallbackLabel={trek.trek_name}
+                                    className="h-44 w-full"
+                                />
+                                <div className="flex flex-1 flex-col p-5">
+                                    <div className="mb-3 flex items-center justify-between gap-3">
+                                        <Badge variant={getDifficultyVariant(trek.difficulty)}>
+                                            {trek.difficulty}
+                                        </Badge>
+                                        {trek.image_credit && (
+                                            <p className="text-[10px] text-[var(--muted)]">
+                                                {trek.image_credit}
+                                            </p>
+                                        )}
                                     </div>
-                                    <div>
-                                        <p className="text-xs font-medium text-[var(--muted)]">
-                                            Typical duration
-                                        </p>
-                                        <p className="mt-1 text-base font-semibold">
-                                            {trek.duration_days} days
-                                        </p>
+                                    <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
+                                        {trek.trek_name}
+                                    </h3>
+                                    <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-5">
+                                        <div>
+                                            <p className="text-xs font-medium text-[var(--muted)]">
+                                                Max altitude
+                                            </p>
+                                            <p className="mt-1 text-base font-semibold">
+                                                {trek.max_altitude.toLocaleString()} m
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-[var(--muted)]">
+                                                Typical duration
+                                            </p>
+                                            <p className="mt-1 text-base font-semibold">
+                                                {trek.duration_days} days
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="mt-5">
-                                    <Link href={href}>
-                                        <Button fullWidth variant="primary">
-                                            Plan this trek
-                                        </Button>
-                                    </Link>
+                                    <div className="mt-5">
+                                        <Link href={href}>
+                                            <Button fullWidth variant="primary">
+                                                Plan this trek
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </div>
                             </Card>
                         );

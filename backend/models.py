@@ -22,6 +22,8 @@ class Trek(Base):
     max_altitude = Column(Integer)
     typical_duration = Column(Integer)
     difficulty = Column(String(20))
+    image_url = Column(Text, nullable=True)
+    image_credit = Column(String(200), nullable=True)
 
 
 class UserTrekHistory(Base):

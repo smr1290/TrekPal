@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Safety">
+  <rect width="640" height="400" fill="#f4f7f5"/>
+  <rect x="40" y="40" width="560" height="320" rx="28" fill="#b91c1c" opacity="0.15"/>
+  <g fill="#b91c1c" transform="translate(220 110) scale(1.4)"><path d="M90 20c30 12 50 18 50 45 0 40-35 65-50 75-15-10-50-35-50-75 0-27 20-33 50-45z"/></g>
+</svg>

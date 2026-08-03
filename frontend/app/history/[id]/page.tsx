@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
+import CatalogImage from '@/components/CatalogImage';
 import PageContainer from '@/components/PageContainer';
 import { EmptyState, SkeletonGrid } from '@/components/ui';
 import { trekApi } from '@/lib/api';
@@ -162,18 +163,12 @@ export default function HistoryDetailPage() {
                                 {(detail.recommended_gear || []).map(
                                     (gear: RecommendedGearItem, index: number) => (
                                         <Card key={index} className="overflow-hidden p-0">
-                                            <div className="flex h-36 items-center justify-center bg-[var(--accent-soft)] text-sm font-medium text-[var(--accent)]">
-                                                {gear.photo_url ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={gear.photo_url}
-                                                        alt={gear.gear_name}
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    gear.category || 'Gear'
-                                                )}
-                                            </div>
+                                            <CatalogImage
+                                                src={gear.photo_url}
+                                                alt={gear.gear_name}
+                                                fallbackLabel={gear.category || 'Gear'}
+                                                className="h-36 w-full"
+                                            />
                                             <div className="p-5">
                                                 <div className="mb-3 flex flex-wrap gap-2">
                                                     {gear.priority && (

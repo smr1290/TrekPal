@@ -241,3 +241,11 @@ def test_ml_router_mount_matches_config():
         assert "/ml/risk" in ml_paths
     else:
         assert not ml_paths
+
+
+def test_catalog_media_paths_are_public_svgs():
+    """M9: seeded media URLs must point at frontend /public/catalog assets."""
+    from services.catalog_media import CATEGORY_IMAGES, TREK_IMAGES, is_catalog_svg_path
+
+    assert all(is_catalog_svg_path(url, folder="treks") for url in TREK_IMAGES.values())
+    assert all(is_catalog_svg_path(url, folder="gear") for url in CATEGORY_IMAGES.values())

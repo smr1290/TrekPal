@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
+import CatalogImage from '@/components/CatalogImage';
 import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { gearApi } from '@/lib/api';
@@ -86,18 +87,12 @@ export default function GearPage() {
                             <div className="grid gap-5 sm:grid-cols-2">
                                 {filteredGear.map((item) => (
                                     <Card key={item.id} className="flex flex-col overflow-hidden p-0">
-                                        <div className="flex h-40 items-center justify-center bg-[var(--accent-soft)] text-sm font-medium text-[var(--accent)]">
-                                            {item.photo_url ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={item.photo_url}
-                                                    alt={item.gear_name}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                item.category || 'Gear'
-                                            )}
-                                        </div>
+                                        <CatalogImage
+                                            src={item.photo_url}
+                                            alt={item.gear_name}
+                                            fallbackLabel={item.category || 'Gear'}
+                                            className="h-40 w-full"
+                                        />
                                         <div className="flex flex-1 flex-col p-5">
                                             <Badge variant="info" className="mb-3 w-fit">
                                                 {item.category}
