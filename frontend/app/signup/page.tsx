@@ -50,7 +50,7 @@ export default function SignupPage() {
                 formData.password,
                 formData.experience_level
             );
-            router.push('/planner');
+            router.push('/dashboard');
         } catch {
             setErrors({ general: 'Something went wrong. Please try again later.' });
         } finally {

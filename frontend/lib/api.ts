@@ -202,6 +202,10 @@ export const trekApi = {
                 difficulty: string;
                 image_url?: string | null;
                 image_credit?: string | null;
+                region?: string | null;
+                summary?: string | null;
+                best_seasons?: string | null;
+                highlights?: string | null;
             }[]
         >('/trek/list');
     },

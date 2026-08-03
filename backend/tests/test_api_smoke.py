@@ -126,6 +126,8 @@ def test_trek_list_includes_image_fields():
     treks = response.json()
     assert treks
     assert any(t.get("image_url") for t in treks)
+    assert any(t.get("summary") for t in treks)
+    assert any(t.get("region") for t in treks)
 
 
 def test_gear_list_includes_photo_urls():

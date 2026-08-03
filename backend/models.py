@@ -24,6 +24,10 @@ class Trek(Base):
     difficulty = Column(String(20))
     image_url = Column(Text, nullable=True)
     image_credit = Column(String(200), nullable=True)
+    region = Column(String(80), nullable=True)
+    summary = Column(String(500), nullable=True)
+    best_seasons = Column(String(120), nullable=True)
+    highlights = Column(String(300), nullable=True)
 
 
 class UserTrekHistory(Base):

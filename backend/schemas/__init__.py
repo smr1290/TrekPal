@@ -54,6 +54,10 @@ class TrekListItem(BaseModel):
     difficulty: str | None = None
     image_url: str | None = None
     image_credit: str | None = None
+    region: str | None = None
+    summary: str | None = None
+    best_seasons: str | None = None
+    highlights: str | None = None
 
 
 class GearListItem(BaseModel):

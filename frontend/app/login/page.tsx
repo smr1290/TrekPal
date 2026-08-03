@@ -43,7 +43,7 @@ export default function LoginPage() {
             await login(formData.email, formData.password);
             const next = new URLSearchParams(window.location.search).get('next');
             const safeNext =
-                next && next.startsWith('/') && !next.startsWith('//') ? next : '/planner';
+                next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
             router.push(safeNext);
         } catch {
             setErrors({ general: 'Invalid email or password. Please try again.' });

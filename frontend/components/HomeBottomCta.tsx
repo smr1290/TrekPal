@@ -14,13 +14,13 @@ export default function HomeBottomCta() {
             </h2>
             <p className="mt-4 text-white/80">
                 {isAuthenticated
-                    ? 'Jump back into your packing checklist or full itinerary.'
+                    ? 'Your hub for plans, treks, and packing — continue from the dashboard.'
                     : 'Create a free account and prepare your next trek in minutes.'}
             </p>
             <div className="mt-8">
                 {isAuthenticated ? (
-                    <Link href="/planner">
-                        <Button size="lg">Continue planning</Button>
+                    <Link href="/dashboard">
+                        <Button size="lg">Open dashboard</Button>
                     </Link>
                 ) : (
                     <Link href="/signup">

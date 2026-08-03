@@ -21,6 +21,10 @@ def list_treks(db: Session = Depends(get_db)):
             difficulty=t.difficulty,
             image_url=getattr(t, "image_url", None),
             image_credit=getattr(t, "image_credit", None),
+            region=getattr(t, "region", None),
+            summary=getattr(t, "summary", None),
+            best_seasons=getattr(t, "best_seasons", None),
+            highlights=getattr(t, "highlights", None),
         )
         for t in treks
     ]

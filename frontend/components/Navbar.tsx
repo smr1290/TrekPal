@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/Button';
 
+type NavLink = { href: string; label: string; public: boolean };
+
 export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
@@ -13,26 +15,38 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const isHome = pathname === '/';
 
-    const links = [
-        { href: '/', label: 'Home', public: true },
-        { href: '/treks', label: 'Treks', public: true },
-        { href: '/gear', label: 'Gear', public: true },
-        { href: '/knowledge', label: 'Knowledge', public: true },
-        { href: '/maps', label: 'Maps', public: true },
-        { href: '/planner', label: 'Plan trip', public: false },
-        { href: '/history', label: 'My plans', public: false },
-        { href: '/profile', label: 'Profile', public: false },
-        { href: '/chat', label: 'Chat', public: false },
-    ];
+    // Slim primary nav — Dashboard is the signed-in hub; logo covers Home.
+    const links: NavLink[] = isAuthenticated
+        ? [
+              { href: '/dashboard', label: 'Dashboard', public: false },
+              { href: '/treks', label: 'Treks', public: true },
+              { href: '/planner', label: 'Plan trip', public: false },
+              { href: '/knowledge', label: 'Knowledge', public: true },
+              { href: '/maps', label: 'Maps', public: true },
+          ]
+        : [
+              { href: '/treks', label: 'Treks', public: true },
+              { href: '/gear', label: 'Gear', public: true },
+              { href: '/knowledge', label: 'Knowledge', public: true },
+              { href: '/maps', label: 'Maps', public: true },
+          ];
 
-    const visibleLinks = links.filter((link) => link.public || isAuthenticated);
+    const accountLinks: NavLink[] = [
+        { href: '/history', label: 'My plans', public: false },
+        { href: '/gear', label: 'Gear', public: true },
+        { href: '/chat', label: 'Chat', public: false },
+        { href: '/profile', label: 'Profile', public: false },
+    ];
 
     const linkClass = (href: string) => {
         const active =
             pathname === href ||
-            (href === '/planner' && (pathname.startsWith('/planner') || pathname.startsWith('/prepare'))) ||
+            (href === '/planner' &&
+                (pathname.startsWith('/planner') || pathname.startsWith('/prepare'))) ||
+            (href === '/dashboard' && pathname.startsWith('/dashboard')) ||
             (href === '/history' && pathname.startsWith('/history')) ||
-            (href === '/profile' && pathname.startsWith('/profile'));
+            (href === '/profile' && pathname.startsWith('/profile')) ||
+            (href === '/knowledge' && pathname.startsWith('/knowledge'));
         return `rounded-[var(--radius)] px-3 py-2 text-sm font-medium ${
             active
                 ? isHome && !mobileOpen
@@ -56,7 +70,7 @@ export default function Navbar() {
         >
             <div className="relative mx-auto flex h-full w-full max-w-6xl items-center justify-between px-4 sm:px-6">
                 <Link
-                    href="/"
+                    href={isAuthenticated ? '/dashboard' : '/'}
                     onClick={closeMobile}
                     className={`font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight ${
                         isHome ? 'text-white' : 'text-[var(--foreground)]'
@@ -66,7 +80,7 @@ export default function Navbar() {
                 </Link>
 
                 <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
-                    {visibleLinks.map((link) => (
+                    {links.map((link) => (
                         <Link key={link.href} href={link.href} className={linkClass(link.href)}>
                             {link.label}
                         </Link>
@@ -75,12 +89,20 @@ export default function Navbar() {
 
                 <div className="flex items-center gap-3">
                     {isAuthenticated ? (
-                        <div className="hidden items-center gap-3 sm:flex">
-                            <span
-                                className={`text-xs ${isHome ? 'text-white/70' : 'text-[var(--muted)]'}`}
-                            >
-                                {user?.full_name.split(' ')[0]}
-                            </span>
+                        <div className="hidden items-center gap-2 sm:flex">
+                            {accountLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`px-2 text-xs font-semibold ${
+                                        isHome
+                                            ? 'text-white/75 hover:text-white'
+                                            : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                                    }`}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
                             <button
                                 type="button"
                                 onClick={() => {
@@ -139,7 +161,7 @@ export default function Navbar() {
             {mobileOpen && (
                 <div className="border-b border-[var(--border)] bg-[var(--surface)] px-4 py-4 md:hidden">
                     <div className="flex flex-col gap-1">
-                        {visibleLinks.map((link) => (
+                        {[...links, ...(isAuthenticated ? accountLinks : [])].map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
@@ -176,7 +198,9 @@ export default function Navbar() {
                                     </Button>
                                 </Link>
                                 <Link href="/signup" onClick={closeMobile}>
-                                    <Button size="sm">Sign up</Button>
+                                    <Button size="sm">
+                                        Sign up
+                                    </Button>
                                 </Link>
                             </div>
                         )}
