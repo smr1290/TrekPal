@@ -208,8 +208,8 @@ export default function TreksPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="mt-6">
-                                        <Link href={href}>
+                                    <div className="mt-auto pt-6">
+                                        <Link href={href} className="btn-link-block">
                                             <Button fullWidth variant="primary">
                                                 Plan this trek
                                             </Button>

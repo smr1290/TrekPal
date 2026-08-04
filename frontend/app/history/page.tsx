@@ -111,7 +111,7 @@ export default function HistoryPage() {
                     title="My plans"
                     description="Saved packing checklists and full itineraries in one place."
                     action={
-                        <Link href="/planner">
+                        <Link href="/planner" className="btn-link">
                             <Button>Plan a trek</Button>
                         </Link>
                     }
@@ -148,7 +148,7 @@ export default function HistoryPage() {
                             title="No checklists yet"
                             description="Run a quick packing checklist and it will appear here."
                             action={
-                                <Link href="/planner?tab=checklist">
+                                <Link href="/planner?tab=checklist" className="btn-link">
                                     <Button>Open checklist</Button>
                                 </Link>
                             }
@@ -237,7 +237,7 @@ export default function HistoryPage() {
                         title="No itineraries yet"
                         description="Generate a full day-by-day plan and it will be saved here."
                         action={
-                            <Link href="/planner?tab=itinerary">
+                            <Link href="/planner?tab=itinerary" className="btn-link">
                                 <Button>Open itinerary planner</Button>
                             </Link>
                         }
@@ -272,7 +272,7 @@ export default function HistoryPage() {
                                                 {item.difficulty}
                                             </p>
                                         </Link>
-                                        <div className="flex shrink-0 flex-wrap items-center gap-3">
+                                        <div className="flex shrink-0 flex-wrap items-center gap-3 self-start sm:self-center">
                                             {item.risk_level && (
                                                 <Badge variant={getRiskVariant(item.risk_level)}>
                                                     {item.risk_level} risk

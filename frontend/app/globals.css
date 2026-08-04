@@ -355,13 +355,17 @@ body {
 .chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  box-sizing: border-box;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: 0.4rem 0.9rem;
+  padding: 0 0.9rem;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  line-height: 1;
   color: var(--muted);
   transition:
     background 0.2s ease,
@@ -394,12 +398,14 @@ body {
 
 .field-control {
   height: 2.75rem;
+  box-sizing: border-box;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
   padding: 0 0.875rem;
   /* ≥16px avoids iOS zoom-on-focus (R7 mobile) */
   font-size: 1rem;
+  line-height: 1;
   color: var(--foreground);
   outline: none;
   transition:
@@ -451,11 +457,26 @@ body {
   .nav-shell {
     height: 3.5rem;
   }
+}
 
-  .chip {
-    min-height: var(--tap-min);
-    padding-inline: 1rem;
-  }
+/* Horizontal button groups stay vertically centered */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Next.js Link wrapping a Button — keep flex alignment */
+a.btn-link {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+a.btn-link-block {
+  display: block;
+  width: 100%;
 }
 
 .eyebrow {

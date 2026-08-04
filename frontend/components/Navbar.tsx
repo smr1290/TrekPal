@@ -155,7 +155,7 @@ export default function Navbar() {
                             >
                                 Login
                             </Link>
-                            <Link href="/signup">
+                            <Link href="/signup" className="btn-link">
                                 <Button
                                     size="sm"
                                     className={
@@ -223,13 +223,13 @@ export default function Navbar() {
                                 Logout{user?.full_name ? ` · ${user.full_name.split(' ')[0]}` : ''}
                             </button>
                         ) : (
-                            <div className="flex gap-3">
-                                <Link href="/login" onClick={closeMobile}>
+                            <div className="btn-row mt-4">
+                                <Link href="/login" onClick={closeMobile} className="btn-link">
                                     <Button variant="outline" size="sm">
                                         Login
                                     </Button>
                                 </Link>
-                                <Link href="/signup" onClick={closeMobile}>
+                                <Link href="/signup" onClick={closeMobile} className="btn-link">
                                     <Button size="sm">Sign up</Button>
                                 </Link>
                             </div>

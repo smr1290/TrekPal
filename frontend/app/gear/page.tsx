@@ -71,7 +71,7 @@ export default function GearPage() {
                 title="Gear for Nepal"
                 description="Teahouse essentials with pack quantities and Thamel/Pokhara rent tips. For a list matched to your trek, use Plan trip."
                 action={
-                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    <div className="btn-row w-full sm:w-auto">
                         <div className="w-full sm:w-64">
                             <Input
                                 type="search"
@@ -82,7 +82,10 @@ export default function GearPage() {
                                 aria-label="Search gear"
                             />
                         </div>
-                        <Link href={isAuthenticated ? '/planner?tab=checklist' : '/signup'}>
+                        <Link
+                            href={isAuthenticated ? '/planner?tab=checklist' : '/signup'}
+                            className="btn-link w-full sm:w-auto"
+                        >
                             <Button variant="outline" className="w-full sm:w-auto">
                                 Personalized list
                             </Button>

@@ -18,9 +18,9 @@ export default function HomeBottomCta() {
                     ? 'Your lodge for plans, treks, and packing — continue from the dashboard.'
                     : 'Create a free account and prepare your next Nepal trek with calmer confidence.'}
             </p>
-            <div className="mt-9">
+            <div className="mt-9 flex justify-center">
                 {isAuthenticated ? (
-                    <Link href="/dashboard">
+                    <Link href="/dashboard" className="btn-link">
                         <Button
                             size="lg"
                             className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
@@ -29,7 +29,7 @@ export default function HomeBottomCta() {
                         </Button>
                     </Link>
                 ) : (
-                    <Link href="/signup">
+                    <Link href="/signup" className="btn-link">
                         <Button
                             size="lg"
                             className="bg-white text-[var(--accent-deep)] hover:bg-white/90"

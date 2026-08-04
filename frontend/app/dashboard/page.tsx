@@ -107,7 +107,7 @@ export default function DashboardPage() {
                         >
                             Edit experience →
                         </Link>
-                        <Link href="/planner" className="w-full sm:ml-auto sm:w-auto">
+                        <Link href="/planner" className="btn-link-block w-full sm:ml-auto sm:w-auto">
                             <Button
                                 size="lg"
                                 className="w-full bg-white text-[var(--accent-deep)] shadow-[0_12px_28px_rgb(0_0_0_/0.2)] hover:bg-white/90 sm:w-auto"
@@ -173,19 +173,19 @@ export default function DashboardPage() {
                         <p className="mt-3 max-w-xl text-sm text-[var(--muted)]">
                             New here? Pick a route that matches your level, then jump into Plan trip.
                         </p>
-                        <div className="mt-6 flex flex-wrap gap-3">
+                        <div className="btn-row mt-6">
                             {[
                                 { name: 'Poon Hill', href: '/treks' },
                                 { name: 'Annapurna Base Camp', href: '/treks' },
                                 { name: 'Everest Base Camp', href: '/treks' },
                             ].map((t) => (
-                                <Link key={t.name} href={t.href}>
+                                <Link key={t.name} href={t.href} className="btn-link">
                                     <Button variant="outline" size="sm">
                                         {t.name}
                                     </Button>
                                 </Link>
                             ))}
-                            <Link href="/planner">
+                            <Link href="/planner" className="btn-link">
                                 <Button size="sm">Plan a trek</Button>
                             </Link>
                         </div>
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                                     title="No checklists yet"
                                     description="Run a packing checklist — TrekPal will remember it."
                                     action={
-                                        <Link href="/planner?tab=checklist">
+                                        <Link href="/planner?tab=checklist" className="btn-link">
                                             <Button size="sm">Open checklist</Button>
                                         </Link>
                                     }
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                                     title="No itineraries yet"
                                     description="Generate a day-by-day plan when you are ready."
                                     action={
-                                        <Link href="/planner?tab=itinerary">
+                                        <Link href="/planner?tab=itinerary" className="btn-link">
                                             <Button size="sm">Open itinerary</Button>
                                         </Link>
                                     }
