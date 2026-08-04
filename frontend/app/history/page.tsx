@@ -211,9 +211,9 @@ export default function HistoryPage() {
                                             </Link>
                                             <Button
                                                 type="button"
-                                                variant="outline"
+                                                variant="danger"
                                                 size="sm"
-                                                className="shrink-0 text-[var(--danger)] hover:border-[var(--danger)]"
+                                                className="shrink-0"
                                                 loading={deletingChecklistId === item.history_id}
                                                 onClick={() =>
                                                     void deleteChecklist(
@@ -280,9 +280,8 @@ export default function HistoryPage() {
                                             )}
                                             <Button
                                                 type="button"
-                                                variant="outline"
+                                                variant="danger"
                                                 size="sm"
-                                                className="text-[var(--danger)] hover:border-[var(--danger)]"
                                                 loading={deletingPlanId === item.id}
                                                 onClick={() =>
                                                     void deleteItinerary(

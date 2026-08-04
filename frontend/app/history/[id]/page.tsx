@@ -113,9 +113,8 @@ export default function HistoryDetailPage() {
                                     </div>
                                     <Button
                                         type="button"
-                                        variant="outline"
+                                        variant="danger"
                                         size="sm"
-                                        className="text-[var(--danger)] hover:border-[var(--danger)]"
                                         disabled={isDeleting}
                                         onClick={() => void handleDelete()}
                                     >
