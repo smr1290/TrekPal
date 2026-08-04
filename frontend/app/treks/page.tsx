@@ -80,7 +80,7 @@ export default function TreksPage() {
             <PageHeader
                 eyebrow="Destination catalog"
                 title="Nepal treks"
-                description="Magazine-style trail guides — region, seasons, and highlights — then jump into Plan trip with details filled in."
+                description="Major routes across Khumbu, Annapurna, Langtang, Manaslu, Mustang, Dolpo, and more — filter by region, then jump into Plan trip with details filled in."
                 action={
                     <div className="w-full sm:w-72">
                         <Input

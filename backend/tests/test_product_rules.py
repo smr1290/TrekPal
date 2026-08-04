@@ -296,3 +296,21 @@ def test_catalog_media_paths_are_public_photos():
     assert all(is_catalog_media_path(url, folder="gear") for url in CATEGORY_IMAGES.values())
     assert all(url.endswith(".jpg") for url in TREK_IMAGES.values())
     assert all(url.endswith(".jpg") for url in CATEGORY_IMAGES.values())
+
+
+def test_nepal_trek_catalog_is_unique_and_substantial():
+    """Expanded catalog should cover major Nepal regions without duplicate names."""
+    from services.nepal_trek_catalog import NEPAL_TREK_CATALOG
+
+    names = [t["trek_name"] for t in NEPAL_TREK_CATALOG]
+    assert len(names) >= 35
+    assert len(names) == len(set(names))
+    regions = {t["region"] for t in NEPAL_TREK_CATALOG}
+    for required in ("Khumbu", "Annapurna", "Langtang", "Manaslu", "Dolpo"):
+        assert required in regions
+    for trek in NEPAL_TREK_CATALOG:
+        assert trek["max_altitude"] > 0
+        assert trek["typical_duration"] > 0
+        assert trek["difficulty"] in {"Easy", "Moderate", "Hard"}
+        assert trek["image_url"].endswith(".jpg")
+        assert len(trek["summary"]) >= 40

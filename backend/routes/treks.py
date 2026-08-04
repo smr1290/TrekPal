@@ -10,7 +10,11 @@ router = APIRouter()
 
 @router.get("/list", response_model=list[TrekListItem])
 def list_treks(db: Session = Depends(get_db)):
-    treks = db.query(models.Trek).all()
+    treks = (
+        db.query(models.Trek)
+        .order_by(models.Trek.region.asc().nulls_last(), models.Trek.trek_name.asc())
+        .all()
+    )
 
     return [
         TrekListItem(
