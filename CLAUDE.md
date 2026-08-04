@@ -350,7 +350,7 @@ Ship readiness: close laptop-MVP → public-internet gaps.
 
 | ID | Focus | Status |
 |----|--------|--------|
-| S1 | Production env & secrets hardening | Pending |
+| S1 | Production env & secrets hardening | Done |
 | S2 | Production auth cookies (cross-origin) | Pending |
 | S3 | Production deploy (API + DB + frontend) | Pending |
 | S4 | CI pipeline (tests + build on PR) | Pending |

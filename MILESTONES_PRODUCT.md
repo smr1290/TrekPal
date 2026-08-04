@@ -45,11 +45,14 @@ Shipped security, IA, heuristics, visual/mobile/motion, trust UX, rate limits, l
 **Source of truth for work order:** `.cursor/rules/milestones.mdc` (Milestone 1–8).  
 Work **one at a time**. Do not start the next until the current one is confirmed done.
 
+**S1 (2026-08-04):** `docs/PRODUCTION_ENV.md` + `validate_production_config()` refuse weak JWT, `CORS=*`, localhost DB, insecure cookies, and `/ml` without dual override. Tests in `test_production_config.py`.
+
+
 Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
 
 | ID | Focus | Track | Status | Closes gap |
 |----|--------|--------|--------|------------|
-| **S1** | Production env & secrets hardening | Backend/DevOps | Pending | Weak/local secrets leaking to prod |
+| **S1** | Production env & secrets hardening | Backend/DevOps | Done | Weak/local secrets leaking to prod |
 | **S2** | Production auth cookies (cross-origin) | Backend/Security | Pending | Cookies break or weaken off localhost |
 | **S3** | Production deploy (API + DB + frontend) | DevOps | Pending | Only runs on one PC |
 | **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Pending | No automated regression gate |

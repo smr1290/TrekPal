@@ -224,7 +224,8 @@ def test_internal_ml_gate_helpers():
 
     assert internal_ml_routes_enabled("development", "false") is True
     assert internal_ml_routes_enabled("production", "false") is False
-    assert internal_ml_routes_enabled("production", "true") is True
+    assert internal_ml_routes_enabled("production", "true") is False
+    assert internal_ml_routes_enabled("production", "true", "true") is True
 
 
 def test_ml_router_mount_matches_config():

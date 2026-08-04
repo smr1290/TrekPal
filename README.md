@@ -8,7 +8,7 @@ Nepal trekking preparation app — packing lists, risk bands, weather, knowledge
 
 → **[`CLAUDE.md`](./CLAUDE.md)** — complete architecture, routes, APIs, models, auth, design system, milestones, gaps, and prompt starters.
 
-Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) (M1–M10).
+Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) · [`docs/PRODUCTION_ENV.md`](./docs/PRODUCTION_ENV.md)
 
 ---
 
@@ -31,7 +31,9 @@ npm run dev
 - App: http://localhost:3000  
 - API docs: http://localhost:8000/docs  
 - Env: copy `backend/.env.example` → `backend/.env` (`JWT_SECRET`; optional `GROQ_API_KEY`)  
+- Frontend env: copy `frontend/.env.example` → `frontend/.env.local`  
+- Production secrets checklist: `docs/PRODUCTION_ENV.md`
 
 ## Status
 
-Product milestones **M1–M10** are done. Details in `MILESTONES_PRODUCT.md` and the full map in `CLAUDE.md`.
+Phase 1–2 complete. Phase 3 (ship readiness) active — see `MILESTONES_PRODUCT.md`.
