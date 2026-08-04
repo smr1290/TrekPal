@@ -459,6 +459,181 @@ body {
   }
 }
 
+/* ——— Buttons (colors in CSS so labels always contrast) ——— */
+.btn {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.btn-sm {
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  font-size: 0.75rem;
+}
+
+.btn-md {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  height: 3rem;
+  padding: 0 2rem;
+  font-size: 0.95rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  line-height: 1;
+  color: inherit;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Green fill · white label */
+.btn-primary {
+  border-color: transparent;
+  background-color: #146649;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgb(20 102 73 / 0.28);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0f523a;
+  box-shadow: 0 14px 30px rgb(20 102 73 / 0.34);
+}
+
+/* Soft green fill · dark green label */
+.btn-secondary {
+  border-color: transparent;
+  background-color: #d5ebe0;
+  color: #0a3324;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+/* Light surface · dark label */
+.btn-outline {
+  border-color: #c2d0c7;
+  background-color: #fafcfb;
+  color: #0c1c15;
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: color-mix(in srgb, #146649 45%, #c2d0c7);
+  background-color: #eef3f0;
+}
+
+/* Transparent · muted label */
+.btn-ghost {
+  border-color: transparent;
+  background-color: transparent;
+  color: #5a6e64;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: #eef3f0;
+  color: #0c1c15;
+}
+
+/* Danger fill · white label */
+.btn-danger {
+  border-color: transparent;
+  background-color: #9e1c16;
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* White fill on dark heroes · deep green label */
+.btn-on-dark {
+  border-color: transparent;
+  background-color: #ffffff;
+  color: #0a3324;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.2);
+}
+
+.btn-on-dark:hover:not(:disabled) {
+  background-color: rgb(255 255 255 / 0.92);
+}
+
+/* Ghost outline on dark heroes · white label */
+.btn-on-dark-outline {
+  border-color: rgb(255 255 255 / 0.4);
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.btn-on-dark-outline:hover:not(:disabled) {
+  border-color: rgb(255 255 255 / 0.6);
+  background-color: rgb(255 255 255 / 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-spinner {
+    animation: none;
+  }
+}
+
 /* Horizontal button groups stay vertically centered */
 .btn-row {
   display: flex;
@@ -472,11 +647,13 @@ a.btn-link {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
+  text-decoration: none;
 }
 
 a.btn-link-block {
   display: block;
   width: 100%;
+  text-decoration: none;
 }
 
 .eyebrow {

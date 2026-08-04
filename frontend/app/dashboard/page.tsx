@@ -108,10 +108,7 @@ export default function DashboardPage() {
                             Edit experience →
                         </Link>
                         <Link href="/planner" className="btn-link-block w-full sm:ml-auto sm:w-auto">
-                            <Button
-                                size="lg"
-                                className="w-full bg-white text-[var(--accent-deep)] shadow-[0_12px_28px_rgb(0_0_0_/0.2)] hover:bg-white/90 sm:w-auto"
-                            >
+                            <Button size="lg" variant="onDark" className="w-full sm:w-auto">
                                 Plan a trek
                             </Button>
                         </Link>

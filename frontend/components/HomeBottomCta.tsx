@@ -21,19 +21,13 @@ export default function HomeBottomCta() {
             <div className="mt-9 flex justify-center">
                 {isAuthenticated ? (
                     <Link href="/dashboard" className="btn-link">
-                        <Button
-                            size="lg"
-                            className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
-                        >
+                        <Button size="lg" variant="onDark">
                             Open dashboard
                         </Button>
                     </Link>
                 ) : (
                     <Link href="/signup" className="btn-link">
-                        <Button
-                            size="lg"
-                            className="bg-white text-[var(--accent-deep)] hover:bg-white/90"
-                        >
+                        <Button size="lg" variant="onDark">
                             Create free account
                         </Button>
                     </Link>

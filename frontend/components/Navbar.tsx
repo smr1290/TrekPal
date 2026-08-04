@@ -158,11 +158,8 @@ export default function Navbar() {
                             <Link href="/signup" className="btn-link">
                                 <Button
                                     size="sm"
-                                    className={
-                                        isHome
-                                            ? 'bg-white text-[var(--accent-deep)] shadow-none hover:bg-white/90'
-                                            : ''
-                                    }
+                                    variant={isHome ? 'onDark' : 'primary'}
+                                    className={isHome ? 'shadow-none' : ''}
                                 >
                                     Sign up
                                 </Button>
