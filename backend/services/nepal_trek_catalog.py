@@ -1,12 +1,15 @@
-"""Nepal trek catalog seed data.
+"""Nepal trek catalog — curated, accuracy-focused seed data.
 
-TrekPal keeps destinations freeform for planning, but the Treks page needs a
-rich catalog of real Nepal routes — not only the original five demos.
+Sources used for typical max altitude / duration / difficulty (cross-checked):
+- Nepal Tourism Board TIMS route list (protected-area trek names)
+- Published agency comparison tables (altitude, days, difficulty bands)
 
-This is a curated list of well-known, bookable/guide-supported treks across
-regions. It is intentionally not "every trail in Nepal" (hundreds of local
-paths exist); it aims for the routes a first-time or returning trekker would
-expect to browse.
+Difficulty is mapped to TrekPal's three levels: Easy | Moderate | Hard
+(Hard covers Challenging / Strenuous / Extreme bands from guide literature).
+
+This is not every footpath in Nepal. It is the set of named, guide-supported
+routes a trekker expects in a serious catalog — with typical (not guaranteed)
+figures. Always verify permits, seasons, and logistics before travel.
 """
 
 from __future__ import annotations
@@ -29,7 +32,6 @@ class TrekSeed(TypedDict):
     image_credit: str
 
 
-# Reuse the five High Lodge catalog photos by region so new cards never look empty.
 _IMG = {
     "khumbu": "/catalog/treks/everest-base-camp.jpg",
     "annapurna": "/catalog/treks/annapurna-circuit.jpg",
@@ -51,6 +53,9 @@ def _t(
     highlights: str,
     image_key: str,
 ) -> TrekSeed:
+    assert difficulty in {"Easy", "Moderate", "Hard"}, name
+    assert 1000 <= altitude <= 7000, name
+    assert 1 <= days <= 40, name
     return {
         "trek_name": name,
         "max_altitude": altitude,
@@ -65,46 +70,46 @@ def _t(
     }
 
 
-# Original five kept first (migration updates-or-inserts by name).
+# Typical mid-range itinerary days (not the absolute minimum).
 NEPAL_TREK_CATALOG: list[TrekSeed] = [
-    # —— Khumbu / Everest ——
+    # ——— Everest / Khumbu (NTB Everest Region) ———
     _t(
         "Everest Base Camp",
         altitude=5364,
-        days=14,
+        days=13,
         difficulty="Hard",
         region="Khumbu",
         summary=(
-            "Nepal's classic high trail to the foot of Everest. Gradual ascent from Lukla with "
-            "teahouse lodges, Sherpa villages, and big mountain views — demanding but well supported."
+            "Classic teahouse trek from Lukla to Everest Base Camp (5,364 m). Many itineraries "
+            "also climb Kala Patthar (~5,545 m) for the sunrise viewpoint. Well supported, high altitude."
         ),
         seasons="Spring · Autumn",
-        highlights="Namche rest days · Tengboche monastery · Kala Patthar sunrise",
+        highlights="Namche acclimatization · Tengboche · EBC · Kala Patthar option",
         image_key="khumbu",
     ),
     _t(
         "Gokyo Lakes",
-        altitude=5360,
+        altitude=5357,
         days=12,
         difficulty="Hard",
         region="Khumbu",
         summary=(
-            "Turquoise high lakes west of the main EBC trail, with Gokyo Ri views of Everest, "
-            "Lhotse, Makalu, and Cho Oyu. Often quieter than the classic base-camp route."
+            "Khumbu lakes trek west of the main EBC trail. High point is usually Gokyo Ri (5,357 m) "
+            "with views of Everest, Lhotse, Makalu, and Cho Oyu."
         ),
         seasons="Spring · Autumn",
-        highlights="Gokyo Ri · Cho Oyu vista · Ngozumpa glacier",
+        highlights="Gokyo Ri 5,357 m · Turquoise lakes · Quieter than EBC corridor",
         image_key="khumbu",
     ),
     _t(
         "Everest Three Passes",
         altitude=5535,
-        days=18,
+        days=19,
         difficulty="Hard",
         region="Khumbu",
         summary=(
-            "A demanding Khumbu loop linking Kongma La, Cho La, and Renjo La with EBC and Gokyo. "
-            "For strong trekkers who want passes, glaciers, and variety in one journey."
+            "Demanding Khumbu loop linking Kongma La, Cho La, and Renjo La with EBC and Gokyo. "
+            "Highest pass typically Kongma La (~5,535 m). For experienced high-altitude trekkers."
         ),
         seasons="Spring · Autumn",
         highlights="Kongma La · Cho La · Renjo La · EBC + Gokyo",
@@ -117,549 +122,67 @@ NEPAL_TREK_CATALOG: list[TrekSeed] = [
         difficulty="Hard",
         region="Khumbu",
         summary=(
-            "Combine Gokyo Lakes with Everest Base Camp by crossing Cho La. Extra challenge, "
-            "extra scenery, and a fuller Khumbu experience than the standard out-and-back."
+            "Combine Gokyo with Everest Base Camp by crossing Cho La (~5,420 m). More variety "
+            "than the standard out-and-back; glacier/pass experience required."
         ),
         seasons="Spring · Autumn",
-        highlights="Cho La crossing · Dual valleys · Glacier approaches",
+        highlights="Cho La · Gokyo + EBC · Glacier approaches",
+        image_key="khumbu",
+    ),
+    _t(
+        "Gokyo Renjo La",
+        altitude=5360,
+        days=12,
+        difficulty="Hard",
+        region="Khumbu",
+        summary=(
+            "Gokyo Lakes with Renjo La (~5,360 m) exit toward Thame/Namche. Quieter link trail "
+            "and big Everest panoramas without the busiest base-camp crowds."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Renjo La · Gokyo Ri · Thame villages",
+        image_key="khumbu",
+    ),
+    _t(
+        "Everest View Trek",
+        altitude=3880,
+        days=6,
+        difficulty="Moderate",
+        region="Khumbu",
+        summary=(
+            "Shorter Khumbu introduction toward Namche and the Everest View Hotel ridge "
+            "(~3,880 m). Big mountain views without going to Base Camp."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Namche · Everest View Hotel · Shorter Khumbu",
         image_key="khumbu",
     ),
     _t(
         "Ama Dablam Base Camp",
         altitude=4570,
         days=10,
-        difficulty="Moderate",
-        region="Khumbu",
-        summary=(
-            "Side trail from the EBC corridor to the foot of Ama Dablam — one of the world's "
-            "most photographed peaks. Shorter than full EBC but still serious altitude."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Ama Dablam close-up · Pangboche · Optional climb approaches",
-        image_key="khumbu",
-    ),
-    _t(
-        "Renjo La Pass",
-        altitude=5360,
-        days=11,
         difficulty="Hard",
         region="Khumbu",
         summary=(
-            "Cross Renjo La between the Gokyo valley and Thame/Namche for quieter trails and "
-            "panoramic Everest views without the busiest base-camp crowds."
+            "Side trail from the EBC corridor to Ama Dablam Base Camp (~4,570 m). Close views "
+            "of one of the Himalaya's most iconic peaks; still serious altitude."
         ),
         seasons="Spring · Autumn",
-        highlights="Renjo La panorama · Thame village · Quieter Khumbu link",
+        highlights="Ama Dablam close-up · Pangboche · 4,570 m BC",
         image_key="khumbu",
-    ),
-    # —— Annapurna ——
-    _t(
-        "Annapurna Circuit",
-        altitude=5416,
-        days=15,
-        difficulty="Hard",
-        region="Annapurna",
-        summary=(
-            "A long loop around the Annapurna massif through rice terraces, pine forest, and "
-            "high desert. Crosses Thorong La — one of the world's famous trek passes."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Manang acclimatization · Thorong La · Changing climates in one trek",
-        image_key="annapurna",
-    ),
-    _t(
-        "Annapurna Base Camp",
-        altitude=4130,
-        days=10,
-        difficulty="Moderate",
-        region="Annapurna",
-        summary=(
-            "Walk into the Annapurna Sanctuary amphitheatre with walls of ice and rock all around. "
-            "Shorter and lower than EBC, still a classic Nepal goal trek."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Sanctuary amphitheatre · Machhapuchhre views · Teahouse trail",
-        image_key="annapurna",
-    ),
-    _t(
-        "Poon Hill",
-        altitude=3210,
-        days=5,
-        difficulty="Easy",
-        region="Annapurna",
-        summary=(
-            "A short foothills trek famous for sunrise over Annapurna and Dhaulagiri. Ideal "
-            "first Himalayan trek — lower altitude, clear lodges, big reward for few days."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Ghorepani lodges · Poon Hill viewpoint · Family-friendly duration",
-        image_key="foothills",
-    ),
-    _t(
-        "Mardi Himal",
-        altitude=4500,
-        days=7,
-        difficulty="Moderate",
-        region="Annapurna",
-        summary=(
-            "Ridge trek toward Mardi Himal with close Machhapuchhre views and fewer crowds than "
-            "ABC. Lodge infrastructure has grown quickly — still steeper and colder near the top."
-        ),
-        seasons="Spring · Autumn",
-        highlights="High Camp sunrise · Ridge walking · Pokhara access",
-        image_key="annapurna",
-    ),
-    _t(
-        "Khopra Danda",
-        altitude=3660,
-        days=8,
-        difficulty="Moderate",
-        region="Annapurna",
-        summary=(
-            "Community lodge trek above the Kali Gandaki with Dhaulagiri and Annapurna views, "
-            "often combined with Poon Hill or Khayar Lake side trips."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Community lodges · Dhaulagiri vista · Quieter than ABC",
-        image_key="annapurna",
-    ),
-    _t(
-        "Mohare Danda",
-        altitude=3300,
-        days=5,
-        difficulty="Easy",
-        region="Annapurna",
-        summary=(
-            "Eco-community ridge alternative near Poon Hill with sunrise views and quieter lodges. "
-            "Good short trek if Ghorepani feels too busy."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Community tourism · Sunrise ridge · Low altitude intro",
-        image_key="foothills",
-    ),
-    _t(
-        "Tilicho Lake",
-        altitude=4919,
-        days=12,
-        difficulty="Hard",
-        region="Annapurna",
-        summary=(
-            "Side journey from the Annapurna Circuit to one of the world's highest lakes. Extra "
-            "altitude, wind, and exposure — plan buffer days and strong fitness."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Tilicho Lake · High camp nights · Circuit add-on",
-        image_key="annapurna",
-    ),
-    _t(
-        "Nar Phu Valley",
-        altitude=5320,
-        days=12,
-        difficulty="Hard",
-        region="Annapurna",
-        summary=(
-            "Restricted-area valleys north of Manang with Tibetan-influenced villages and the "
-            "Kang La pass link back toward the Circuit. Permits and guide rules apply."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Restricted permits · Kang La · Ancient villages",
-        image_key="remote",
-    ),
-    _t(
-        "Upper Mustang",
-        altitude=4200,
-        days=12,
-        difficulty="Moderate",
-        region="Mustang",
-        summary=(
-            "Desert plateau north of the Annapurna barrier toward the old kingdom of Lo. "
-            "Restricted area with dramatic cliffs, caves, and Tibetan Buddhist culture."
-        ),
-        seasons="Spring · Summer · Autumn",
-        highlights="Lo Manthang · Rain-shadow landscapes · Restricted permits",
-        image_key="remote",
-    ),
-    _t(
-        "Jomsom Muktinath",
-        altitude=3800,
-        days=7,
-        difficulty="Easy",
-        region="Mustang",
-        summary=(
-            "Classic lower Mustang / Kali Gandaki corridor from Pokhara toward Muktinath. "
-            "Windy valley floors, apple orchards, and pilgrimage sites — often done partly by jeep."
-        ),
-        seasons="Spring · Autumn · Winter",
-        highlights="Muktinath temple · Kali Gandaki gorge · Flexible logistics",
-        image_key="annapurna",
-    ),
-    _t(
-        "Dhaulagiri Circuit",
-        altitude=5360,
-        days=18,
-        difficulty="Hard",
-        region="Dhaulagiri",
-        summary=(
-            "Remote camping circuit around Dhaulagiri with high passes and serious logistics. "
-            "Not a teahouse trek — experienced teams, porters, and contingency days required."
-        ),
-        seasons="Spring · Autumn",
-        highlights="French Pass · Hidden Valley · Expedition-style camping",
-        image_key="remote",
-    ),
-    # —— Langtang / Helambu / Tamang ——
-    _t(
-        "Langtang Valley",
-        altitude=5000,
-        days=9,
-        difficulty="Moderate",
-        region="Langtang",
-        summary=(
-            "A quieter valley north of Kathmandu with Tamang culture, glaciers, and close "
-            "mountain walls. Shorter than EBC but still serious altitude once you climb."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Kyanjin Gompa · Cheese factory stop · Closer access from Kathmandu",
-        image_key="langtang",
-    ),
-    _t(
-        "Gosainkunda Lake",
-        altitude=4380,
-        days=8,
-        difficulty="Moderate",
-        region="Langtang",
-        summary=(
-            "Sacred alpine lakes on the ridge between Langtang and Helambu. Steep days, cold "
-            "nights, and big Hindu–Buddhist pilgrimage energy — especially around Janai Purnima."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Sacred lakes · Lauribina Pass · Pilgrimage season",
-        image_key="langtang",
-    ),
-    _t(
-        "Langtang Gosainkunda Helambu",
-        altitude=4610,
-        days=14,
-        difficulty="Hard",
-        region="Langtang",
-        summary=(
-            "Combine Langtang Valley with Gosainkunda and exit through Helambu for a full "
-            "central-Nepal circuit with varied culture and landscapes."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Three regions · Lauribina · Village variety",
-        image_key="langtang",
-    ),
-    _t(
-        "Helambu Circuit",
-        altitude=3650,
-        days=7,
-        difficulty="Easy",
-        region="Helambu",
-        summary=(
-            "Lower trails east of Kathmandu through Hyolmo/Sherpa villages and rhododendron "
-            "forest. A gentle introduction with optional links toward Gosainkunda."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Close to Kathmandu · Village lodges · Forest ridges",
-        image_key="foothills",
-    ),
-    _t(
-        "Tamang Heritage Trail",
-        altitude=2600,
-        days=6,
-        difficulty="Easy",
-        region="Langtang",
-        summary=(
-            "Cultural trail west of Syabrubesi highlighting Tamang villages, hot springs, and "
-            "homestays — lower altitude and strong community tourism focus."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Homestays · Tatopani springs · Cultural immersion",
-        image_key="foothills",
-    ),
-    _t(
-        "Ganja La Pass",
-        altitude=5122,
-        days=12,
-        difficulty="Hard",
-        region="Langtang",
-        summary=(
-            "High pass linking Langtang with Helambu. Snow and camping sections are common — "
-            "best for experienced trekkers with a guide and flexible weather window."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Ganja La · Wilder Langtang · Camping sections",
-        image_key="langtang",
-    ),
-    # —— Manaslu / Tsum ——
-    _t(
-        "Manaslu Circuit",
-        altitude=5160,
-        days=14,
-        difficulty="Hard",
-        region="Manaslu",
-        summary=(
-            "A remote restricted-area circuit around the world's eighth-highest peak. Fewer "
-            "crowds than Annapurna, wilder villages, and a serious Larkya La crossing."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Restricted permits · Tibetan-influenced villages · Larkya La pass",
-        image_key="remote",
-    ),
-    _t(
-        "Tsum Valley",
-        altitude=3700,
-        days=12,
-        difficulty="Moderate",
-        region="Manaslu",
-        summary=(
-            "Sacred side valley off the Manaslu trail with ancient monasteries and restricted "
-            "access. Quieter cultural focus; often combined with part of the Manaslu Circuit."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Restricted area · Monasteries · Cultural depth",
-        image_key="remote",
-    ),
-    _t(
-        "Manaslu Circuit with Tsum Valley",
-        altitude=5160,
-        days=18,
-        difficulty="Hard",
-        region="Manaslu",
-        summary=(
-            "Full Manaslu Circuit plus Tsum Valley detour. Longer itinerary, richer culture, "
-            "and the same Larkya La challenge — plan permits carefully."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Tsum + Larkya La · Extended culture · Restricted permits",
-        image_key="remote",
-    ),
-    # —— Makalu / Kanchenjunga / Rolwaling ——
-    _t(
-        "Makalu Base Camp",
-        altitude=4870,
-        days=18,
-        difficulty="Hard",
-        region="Makalu",
-        summary=(
-            "Remote eastern trek toward Makalu, the world's fifth-highest peak. Wilder logistics, "
-            "fewer lodges than Khumbu, and outstanding wilderness."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Makalu views · Barun Valley · Remote camping/lodges",
-        image_key="remote",
-    ),
-    _t(
-        "Kanchenjunga Base Camp",
-        altitude=5143,
-        days=20,
-        difficulty="Hard",
-        region="Kanchenjunga",
-        summary=(
-            "Far-east trek toward the world's third-highest massif. Long approaches, restricted "
-            "sections, and serious remoteness — usually guided with camping support."
-        ),
-        seasons="Spring · Autumn",
-        highlights="North/South base options · Remote villages · Big-wall views",
-        image_key="remote",
-    ),
-    _t(
-        "Rolwaling Valley",
-        altitude=5755,
-        days=16,
-        difficulty="Hard",
-        region="Rolwaling",
-        summary=(
-            "Wild valley between Langtang and Khumbu, often linked via Tashi Lapcha toward "
-            "Thame. Technical glacier sections — not a casual teahouse trek."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Tashi Lapcha · Remote villages · Glacier travel",
-        image_key="remote",
-    ),
-    # —— Dolpo / Far West / Lakes ——
-    _t(
-        "Upper Dolpo",
-        altitude=5400,
-        days=22,
-        difficulty="Hard",
-        region="Dolpo",
-        summary=(
-            "High, arid, culturally Tibetan west Nepal. Restricted camping trek through Shey "
-            "and beyond — expensive permits, long days, unforgettable emptiness."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Shey Gompa · High passes · Restricted wilderness",
-        image_key="remote",
-    ),
-    _t(
-        "Lower Dolpo",
-        altitude=5300,
-        days=16,
-        difficulty="Hard",
-        region="Dolpo",
-        summary=(
-            "Slightly more accessible Dolpo circuiting Phoksundo and surrounding valleys. Still "
-            "remote camping country with strong cultural character."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Phoksundo Lake · Bon culture · Camping logistics",
-        image_key="remote",
-    ),
-    _t(
-        "Rara Lake",
-        altitude=3700,
-        days=10,
-        difficulty="Moderate",
-        region="Mugu",
-        summary=(
-            "Trek to Nepal's largest lake in the remote northwest. Forests, meadows, and a "
-            "quiet shoreline — logistics via Jumla or air links need planning."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Rara Lake · National park · Quiet northwest",
-        image_key="remote",
-    ),
-    _t(
-        "Khaptad National Park",
-        altitude=3200,
-        days=8,
-        difficulty="Easy",
-        region="Far West",
-        summary=(
-            "Plateau grasslands and pilgrimage sites in Far-West Nepal. Lower altitude cultural "
-            "and nature trek far from the classic Annapurna/Khumbu crowds."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Khaptad plateau · Ashram · Off-the-beaten-path",
-        image_key="foothills",
-    ),
-    _t(
-        "Api Base Camp",
-        altitude=4000,
-        days=12,
-        difficulty="Hard",
-        region="Far West",
-        summary=(
-            "Remote Far-West approach toward Api Himal. Few trekkers, basic infrastructure, "
-            "and a true wilderness feel — best with experienced local support."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Api Himal · Far-West wilderness · Sparse lodges",
-        image_key="remote",
-    ),
-    _t(
-        "Humla Limi Valley",
-        altitude=4950,
-        days=18,
-        difficulty="Hard",
-        region="Humla",
-        summary=(
-            "Northwestern borderlands near Tibet with high passes and distinctive culture. "
-            "Restricted/logistically complex — plan early with a specialist agency."
-        ),
-        seasons="Spring · Autumn",
-        highlights="Limi Valley · Border culture · High remote passes",
-        image_key="remote",
-    ),
-    # —— Short / near cities ——
-    _t(
-        "Panchase Trek",
-        altitude=2500,
-        days=4,
-        difficulty="Easy",
-        region="Pokhara",
-        summary=(
-            "Short ridge trek near Pokhara with Annapurna sunrise views and village lodges. "
-            "Ideal weekend escape or warm-up before a longer trail."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Pokhara access · Sunrise views · Short duration",
-        image_key="foothills",
-    ),
-    _t(
-        "Australian Camp Dhampus",
-        altitude=2100,
-        days=3,
-        difficulty="Easy",
-        region="Pokhara",
-        summary=(
-            "Easy overnight trails above Pokhara through Dhampus and Australian Camp. Great "
-            "first night in the hills with Machhapuchhre views."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Beginner friendly · Mountain views · Near Pokhara",
-        image_key="foothills",
-    ),
-    _t(
-        "Nagarkot Chisapani",
-        altitude=2200,
-        days=3,
-        difficulty="Easy",
-        region="Kathmandu Valley",
-        summary=(
-            "Classic Kathmandu Valley edge trek via Chisapani and Nagarkot viewpoints. Low "
-            "altitude, frequent lodges, and easy bus/taxi links back to the city."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Valley views · Sunrise points · Near Kathmandu",
-        image_key="foothills",
-    ),
-    _t(
-        "Shivapuri Chisapani",
-        altitude=2732,
-        days=2,
-        difficulty="Easy",
-        region="Kathmandu Valley",
-        summary=(
-            "National-park day or overnight routes from the Kathmandu rim through Shivapuri "
-            "forest toward Chisapani. Cool, green, and close to home base."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="National park · Forest trails · Short escape",
-        image_key="foothills",
-    ),
-    _t(
-        "Royal Trek",
-        altitude=1700,
-        days=4,
-        difficulty="Easy",
-        region="Pokhara",
-        summary=(
-            "Low foothill route east of Pokhara once favored by royal guests. Village stays, "
-            "easy walking, and Annapurna views without high altitude."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Village culture · Low altitude · Pokhara start",
-        image_key="foothills",
-    ),
-    _t(
-        "Sikles Trek",
-        altitude=2300,
-        days=5,
-        difficulty="Easy",
-        region="Annapurna",
-        summary=(
-            "Gurung village trails northeast of Pokhara toward Sikles. Cultural focus, "
-            "moderate hills, and a quieter alternative to Poon Hill."
-        ),
-        seasons="Autumn · Winter · Spring",
-        highlights="Gurung villages · Cultural lodges · Mid-hill views",
-        image_key="foothills",
     ),
     _t(
         "Pikey Peak",
         altitude=4065,
-        days=7,
+        days=6,
         difficulty="Moderate",
         region="Solukhumbu",
         summary=(
-            "Lower Solu ridge famous for broad Everest panoramas without going to Base Camp. "
-            "Strong sunrise/sunset viewpoint trek with growing lodge options."
+            "Lower Solu ridge trek to Pikey Peak (4,065 m) for broad Everest-range panoramas "
+            "without the full EBC altitude profile. Growing lodge network."
         ),
         seasons="Spring · Autumn",
-        highlights="Everest panorama · Quieter Solu · Viewpoint camps",
+        highlights="4,065 m summit · Everest panorama · Quieter Solu",
         image_key="khumbu",
     ),
     _t(
@@ -675,6 +198,644 @@ NEPAL_TREK_CATALOG: list[TrekSeed] = [
         seasons="Spring · Autumn",
         highlights="Sacred lakes · Solu culture · Mountain panoramas",
         image_key="khumbu",
+    ),
+    _t(
+        "Mera Peak",
+        altitude=6476,
+        days=15,
+        difficulty="Hard",
+        region="Khumbu",
+        summary=(
+            "Trekking peak (climbing permit) to Mera Peak (6,476 m). Non-technical for a "
+            "Himalayan summit but requires crampons, rope travel, and strong acclimatization."
+        ),
+        seasons="Spring · Autumn",
+        highlights="6,476 m summit · Climbing permit · High camp logistics",
+        image_key="khumbu",
+    ),
+    _t(
+        "Island Peak",
+        altitude=6189,
+        days=16,
+        difficulty="Hard",
+        region="Khumbu",
+        summary=(
+            "Popular trekking peak (Imja Tse, 6,189 m), often combined after EBC. Short "
+            "technical section near the summit — guide, climbing gear, and permits required."
+        ),
+        seasons="Spring · Autumn",
+        highlights="6,189 m summit · Often after EBC · Climbing section",
+        image_key="khumbu",
+    ),
+    # ——— Annapurna ———
+    _t(
+        "Annapurna Circuit",
+        altitude=5416,
+        days=15,
+        difficulty="Hard",
+        region="Annapurna",
+        summary=(
+            "Long teahouse circuit around the Annapurna massif. High point Thorong La (5,416 m). "
+            "Road building has shortened some sections; classic itineraries still take ~2 weeks."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Thorong La 5,416 m · Manang · Climate change in one trek",
+        image_key="annapurna",
+    ),
+    _t(
+        "Annapurna Base Camp",
+        altitude=4130,
+        days=8,
+        difficulty="Moderate",
+        region="Annapurna",
+        summary=(
+            "Trek into the Annapurna Sanctuary to Annapurna Base Camp (4,130 m). Shorter and "
+            "lower than EBC, with lodges and amphitheatre mountain views."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Sanctuary 4,130 m · Machhapuchhre · Teahouse trail",
+        image_key="annapurna",
+    ),
+    _t(
+        "Poon Hill",
+        altitude=3210,
+        days=5,
+        difficulty="Easy",
+        region="Annapurna",
+        summary=(
+            "Ghorepani–Poon Hill sunrise trek (3,210 m). Ideal first Himalayan trek: lower "
+            "altitude, clear lodges, Annapurna and Dhaulagiri views in 4–5 days."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Poon Hill 3,210 m · Ghorepani · Family-friendly",
+        image_key="foothills",
+    ),
+    _t(
+        "Mardi Himal",
+        altitude=4500,
+        days=6,
+        difficulty="Moderate",
+        region="Annapurna",
+        summary=(
+            "Ridge trek to Mardi Himal High Camp / viewpoint (~4,500 m) with close "
+            "Machhapuchhre views. Steeper and colder near the top; lodges have expanded."
+        ),
+        seasons="Spring · Autumn",
+        highlights="High Camp ~4,500 m · Ridge walking · Pokhara access",
+        image_key="annapurna",
+    ),
+    _t(
+        "Khopra Danda",
+        altitude=3660,
+        days=8,
+        difficulty="Moderate",
+        region="Annapurna",
+        summary=(
+            "Community-lodge ridge trek (Khopra / Khayar area, ~3,660 m) with Dhaulagiri and "
+            "Annapurna views. Quieter than ABC; often linked with Poon Hill."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Community lodges · ~3,660 m ridge · Dhaulagiri vista",
+        image_key="annapurna",
+    ),
+    _t(
+        "Mohare Danda",
+        altitude=3300,
+        days=5,
+        difficulty="Easy",
+        region="Annapurna",
+        summary=(
+            "Eco-community ridge near Poon Hill (~3,300 m) with sunrise views and quieter "
+            "lodges — a good short alternative when Ghorepani is crowded."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Community tourism · Sunrise ridge · Low altitude",
+        image_key="foothills",
+    ),
+    _t(
+        "Tilicho Lake Circuit",
+        altitude=5416,
+        days=17,
+        difficulty="Hard",
+        region="Annapurna",
+        summary=(
+            "Annapurna Circuit variation via Tilicho Lake (~4,919 m lake; itinerary high point "
+            "still Thorong La 5,416 m). Extra altitude exposure and buffer days recommended."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Tilicho Lake · Thorong La · Longer circuit",
+        image_key="annapurna",
+    ),
+    _t(
+        "Nar Phu Valley",
+        altitude=5320,
+        days=12,
+        difficulty="Hard",
+        region="Annapurna",
+        summary=(
+            "Restricted valleys north of Manang with Tibetan-influenced villages. Often linked "
+            "via Kang La (~5,320 m) back toward the Annapurna Circuit. Guide + RAP required."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Restricted permits · Kang La · Ancient villages",
+        image_key="remote",
+    ),
+    _t(
+        "Poon Hill and Annapurna Base Camp",
+        altitude=4130,
+        days=12,
+        difficulty="Moderate",
+        region="Annapurna",
+        summary=(
+            "Combined Ghorepani–Poon Hill sunrise with continuation to Annapurna Base Camp "
+            "(4,130 m). Popular first 'full' Annapurna itinerary."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Poon Hill + ABC · Teahouse lodges · Classic combo",
+        image_key="annapurna",
+    ),
+    _t(
+        "Sikles Trek",
+        altitude=2300,
+        days=5,
+        difficulty="Easy",
+        region="Annapurna",
+        summary=(
+            "Gurung village trails northeast of Pokhara toward Sikles (~2,000–2,300 m). "
+            "Cultural mid-hill walking without high-altitude risk."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Gurung villages · Cultural lodges · Mid-hill views",
+        image_key="foothills",
+    ),
+    # ——— Mustang ———
+    _t(
+        "Upper Mustang",
+        altitude=3840,
+        days=12,
+        difficulty="Moderate",
+        region="Mustang",
+        summary=(
+            "Restricted rain-shadow trek to the former kingdom of Lo (Lo Manthang ~3,840 m). "
+            "Desert cliffs, caves, and monasteries; RAP + agency rules apply."
+        ),
+        seasons="Spring · Summer · Autumn",
+        highlights="Lo Manthang · Rain-shadow desert · Restricted permits",
+        image_key="remote",
+    ),
+    _t(
+        "Jomsom Muktinath",
+        altitude=3800,
+        days=7,
+        difficulty="Easy",
+        region="Mustang",
+        summary=(
+            "Lower Mustang / Kali Gandaki corridor toward Muktinath (~3,800 m). Windy valley, "
+            "pilgrimage sites; often mixed jeep + walking."
+        ),
+        seasons="Spring · Autumn · Winter",
+        highlights="Muktinath · Kali Gandaki · Flexible logistics",
+        image_key="annapurna",
+    ),
+    _t(
+        "Saribung Pass",
+        altitude=6042,
+        days=20,
+        difficulty="Hard",
+        region="Mustang",
+        summary=(
+            "Remote high pass linking Upper Mustang toward Damodar Kund / Nar-Phu side "
+            "(Saribung ~6,042 m). Expedition-style; experienced teams only."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Saribung Pass · Restricted wilderness · Camping",
+        image_key="remote",
+    ),
+    # ——— Dhaulagiri ———
+    _t(
+        "Dhaulagiri Circuit",
+        altitude=5360,
+        days=20,
+        difficulty="Hard",
+        region="Dhaulagiri",
+        summary=(
+            "Full camping circuit around Dhaulagiri with high passes (French Pass / Hidden "
+            "Valley area ~5,360 m). Not a teahouse trek — serious logistics required."
+        ),
+        seasons="Autumn · Spring",
+        highlights="French Pass · Hidden Valley · Expedition camping",
+        image_key="remote",
+    ),
+    # ——— Langtang / Helambu / Tamang / Ganesh ———
+    _t(
+        "Langtang Valley",
+        altitude=3870,
+        days=8,
+        difficulty="Moderate",
+        region="Langtang",
+        summary=(
+            "Valley trek north of Kathmandu to Kyanjin Gompa area (~3,870 m typical high "
+            "settlement). Optional viewpoints higher; shorter approach than Khumbu."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Kyanjin Gompa · Close mountain walls · Kathmandu access",
+        image_key="langtang",
+    ),
+    _t(
+        "Gosainkunda Lake",
+        altitude=4380,
+        days=8,
+        difficulty="Moderate",
+        region="Langtang",
+        summary=(
+            "Sacred alpine lakes trek to Gosainkunda (4,380 m). Steep days and cold nights; "
+            "busy around Janai Purnima pilgrimage."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Gosainkunda 4,380 m · Lauribina · Pilgrimage season",
+        image_key="langtang",
+    ),
+    _t(
+        "Langtang Gosainkunda Helambu",
+        altitude=4610,
+        days=14,
+        difficulty="Hard",
+        region="Langtang",
+        summary=(
+            "Combined Langtang Valley, Gosainkunda, and Helambu exit via Lauribina Pass "
+            "(~4,610 m). Varied culture and landscapes in one itinerary."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Three regions · Lauribina Pass · Village variety",
+        image_key="langtang",
+    ),
+    _t(
+        "Helambu Circuit",
+        altitude=3640,
+        days=6,
+        difficulty="Easy",
+        region="Helambu",
+        summary=(
+            "Lower trails east of Kathmandu through Hyolmo villages (typical max ~3,640 m). "
+            "Gentle introduction; optional links toward Gosainkunda."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Close to Kathmandu · Village lodges · Forest ridges",
+        image_key="foothills",
+    ),
+    _t(
+        "Tamang Heritage Trail",
+        altitude=2600,
+        days=6,
+        difficulty="Easy",
+        region="Langtang",
+        summary=(
+            "Cultural trail west of Syabrubesi with Tamang villages, hot springs, and "
+            "homestays. Lower altitude community tourism focus."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Homestays · Tatopani springs · Cultural immersion",
+        image_key="foothills",
+    ),
+    _t(
+        "Tamang Heritage and Langtang",
+        altitude=3870,
+        days=12,
+        difficulty="Moderate",
+        region="Langtang",
+        summary=(
+            "Combine Tamang Heritage cultural days with the Langtang Valley to Kyanjin "
+            "(~3,870 m). Culture first, then classic valley mountains."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Heritage + Langtang · Homestays · Kyanjin",
+        image_key="langtang",
+    ),
+    _t(
+        "Ganja La Pass",
+        altitude=5122,
+        days=12,
+        difficulty="Hard",
+        region="Langtang",
+        summary=(
+            "High pass (~5,122 m) linking Langtang with Helambu. Snow and camping sections "
+            "are common — experienced trekkers with guide and flexible weather window."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Ganja La 5,122 m · Wilder Langtang · Camping",
+        image_key="langtang",
+    ),
+    _t(
+        "Ruby Valley Ganesh Himal",
+        altitude=3830,
+        days=9,
+        difficulty="Moderate",
+        region="Ganesh Himal",
+        summary=(
+            "Ganesh Himal / Ruby Valley community trails (typical max ~3,830 m). Quiet "
+            "mid-hill and high-hill walking between Langtang and Manaslu corridors."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Ganesh Himal views · Community lodges · Off-main-trail",
+        image_key="langtang",
+    ),
+    _t(
+        "Panch Pokhari",
+        altitude=4100,
+        days=10,
+        difficulty="Moderate",
+        region="Helambu",
+        summary=(
+            "Sacred five-lakes trek east of Kathmandu toward Panch Pokhari (~4,100 m). "
+            "Quieter pilgrimage and ridge walking than the classic Gosainkunda trail."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Five sacred lakes · Ridge camps · Quieter east",
+        image_key="langtang",
+    ),
+    # ——— Manaslu / Tsum ———
+    _t(
+        "Manaslu Circuit",
+        altitude=5106,
+        days=15,
+        difficulty="Hard",
+        region="Manaslu",
+        summary=(
+            "Restricted-area circuit around Manaslu crossing Larkya La (~5,106 m). Fewer "
+            "crowds than Annapurna; RAP + conservation permits and licensed guide required."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Larkya La 5,106 m · Restricted area · Tibetan-influenced villages",
+        image_key="remote",
+    ),
+    _t(
+        "Tsum Valley",
+        altitude=3700,
+        days=16,
+        difficulty="Hard",
+        region="Manaslu",
+        summary=(
+            "Sacred restricted side valley off the Manaslu trail (typical high villages "
+            "~3,700 m). Monasteries and culture-focused days; often combined with Manaslu."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Restricted RAP · Monasteries · Cultural depth",
+        image_key="remote",
+    ),
+    _t(
+        "Manaslu Circuit with Tsum Valley",
+        altitude=5106,
+        days=18,
+        difficulty="Hard",
+        region="Manaslu",
+        summary=(
+            "Full Manaslu Circuit plus Tsum Valley detour. Longer permits window and the "
+            "same Larkya La (~5,106 m) challenge."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Tsum + Larkya La · Extended culture · Restricted permits",
+        image_key="remote",
+    ),
+    # ——— Makalu / Kanchenjunga / Rolwaling ———
+    _t(
+        "Makalu Base Camp",
+        altitude=4870,
+        days=20,
+        difficulty="Hard",
+        region="Makalu",
+        summary=(
+            "Remote eastern trek to Makalu Base Camp (~4,870 m). Wilder logistics and fewer "
+            "lodges than Khumbu; Barun Valley wilderness."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Makalu BC 4,870 m · Barun Valley · Remote",
+        image_key="remote",
+    ),
+    _t(
+        "Kanchenjunga Base Camp",
+        altitude=5143,
+        days=24,
+        difficulty="Hard",
+        region="Kanchenjunga",
+        summary=(
+            "Far-east trek toward Kanchenjunga Base Camp options (north Pangpema ~5,143 m "
+            "common high point). Long, remote, usually camping-supported; RAP sections."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Pangpema ~5,143 m · 3+ weeks · Extreme remoteness",
+        image_key="remote",
+    ),
+    _t(
+        "Kanchenjunga North and South",
+        altitude=5143,
+        days=26,
+        difficulty="Hard",
+        region="Kanchenjunga",
+        summary=(
+            "Combined north and south Kanchenjunga base approaches via Sele La / high "
+            "passes. One of Nepal's longest and hardest teahouse/camping hybrids."
+        ),
+        seasons="Spring · Autumn",
+        highlights="North + South BC · Sele La · Multi-week expedition feel",
+        image_key="remote",
+    ),
+    _t(
+        "Lumba Sumba Pass",
+        altitude=5177,
+        days=22,
+        difficulty="Hard",
+        region="Kanchenjunga",
+        summary=(
+            "Remote eastern pass trek (Lumba Sumba ~5,177 m) linking Kanchenjunga country "
+            "toward Makalu approaches. Camping, permits, and strong logistics essential."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Lumba Sumba Pass · Far-east wilderness · Camping",
+        image_key="remote",
+    ),
+    _t(
+        "Rolwaling Valley",
+        altitude=5755,
+        days=16,
+        difficulty="Hard",
+        region="Rolwaling",
+        summary=(
+            "Wild valley between Langtang and Khumbu. Tashi Lapcha / Tashi Labtsa (~5,755 m) "
+            "link toward Thame is technical glacier travel — not a casual teahouse trek."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Tashi Lapcha · Remote villages · Glacier travel",
+        image_key="remote",
+    ),
+    # ——— Dolpo / Humla / Far West / Lakes ———
+    _t(
+        "Upper Dolpo",
+        altitude=5400,
+        days=22,
+        difficulty="Hard",
+        region="Dolpo",
+        summary=(
+            "High arid west Nepal toward Shey and beyond (passes often ~5,200–5,400 m). "
+            "Restricted, expensive RAP, camping — for experienced remote trekkers."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Shey Gompa · High passes · Restricted wilderness",
+        image_key="remote",
+    ),
+    _t(
+        "Lower Dolpo",
+        altitude=5300,
+        days=16,
+        difficulty="Hard",
+        region="Dolpo",
+        summary=(
+            "Dolpo circuits via Phoksundo Lake and surrounding passes (high points often "
+            "~5,000–5,300 m). Still remote camping country with strong cultural character."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Phoksundo Lake · Bon culture · Camping logistics",
+        image_key="remote",
+    ),
+    _t(
+        "Upper Dolpo to Jomsom",
+        altitude=5400,
+        days=25,
+        difficulty="Hard",
+        region="Dolpo",
+        summary=(
+            "Long traverse linking Upper Dolpo toward Mustang / Jomsom. Multi-week "
+            "restricted camping itinerary with complex permits."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Dolpo–Mustang link · High passes · Expedition length",
+        image_key="remote",
+    ),
+    _t(
+        "Rara Lake",
+        altitude=2990,
+        days=10,
+        difficulty="Moderate",
+        region="Mugu",
+        summary=(
+            "Trek to Rara Lake (~2,990 m), Nepal's largest lake, in the remote northwest. "
+            "Forest approaches via Jumla or flights; quieter than central Nepal classics."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Rara Lake 2,990 m · National park · Quiet northwest",
+        image_key="remote",
+    ),
+    _t(
+        "Khaptad National Park",
+        altitude=3200,
+        days=8,
+        difficulty="Easy",
+        region="Far West",
+        summary=(
+            "Far-West plateau grasslands and pilgrimage sites (~3,000–3,200 m). Lower "
+            "altitude nature and culture trek far from Annapurna/Khumbu crowds."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Khaptad plateau · Ashram · Off-the-beaten-path",
+        image_key="foothills",
+    ),
+    _t(
+        "Api Base Camp",
+        altitude=4000,
+        days=12,
+        difficulty="Hard",
+        region="Far West",
+        summary=(
+            "Remote Far-West approach toward Api Himal (~4,000 m camps common). Sparse "
+            "infrastructure — experienced local support recommended."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Api Himal · Far-West wilderness · Sparse lodges",
+        image_key="remote",
+    ),
+    _t(
+        "Humla Limi Valley",
+        altitude=4950,
+        days=18,
+        difficulty="Hard",
+        region="Humla",
+        summary=(
+            "Northwestern borderlands near Tibet (passes often ~4,500–4,950 m). Restricted "
+            "/ logistically complex — plan early with a specialist agency."
+        ),
+        seasons="Spring · Autumn",
+        highlights="Limi Valley · Border culture · High remote passes",
+        image_key="remote",
+    ),
+    # ——— Short / near cities ———
+    _t(
+        "Panchase Trek",
+        altitude=2500,
+        days=4,
+        difficulty="Easy",
+        region="Pokhara",
+        summary=(
+            "Short ridge trek near Pokhara (~2,500 m) with Annapurna sunrise views. Ideal "
+            "weekend escape or warm-up before a longer trail."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Pokhara access · Sunrise views · Short duration",
+        image_key="foothills",
+    ),
+    _t(
+        "Australian Camp Dhampus",
+        altitude=2100,
+        days=3,
+        difficulty="Easy",
+        region="Pokhara",
+        summary=(
+            "Easy overnight trails above Pokhara through Dhampus and Australian Camp "
+            "(~2,050–2,100 m). Beginner-friendly Machhapuchhre views."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Beginner friendly · Mountain views · Near Pokhara",
+        image_key="foothills",
+    ),
+    _t(
+        "Nagarkot Chisapani",
+        altitude=2200,
+        days=3,
+        difficulty="Easy",
+        region="Kathmandu Valley",
+        summary=(
+            "Kathmandu rim trek via Chisapani and Nagarkot viewpoints (~2,200 m). Low "
+            "altitude with easy transport links back to the city."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Valley views · Sunrise points · Near Kathmandu",
+        image_key="foothills",
+    ),
+    _t(
+        "Shivapuri Chisapani",
+        altitude=2732,
+        days=2,
+        difficulty="Easy",
+        region="Kathmandu Valley",
+        summary=(
+            "Shivapuri National Park routes on the Kathmandu rim (park high point 2,732 m). "
+            "Cool forest day or overnight toward Chisapani."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="National park · Forest trails · Short escape",
+        image_key="foothills",
+    ),
+    _t(
+        "Royal Trek",
+        altitude=1700,
+        days=4,
+        difficulty="Easy",
+        region="Pokhara",
+        summary=(
+            "Low foothill route east of Pokhara (max ~1,700 m) once associated with royal "
+            "guests. Village stays and Annapurna views without altitude stress."
+        ),
+        seasons="Autumn · Winter · Spring",
+        highlights="Village culture · Low altitude · Pokhara start",
+        image_key="foothills",
     ),
 ]
 

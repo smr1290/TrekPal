@@ -303,11 +303,20 @@ def test_nepal_trek_catalog_is_unique_and_substantial():
     from services.nepal_trek_catalog import NEPAL_TREK_CATALOG
 
     names = [t["trek_name"] for t in NEPAL_TREK_CATALOG]
-    assert len(names) >= 35
+    assert len(names) >= 50
     assert len(names) == len(set(names))
     regions = {t["region"] for t in NEPAL_TREK_CATALOG}
-    for required in ("Khumbu", "Annapurna", "Langtang", "Manaslu", "Dolpo"):
+    for required in ("Khumbu", "Annapurna", "Langtang", "Manaslu", "Dolpo", "Mustang"):
         assert required in regions
+    # Spot-check published typical figures
+    by_name = {t["trek_name"]: t for t in NEPAL_TREK_CATALOG}
+    assert by_name["Everest Base Camp"]["max_altitude"] == 5364
+    assert by_name["Annapurna Circuit"]["max_altitude"] == 5416
+    assert by_name["Poon Hill"]["max_altitude"] == 3210
+    assert by_name["Manaslu Circuit"]["max_altitude"] == 5106
+    assert by_name["Langtang Valley"]["max_altitude"] == 3870
+    assert by_name["Upper Mustang"]["max_altitude"] == 3840
+    assert by_name["Gokyo Lakes"]["max_altitude"] == 5357
     for trek in NEPAL_TREK_CATALOG:
         assert trek["max_altitude"] > 0
         assert trek["typical_duration"] > 0
