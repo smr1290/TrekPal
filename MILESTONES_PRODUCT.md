@@ -19,10 +19,9 @@ Shipped quality slices that made TrekPal usable and safer. Kept for history.
 
 ---
 
-## Phase 2 — Refinement (active)
+## Phase 2 — Refinement (complete)
 
-**Source of truth for work order:** `.cursor/rules/milestones.mdc` (Milestone 1–12 below).  
-Work **one at a time**. Do not start the next until the current one is confirmed done.
+Shipped security, IA, heuristics, visual/mobile/motion, trust UX, rate limits, logging, onboarding.
 
 | ID | Focus | Track | Status |
 |----|--------|--------|--------|
@@ -39,25 +38,32 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 | **R11** | Structured logging for Groq / Open-Meteo | Backend/Observability | Done |
 | **R12** | First-run experience & goal onboarding | Frontend/UX | Done |
 
+---
+
+## Phase 3 — Ship readiness (active)
+
+**Source of truth for work order:** `.cursor/rules/milestones.mdc` (Milestone 1–8).  
+Work **one at a time**. Do not start the next until the current one is confirmed done.
+
+Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
+
+| ID | Focus | Track | Status | Closes gap |
+|----|--------|--------|--------|------------|
+| **S1** | Production env & secrets hardening | Backend/DevOps | Pending | Weak/local secrets leaking to prod |
+| **S2** | Production auth cookies (cross-origin) | Backend/Security | Pending | Cookies break or weaken off localhost |
+| **S3** | Production deploy (API + DB + frontend) | DevOps | Pending | Only runs on one PC |
+| **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Pending | No automated regression gate |
+| **S5** | External AI & weather resilience | Backend/Reliability | Pending | Groq/Open-Meteo outages feel like “app broken” |
+| **S6** | Observability (errors + uptime) | Observability | Pending | Failures invisible until a user reports them |
+| **S7** | Legal & trust pages | Frontend/Content | Pending | No privacy/terms / launch hygiene |
+| **S8** | Launch QA gate (phone + smoke checklist) | QA/Product | Pending | Untested real-device / throttled funnel |
+
 ### Why this order
 
-Security and data integrity first → IA and heuristic explainability → visual/mobile/motion → trust UX (needs R4+R5) → rate limit, logging, onboarding.
+Env + cookies before deploy → deploy before CI proves a real URL → AI resilience + monitoring once strangers can hit the app → legal before wide invite → QA gate as the hard “ship” stop.
 
-### Goal lens (every screen)
-
-| Page | User's real goal |
-|------|------------------|
-| Home | “Is this trustworthy enough to give my email to?” |
-| Treks | “Which trek fits my skill/time/season?” |
-| Planner | “Am I actually ready, concretely?” |
-| History | “Can I get back into my plan without re-thinking it?” |
-| Knowledge | “Can I trust this specific fact before I act on it?” |
-| Maps | “Where am I relative to real landmarks, without false safety confidence?” |
-
-### After each Phase 2 milestone
+### After each Phase 3 milestone
 
 Explain: what changed, files touched, how to verify, trade-offs, what's still not done. Meet the Acceptance bar or say explicitly if you cannot.
 
-**Phase 2 status (2026-08-04):** R1–R12 shipped. Live DB verified at Alembic `016_catalog_photography` (downgrade `-1` + upgrade head OK). `/trek/list` returns `.jpg` catalog URLs. Frontend at `localhost:3000`, API at `localhost:8000`.
-
-**Phase 3:** not defined yet — pick a track below (or write new milestones into `.cursor/rules/milestones.mdc`).
+**Out of scope for Phase 3** (later phases): trained ML replacing heuristics, deep offline maps, huge catalog photography unique-per-trek, major new product features.

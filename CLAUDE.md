@@ -107,7 +107,7 @@ Docker Compose overrides `DATABASE_URL` to host `db` and loads `backend/.env`.
 trekpal/
 ├── CLAUDE.md / this full context
 ├── README.md
-├── MILESTONES_PRODUCT.md      # M1–M10 product slices
+├── MILESTONES_PRODUCT.md      # Phase 1–3 product roadmap status
 ├── MILESTONES.md              # long aspirational AI-dev rules
 ├── docker-compose.yml
 ├── frontend/
@@ -340,24 +340,26 @@ User inputs (destination, altitude, season, duration, experience, difficulty)
 
 Trust, funnel, profile, deletes, knowledge/maps, httpOnly auth, API tests, catalog media, weather.
 
-### Phase 2 (active) — `.cursor/rules/milestones.mdc` Milestone 1–12 = **R1–R12**
+### Phase 2 (done) — R1–R12
+
+Ownership, destinations, IA, heuristics, planner reliability, visual/mobile/motion, trust UX, Postgres rate limits, structured logging, onboarding.
+
+### Phase 3 (active) — `.cursor/rules/milestones.mdc` Milestone 1–8 = **S1–S8**
+
+Ship readiness: close laptop-MVP → public-internet gaps.
 
 | ID | Focus | Status |
 |----|--------|--------|
-| R1 | Auth & ownership hardening | Pending |
-| R2 | Data integrity & migration hygiene | Pending |
-| R3 | Goal-based IA & funnel rebuild | Pending |
-| R4 | Heuristic explainability & versioning | Pending |
-| R5 | Trip planner reliability | Pending |
-| R6 | Visual system maturity | Pending |
-| R7 | Mobile-first correctness | Pending |
-| R8 | Motion as feedback | Pending |
-| R9 | Trust & safety UX | Pending |
-| R10 | Durable rate limiting | Pending |
-| R11 | Structured logging | Pending |
-| R12 | First-run onboarding | Pending |
+| S1 | Production env & secrets hardening | Pending |
+| S2 | Production auth cookies (cross-origin) | Pending |
+| S3 | Production deploy (API + DB + frontend) | Pending |
+| S4 | CI pipeline (tests + build on PR) | Pending |
+| S5 | External AI & weather resilience | Pending |
+| S6 | Observability (errors + uptime) | Pending |
+| S7 | Legal & trust pages | Pending |
+| S8 | Launch QA gate (phone + smoke) | Pending |
 
-Work **one at a time** from R1.
+Work **one at a time** from S1.
 
 ---
 
