@@ -51,6 +51,32 @@ def is_production_env(app_env: str) -> bool:
     return app_env.lower() not in _DEV_ENVS
 
 
+_VALID_SAMESITE = frozenset({"lax", "strict", "none"})
+
+
+def resolve_auth_cookie_samesite(
+    app_env: str,
+    override: str | None = None,
+) -> str:
+    """
+    Cookie SameSite for session JWT.
+
+    - Local (same browser site: localhost:3000 → localhost:8000): lax
+    - Production split host (Vercel frontend + Railway/Render API): none
+      (browsers only send cross-site cookies when SameSite=None + Secure)
+    """
+    if override is not None and str(override).strip():
+        value = str(override).strip().lower()
+        if value not in _VALID_SAMESITE:
+            raise RuntimeError(
+                f"AUTH_COOKIE_SAMESITE must be one of {sorted(_VALID_SAMESITE)}; got '{override}'."
+            )
+        return value
+    if is_production_env(app_env):
+        return "none"
+    return "lax"
+
+
 def validate_production_config(
     *,
     app_env: str,
@@ -60,6 +86,7 @@ def validate_production_config(
     allow_internal_ml_override: str | None = None,
     database_url: str | None = None,
     auth_cookie_secure: bool | None = None,
+    auth_cookie_samesite: str | None = None,
 ) -> None:
     """
     Raise RuntimeError if production settings are unsafe.
@@ -67,6 +94,13 @@ def validate_production_config(
     Called at import when APP_ENV is production-like. Kept pure for unit tests.
     """
     if not is_production_env(app_env):
+        # Still enforce SameSite=None ⇒ Secure even in weird local overrides.
+        site = (auth_cookie_samesite or "lax").lower()
+        if site == "none" and auth_cookie_secure is False:
+            raise RuntimeError(
+                "AUTH_COOKIE_SAMESITE=none requires AUTH_COOKIE_SECURE=true "
+                "(browsers reject insecure cross-site cookies)."
+            )
         return
 
     errors: list[str] = []
@@ -105,6 +139,17 @@ def validate_production_config(
         errors.append(
             "AUTH_COOKIE_SECURE must be true (or unset) in production so session cookies "
             "are HTTPS-only."
+        )
+
+    site = (auth_cookie_samesite or "none").lower()
+    if site not in _VALID_SAMESITE:
+        errors.append(
+            f"AUTH_COOKIE_SAMESITE must be one of {sorted(_VALID_SAMESITE)}; got '{auth_cookie_samesite}'."
+        )
+    elif site == "none" and auth_cookie_secure is False:
+        errors.append(
+            "AUTH_COOKIE_SAMESITE=none requires AUTH_COOKIE_SECURE=true "
+            "(required by browsers for cross-origin sessions)."
         )
 
     if errors:
@@ -164,6 +209,9 @@ else:
     # Secure cookies require HTTPS. Local Docker/dev is HTTP, so keep Secure off there.
     AUTH_COOKIE_SECURE = is_production_env(APP_ENV)
 
+# Split-host production (Vercel FE + Railway API) needs SameSite=None; local stays Lax.
+AUTH_COOKIE_SAMESITE = resolve_auth_cookie_samesite(APP_ENV, _env("AUTH_COOKIE_SAMESITE"))
+
 # Chat rate limit (R10)
 CHAT_RATE_LIMIT_PER_HOUR = int(_env("CHAT_RATE_LIMIT_PER_HOUR", "20") or "20")
 
@@ -179,6 +227,7 @@ validate_production_config(
     allow_internal_ml_override=_env("ALLOW_INTERNAL_ML_IN_PRODUCTION", "false"),
     database_url=DATABASE_URL,
     auth_cookie_secure=AUTH_COOKIE_SECURE,
+    auth_cookie_samesite=AUTH_COOKIE_SAMESITE,
 )
 
 ENABLE_INTERNAL_ML_ROUTES = internal_ml_routes_enabled()

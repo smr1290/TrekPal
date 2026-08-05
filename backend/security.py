@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from config import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     AUTH_COOKIE_NAME,
+    AUTH_COOKIE_SAMESITE,
     AUTH_COOKIE_SECURE,
     JWT_ALGORITHM,
     JWT_SECRET,
@@ -44,24 +45,30 @@ def resolve_access_token(*, bearer: str | None, cookie: str | None) -> str | Non
 
 
 def set_auth_cookie(response: Response, token: str) -> None:
-    """Store the JWT where JavaScript cannot read it (XSS mitigation)."""
+    """Store the JWT where JavaScript cannot read it (XSS mitigation).
+
+    Flags come from config:
+    - Local: Secure=false, SameSite=Lax (localhost FE → API is same-site).
+    - Split HTTPS hosts: Secure=true, SameSite=None (cross-site XHR needs both).
+    """
     response.set_cookie(
         key=AUTH_COOKIE_NAME,
         value=token,
         httponly=True,
         secure=AUTH_COOKIE_SECURE,
-        samesite="lax",
+        samesite=AUTH_COOKIE_SAMESITE,  # type: ignore[arg-type]
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )
 
 
 def clear_auth_cookie(response: Response) -> None:
+    # Path/Secure/SameSite must match set_cookie or some browsers keep the old cookie.
     response.delete_cookie(
         key=AUTH_COOKIE_NAME,
         path="/",
         secure=AUTH_COOKIE_SECURE,
-        samesite="lax",
+        samesite=AUTH_COOKIE_SAMESITE,  # type: ignore[arg-type]
     )
 
 

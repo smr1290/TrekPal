@@ -77,6 +77,14 @@ def test_signup_login_cookie_and_me():
     assert body["user_id"]
     assert "trekpal_access" in signup.cookies
 
+    # S2: session cookie must be HttpOnly; SameSite/Secure follow config defaults.
+    set_cookie = signup.headers.get("set-cookie", "")
+    assert "HttpOnly" in set_cookie or "httponly" in set_cookie.lower()
+    assert "Path=/" in set_cookie or "path=/" in set_cookie.lower()
+    from config import AUTH_COOKIE_SAMESITE
+
+    assert f"samesite={AUTH_COOKIE_SAMESITE}" in set_cookie.lower()
+
     me = client.get("/auth/me")
     assert me.status_code == 200
     assert me.json()["email"] == email

@@ -135,7 +135,7 @@ trekpal/
 ### Current (M7)
 
 1. `POST /auth/signup` or `/auth/login` validates credentials, creates JWT (`sub` = user id).  
-2. API sets **httpOnly** cookie `trekpal_access` (`SameSite=lax`, `Secure` in non-local envs, `path=/`).  
+2. API sets **httpOnly** cookie `trekpal_access` (`SameSite` from `AUTH_COOKIE_SAMESITE` — local `lax`, production split-host default `none`; `Secure` in non-local envs; `path=/`).  
 3. JSON may also return token for compatibility; **frontend must not store JWT in localStorage**.  
 4. All authenticated `fetch` calls use `credentials: 'include'`.  
 5. `AuthContext` caches `{ id, full_name, experience_level, email? }` in `localStorage` key `trek_pal_user` for UI only.  
@@ -351,7 +351,7 @@ Ship readiness: close laptop-MVP → public-internet gaps.
 | ID | Focus | Status |
 |----|--------|--------|
 | S1 | Production env & secrets hardening | Done |
-| S2 | Production auth cookies (cross-origin) | Pending |
+| S2 | Production auth cookies (cross-origin) | Done |
 | S3 | Production deploy (API + DB + frontend) | Pending |
 | S4 | CI pipeline (tests + build on PR) | Pending |
 | S5 | External AI & weather resilience | Pending |
