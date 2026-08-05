@@ -37,3 +37,4 @@ npm run dev
 ## Status
 
 Phase 1–2 complete. Phase 3 (ship readiness) active — see `MILESTONES_PRODUCT.md`.
+Production deploy steps: [`docs/DEPLOY.md`](./docs/DEPLOY.md).

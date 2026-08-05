@@ -39,6 +39,10 @@ services:
       JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: "10080"
       CORS_ORIGINS: http://localhost:3000
+    # Dev override: Dockerfile CMD is production (no --reload).
+    command: >
+      sh -c "alembic upgrade head &&
+      uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       # Live code reload while developing
       - ./backend:/app

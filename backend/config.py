@@ -187,9 +187,19 @@ def internal_ml_routes_enabled(
     return (override or "false").lower() in {"1", "true", "yes"}
 
 
-DATABASE_URL = _env(
-    "DATABASE_URL",
-    "postgresql://postgres:root@localhost:5432/TrekPal",
+def normalize_database_url(url: str) -> str:
+    """Railway/Heroku often provide postgres://; SQLAlchemy wants postgresql://."""
+    if url.startswith("postgres://"):
+        return "postgresql://" + url[len("postgres://") :]
+    return url
+
+
+DATABASE_URL = normalize_database_url(
+    _env(
+        "DATABASE_URL",
+        "postgresql://postgres:root@localhost:5432/TrekPal",
+    )
+    or "postgresql://postgres:root@localhost:5432/TrekPal"
 )
 
 APP_ENV = (_env("APP_ENV", "development") or "development").lower()

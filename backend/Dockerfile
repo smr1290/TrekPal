@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System deps for psycopg2-binary builds if needed; keep image small
+# System deps for psycopg2-binary; keep image small
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
@@ -14,5 +14,6 @@ COPY . .
 
 EXPOSE 8000
 
-# Wait for DB (compose healthcheck), migrate, then serve
-CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
+# Production default: migrate then serve. Hosts inject PORT (Railway/Render).
+# Local Docker Compose overrides with --reload (see docker-compose.yml).
+CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

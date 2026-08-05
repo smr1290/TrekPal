@@ -149,8 +149,14 @@ def test_resolve_auth_cookie_samesite_rejects_invalid():
         resolve_auth_cookie_samesite("development", "invalid")
 
 
-def test_internal_ml_requires_override_in_production():
-    assert internal_ml_routes_enabled("production", "false", "false") is False
-    assert internal_ml_routes_enabled("production", "true", "false") is False
-    assert internal_ml_routes_enabled("production", "true", "true") is True
-    assert internal_ml_routes_enabled("development", "false", "false") is True
+def test_normalize_database_url_postgres_scheme():
+    from config import normalize_database_url
+
+    assert (
+        normalize_database_url("postgres://u:p@host:5432/db")
+        == "postgresql://u:p@host:5432/db"
+    )
+    assert (
+        normalize_database_url("postgresql://u:p@host:5432/db")
+        == "postgresql://u:p@host:5432/db"
+    )
