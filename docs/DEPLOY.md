@@ -54,6 +54,7 @@ On the **API** service → **Variables**, set:
 | Variable | Value |
 |----------|--------|
 | `APP_ENV` | `production` |
+| `PORT` | `8000` (must match Public Networking → Port 8000) |
 | `DATABASE_URL` | *(from Postgres plugin — do not type localhost)* |
 | `JWT_SECRET` | the 48+ char secret you generated |
 | `JWT_ALGORITHM` | `HS256` |

@@ -1,13 +1,17 @@
 # Railway: set Root Directory to `backend` (or deploy this folder).
 # Add a Postgres plugin and link it so DATABASE_URL is injected.
 # Full steps: docs/DEPLOY.md
+#
+# Public Networking target port must match what uvicorn listens on.
+# Set variable PORT=8000 in Railway (and domain → Port 8000).
 
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 100
+# No healthcheckPath: first boot runs `alembic upgrade head` before
+# uvicorn listens; Railway healthchecks often fail that race and mark
+# a good build as failed. Smoke `/` manually after deploy instead.
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
