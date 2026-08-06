@@ -3,7 +3,13 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+/** Omit React drag/animation handlers that clash with Framer Motion's props (React 19 + build). */
+type NativeButtonProps = Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'
+>;
+
+interface ButtonProps extends NativeButtonProps {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'onDark' | 'onDarkOutline';
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
