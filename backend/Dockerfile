@@ -14,6 +14,6 @@ COPY . .
 
 EXPOSE 8000
 
-# Production default: migrate then serve. Hosts inject PORT (Railway/Render).
-# Local Docker Compose overrides with --reload (see docker-compose.yml).
-CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Production: migrate then serve on 8000 (match Railway Public Networking port).
+# Do not rely on a random $PORT — domain target is configured as 8000.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
