@@ -2,15 +2,8 @@ import path from "path";
 import type { NextConfig } from "next";
 
 /**
- * Same-origin API proxy (production).
- *
- * Browsers (especially phones) block cross-site cookies between
- * `*.vercel.app` and `*.up.railway.app`. Rewriting `/backend/*` to the
- * Railway API makes Set-Cookie first-party on the Vercel host so login works.
- *
- * Vercel env:
- *   API_PROXY_TARGET=https://your-api.up.railway.app
- *   NEXT_PUBLIC_API_URL=/backend
+ * Optional rewrite fallback. Prefer the Route Handler at
+ * `app/backend/[...path]/route.ts` (reads API_PROXY_TARGET at runtime).
  */
 const proxyTarget = (process.env.API_PROXY_TARGET || "").replace(/\/$/, "");
 
@@ -27,6 +20,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    // Route Handler handles /backend/* when present; keep rewrite as fallback.
     if (!proxyTarget) return [];
     return [
       {
