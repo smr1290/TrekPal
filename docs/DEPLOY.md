@@ -91,11 +91,16 @@ Expect JSON mentioning TrekPal. If the process crashed on boot, open **Deploymen
 1. [vercel.com/new](https://vercel.com/new) → import the same GitHub **TrekPal** repo.
 2. **Root Directory:** `frontend` (Edit → select `frontend`).
 3. Framework: Next.js (auto).
-4. **Environment Variables:**
+4. **Environment Variables** (both are required for phone login):
 
-| Name | Value |
-|------|--------|
-| `NEXT_PUBLIC_API_URL` | your **`API_URL`** from Railway (HTTPS, no trailing slash) |
+| Name | Value | Notes |
+|------|--------|--------|
+| `API_PROXY_TARGET` | your **`API_URL`** from Railway (HTTPS, no trailing slash) | Server-only. Next.js rewrites `/backend/*` → Railway |
+| `NEXT_PUBLIC_API_URL` | `/backend` | Browser calls same origin — cookies work on phones |
+
+Why `/backend`? Safari/Chrome treat `vercel.app` → `railway.app` cookies as
+**third-party** and often block login. The proxy keeps cookies on your Vercel
+domain (first-party).
 
 5. Deploy.
 

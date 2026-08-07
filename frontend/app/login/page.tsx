@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { ApiError } from '@/lib/api';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
@@ -45,8 +46,15 @@ export default function LoginPage() {
             const safeNext =
                 next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
             router.push(safeNext);
-        } catch {
-            setErrors({ general: 'Invalid email or password. Please try again.' });
+        } catch (err) {
+            if (err instanceof ApiError && (err.status === 401 || err.status === 400)) {
+                setErrors({ general: 'Invalid email or password. Please try again.' });
+            } else {
+                setErrors({
+                    general:
+                        'Could not reach TrekPal right now. Check your connection, wait a moment, and try again.',
+                });
+            }
         } finally {
             setIsLoading(false);
         }

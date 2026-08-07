@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { ApiError } from '@/lib/api';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
 import Button from '@/components/Button';
@@ -55,8 +56,17 @@ export default function SignupPage() {
                 localStorage.setItem('trekpal_onboarding_goal', formData.goal);
             }
             router.push(formData.goal === 'research' ? '/treks' : '/dashboard');
-        } catch {
-            setErrors({ general: 'Something went wrong. Please try again later.' });
+        } catch (err) {
+            if (err instanceof ApiError && err.status === 400) {
+                setErrors({
+                    general: err.message || 'Could not create account. Try a different email.',
+                });
+            } else {
+                setErrors({
+                    general:
+                        'Could not reach TrekPal right now. Check your connection and try again.',
+                });
+            }
         } finally {
             setIsLoading(false);
         }

@@ -32,7 +32,8 @@ Bad config → **process exits** with a clear error (see `backend/config.py`).
 
 | Variable | Local | Production |
 |----------|-------|------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Public API HTTPS URL (no trailing slash) |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | `/backend` (with `API_PROXY_TARGET` set to the Railway URL) |
+| `API_PROXY_TARGET` | omit | Railway API HTTPS URL (no trailing slash) |
 
 Copy `frontend/.env.example` → `frontend/.env.local` for local Next.
 
