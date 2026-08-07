@@ -30,7 +30,9 @@ export default function Reveal({
             className={className}
             initial={{ opacity: 0, y }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once, margin: '-8% 0px' }}
+            // Positive amount + no negative margin: mobile Safari often never
+            // fires whileInView with margin: '-8%', leaving content invisible.
+            viewport={{ once, amount: 0.12 }}
             transition={{
                 duration: 0.7,
                 delay,
@@ -48,7 +50,11 @@ type StaggerProps = {
     stagger?: number;
 };
 
-/** Staggers child Reveals via container variants. */
+/**
+ * Stagger children on mount (not whileInView).
+ * Catalog grids must be visible immediately on phones — scroll-triggered
+ * opacity:0 left articles/treks looking "broken" or empty.
+ */
 export function Stagger({ children, className = '', stagger = 0.08 }: StaggerProps) {
     const reduce = useReducedMotion();
 
@@ -60,8 +66,7 @@ export function Stagger({ children, className = '', stagger = 0.08 }: StaggerPro
         <motion.div
             className={className}
             initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-6% 0px' }}
+            animate="show"
             variants={{
                 hidden: {},
                 show: {
@@ -91,11 +96,11 @@ export function StaggerItem({
         <motion.div
             className={className}
             variants={{
-                hidden: { opacity: 0, y: 22 },
+                hidden: { opacity: 0, y: 16 },
                 show: {
                     opacity: 1,
                     y: 0,
-                    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+                    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
                 },
             }}
         >

@@ -40,13 +40,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
+        let cancelled = false;
         const hydrate = async () => {
             // Drop any pre-M7 JWT so scripts cannot read it from localStorage.
             clearLegacyAccessToken();
 
             try {
                 // Cookie is sent automatically with credentials: 'include'.
-                const me = await authApi.me();
+                // Timeout so a slow/unreachable API cannot leave phones on "Loading…".
+                const me = await Promise.race([
+                    authApi.me(),
+                    new Promise<never>((_, reject) =>
+                        setTimeout(() => reject(new Error('auth-timeout')), 8000)
+                    ),
+                ]);
+                if (cancelled) return;
                 cacheUser(setUser, {
                     id: me.user_id,
                     full_name: me.full_name,
@@ -54,9 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     email: me.email,
                 });
             } catch {
-                clearSession();
+                if (!cancelled) clearSession();
             } finally {
-                setIsLoading(false);
+                if (!cancelled) setIsLoading(false);
             }
         };
 
@@ -68,7 +76,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             clearLegacyAccessToken();
         };
         window.addEventListener('trekpal:auth-expired', onExpired);
-        return () => window.removeEventListener('trekpal:auth-expired', onExpired);
+        return () => {
+            cancelled = true;
+            window.removeEventListener('trekpal:auth-expired', onExpired);
+        };
     }, []);
 
     const login = async (email: string, password: string) => {

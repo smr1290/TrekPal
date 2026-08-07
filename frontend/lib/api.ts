@@ -4,7 +4,10 @@
 // The browser sends it via credentials: 'include'. We no longer store
 // the access token in localStorage (XSS could steal it from there).
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(
+    /\/$/,
+    ''
+);
 /** Legacy key — cleared on load so old JWTs are not left readable by scripts. */
 const LEGACY_TOKEN_KEY = 'trek_pal_token';
 
@@ -42,11 +45,16 @@ function formatErrorDetail(detail: unknown): string {
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const method = (options.method || 'GET').toUpperCase();
 
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
         ...(options.headers as Record<string, string> | undefined),
     };
+    // Only set JSON content-type when sending a body — avoids extra CORS
+    // preflights on simple GETs (flaky on some mobile browsers).
+    if (method !== 'GET' && method !== 'HEAD' && headers['Content-Type'] === undefined) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     try {
         const response = await fetch(url, {
