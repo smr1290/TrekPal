@@ -49,10 +49,10 @@ export default function Home() {
                     <p className="anim-rise mb-2 text-[0.7rem] font-bold uppercase tracking-[0.22em] text-white/60">
                         Nepal · Your destination buddy
                     </p>
-                    <p className="anim-rise font-[family-name:var(--font-display)] text-6xl font-semibold tracking-tight text-white sm:text-7xl md:text-[6.5rem] md:leading-[0.95]">
+                    <p className="anim-rise font-[family-name:var(--font-display)] text-[2.75rem] font-semibold leading-none tracking-tight text-white sm:text-7xl md:text-[6.5rem] md:leading-[0.95]">
                         TrekPal
                     </p>
-                    <h1 className="anim-rise-delay mt-5 max-w-xl text-xl font-medium leading-snug tracking-tight text-white/92 sm:text-2xl md:text-3xl">
+                    <h1 className="anim-rise-delay mt-5 max-w-xl text-lg font-medium leading-snug tracking-tight text-white/92 sm:text-2xl md:text-3xl">
                         Prepare like you already know the ridge.
                     </h1>
                     <p className="anim-rise-late mt-4 max-w-md text-base leading-relaxed text-white/70 sm:text-lg">

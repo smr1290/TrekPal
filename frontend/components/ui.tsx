@@ -13,9 +13,9 @@ export function PageHeader({
 }) {
   return (
     <header className="mb-12 flex flex-col gap-6 border-b border-[var(--border)] pb-10 sm:flex-row sm:items-center sm:justify-between">
-      <div className="max-w-2xl">
+      <div className="min-w-0 max-w-2xl">
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        <h1 className="display-title text-4xl text-[var(--foreground)] sm:text-5xl md:text-[3.25rem]">
+        <h1 className="display-title text-3xl text-[var(--foreground)] sm:text-5xl md:text-[3.25rem]">
           {title}
         </h1>
         {description && (
@@ -24,7 +24,7 @@ export function PageHeader({
           </p>
         )}
       </div>
-      {action && <div className="flex shrink-0 items-center">{action}</div>}
+      {action && <div className="flex w-full min-w-0 shrink-0 items-center sm:w-auto">{action}</div>}
     </header>
   );
 }

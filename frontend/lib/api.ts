@@ -285,7 +285,7 @@ export const knowledgeApi = {
                 has_source?: boolean;
                 source_label?: string | null;
             }[]
-        >(`/knowledge${query}`);
+        >(`/knowledge/${query}`);
     },
 
     getArticle: async (slug: string) => {

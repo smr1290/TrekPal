@@ -109,6 +109,11 @@ export default function KnowledgePage() {
 
             {isLoading ? (
                 <SkeletonGrid count={6} columns="sm:grid-cols-2 lg:grid-cols-3" />
+            ) : loadError ? (
+                <EmptyState
+                    title="Articles unavailable"
+                    description={loadError}
+                />
             ) : filteredArticles.length === 0 ? (
                 <EmptyState
                     title="No articles found"

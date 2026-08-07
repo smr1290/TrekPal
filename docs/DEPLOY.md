@@ -183,4 +183,6 @@ No Terraform/IaC is required for S3; dashboard + GitHub connect is enough and re
 | API | |
 | Deployed on (date) | |
 
+**Live (S3):** Frontend `https://trek-pal-delta.vercel.app` · API `https://gracious-hope-production-acfe.up.railway.app` (2026-08-07).
+
 Paste these into a private note; optionally add a one-line status under S3 in `MILESTONES_PRODUCT.md` **without** putting secrets in git.

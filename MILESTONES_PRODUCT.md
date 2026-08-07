@@ -49,7 +49,7 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 
 **S2 (2026-08-05):** Configurable `AUTH_COOKIE_SAMESITE` (prod default `none` for Vercel+API split host; local `lax`). Cookie+CORS matrix + smoke path in `docs/PRODUCTION_ENV.md`. Signup/login → `/auth/me` + `/trek/history` smoke; no JWT in `localStorage`.
 
-**S3 (in progress):** Deploy scaffolding — production Dockerfile (migrate + uvicorn on `$PORT`), `backend/railway.toml`, `docs/DEPLOY.md` (Railway API+Postgres + Vercel frontend). **Public URLs / live smoke still required before S3 = Done.**
+**S3 (2026-08-07):** Public deploy live — Vercel frontend `https://trek-pal-delta.vercel.app` + Railway API `https://gracious-hope-production-acfe.up.railway.app` + Postgres; `docs/DEPLOY.md`; migrate-on-boot Dockerfile. Follow-up: knowledge trailing-slash + mobile layout polish.
 
 
 Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
@@ -58,7 +58,7 @@ Closes the gaps between “strong MVP on your laptop” and “safe to invite re
 |----|--------|--------|--------|------------|
 | **S1** | Production env & secrets hardening | Backend/DevOps | Done | Weak/local secrets leaking to prod |
 | **S2** | Production auth cookies (cross-origin) | Backend/Security | Done | Cookies break or weaken off localhost |
-| **S3** | Production deploy (API + DB + frontend) | DevOps | In progress | Only runs on one PC |
+| **S3** | Production deploy (API + DB + frontend) | DevOps | Done | Only runs on one PC |
 | **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Pending | No automated regression gate |
 | **S5** | External AI & weather resilience | Backend/Reliability | Pending | Groq/Open-Meteo outages feel like “app broken” |
 | **S6** | Observability (errors + uptime) | Observability | Pending | Failures invisible until a user reports them |
