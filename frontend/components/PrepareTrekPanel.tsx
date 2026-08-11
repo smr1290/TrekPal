@@ -9,13 +9,13 @@ import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import CatalogImage from '@/components/CatalogImage';
 import WeatherPanel from '@/components/WeatherPanel';
+import PackingChecklistResults from '@/components/PackingChecklistResults';
 import { EmptyState } from '@/components/ui';
 import { trekApi } from '@/lib/api';
 import type { TrekPreparationResponse } from '@/lib/types';
 import {
     getDifficultyVariant,
     getRiskVariant,
-    getGearPriorityVariant,
     getEstimateSourceLabel,
 } from '@/lib/badgeHelpers';
 
@@ -233,155 +233,111 @@ export default function PrepareTrekPanel({
                 <section>
                     {result ? (
                         <div className="flex flex-col gap-5">
-                            <Card className="border-l-4 border-l-[var(--accent)] p-6">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                            Safety risk estimate
-                                        </p>
-                                        <h4 className="mt-1 text-xl font-semibold">Report ready</h4>
-                                        <p className="mt-2 text-xs text-[var(--muted)]">
-                                            Source:{' '}
-                                            <span className="font-semibold text-[var(--foreground)]">
-                                                {getEstimateSourceLabel(result.risk_source)}
-                                            </span>
-                                        </p>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <Card className="relative overflow-hidden border-l-4 border-l-[var(--accent)] p-6">
+                                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                                        Risk band
+                                    </p>
+                                    <div className="mt-3 flex items-center gap-3">
+                                        <Badge
+                                            variant={getRiskVariant(result.risk_level)}
+                                            className="px-3 py-1 text-sm"
+                                        >
+                                            {result.risk_level}
+                                        </Badge>
+                                        <span className="text-xs text-[var(--muted)]">
+                                            {getEstimateSourceLabel(result.risk_source)}
+                                        </span>
                                     </div>
-                                    <Badge
-                                        variant={getRiskVariant(result.risk_level)}
-                                        className="px-4 py-1.5 text-sm"
-                                    >
-                                        {result.risk_level} risk
-                                    </Badge>
-                                </div>
-                                {(result.risk_factors || []).length > 0 && (
-                                    <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-[var(--muted)]">
-                                        {result.risk_factors!.map((factor, i) => (
-                                            <li key={i}>{factor}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                                {result.ams_note && (
-                                    <p className="mt-4 rounded-[var(--radius)] bg-[var(--warning-bg)] p-3 text-sm text-[var(--warning)]">
-                                        {result.ams_note}
-                                    </p>
-                                )}
-                                {result.safety_disclaimer && (
-                                    <p className="mt-3 text-xs text-[var(--muted)]">
-                                        {result.safety_disclaimer}
-                                    </p>
-                                )}
-                            </Card>
-
-                            {result.budget_estimate && (
-                                <Card className="p-6">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                                Budget estimate
-                                            </p>
-                                            <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold">
-                                                ${result.budget_estimate.mid_usd.toLocaleString()}
-                                            </p>
-                                            <p className="mt-1 text-sm text-[var(--muted)]">
-                                                Range ${result.budget_estimate.low_usd.toLocaleString()} – $
-                                                {result.budget_estimate.high_usd.toLocaleString()} USD
-                                            </p>
+                                    {(result.risk_factors || []).length > 0 && (
+                                        <div className="mt-4 flex flex-wrap gap-2">
+                                            {result.risk_factors!.map((factor, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium text-[var(--muted)]"
+                                                >
+                                                    {factor}
+                                                </span>
+                                            ))}
                                         </div>
-                                        <Badge variant="info">
+                                    )}
+                                    {result.ams_note && (
+                                        <p className="mt-4 rounded-[var(--radius-sm)] bg-[var(--warning-bg)] p-3 text-sm text-[var(--warning)]">
+                                            {result.ams_note}
+                                        </p>
+                                    )}
+                                </Card>
+
+                                {result.budget_estimate ? (
+                                    <Card className="p-6">
+                                        <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                                            Budget mid-range
+                                        </p>
+                                        <p className="mt-2 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+                                            ${result.budget_estimate.mid_usd.toLocaleString()}
+                                        </p>
+                                        <p className="mt-1 text-sm text-[var(--muted)]">
+                                            ${result.budget_estimate.low_usd.toLocaleString()} – $
+                                            {result.budget_estimate.high_usd.toLocaleString()} USD
+                                        </p>
+                                        <Badge variant="info" className="mt-4">
                                             {getEstimateSourceLabel(result.budget_source)}
                                         </Badge>
-                                    </div>
-                                </Card>
+                                    </Card>
+                                ) : (
+                                    <Card className="flex items-center p-6">
+                                        <p className="text-sm text-[var(--muted)]">
+                                            Budget estimate unavailable for this run.
+                                        </p>
+                                    </Card>
+                                )}
+                            </div>
+
+                            {result.safety_disclaimer && (
+                                <p className="text-xs leading-relaxed text-[var(--muted)]">
+                                    {result.safety_disclaimer}
+                                </p>
                             )}
 
                             {(result.recommended_treks || []).length > 0 && (
                                 <Card className="p-6">
                                     <div className="mb-4 flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold">Recommended treks</h4>
+                                        <h4 className="font-[family-name:var(--font-display)] text-lg font-semibold">
+                                            Similar treks
+                                        </h4>
                                         <Badge variant="default">
                                             {getEstimateSourceLabel(result.recommend_source)}
                                         </Badge>
                                     </div>
-                                    <ul className="space-y-3">
+                                    <ul className="grid gap-3 sm:grid-cols-2">
                                         {(result.recommended_treks || []).map((trek) => (
                                             <li
                                                 key={trek.id}
-                                                className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-3 last:border-0 last:pb-0"
+                                                className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface-muted)]/50 p-4"
                                             >
-                                                <div>
-                                                    <p className="font-semibold">{trek.trek_name}</p>
-                                                    <p className="mt-1 text-xs text-[var(--muted)]">
-                                                        {(trek.max_altitude || 0).toLocaleString()} m ·{' '}
-                                                        {trek.duration_days || '—'} days
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <p className="font-semibold leading-snug">
+                                                        {trek.trek_name}
                                                     </p>
+                                                    {trek.difficulty && (
+                                                        <Badge
+                                                            variant={getDifficultyVariant(trek.difficulty)}
+                                                        >
+                                                            {trek.difficulty}
+                                                        </Badge>
+                                                    )}
                                                 </div>
-                                                {trek.difficulty && (
-                                                    <Badge variant={getDifficultyVariant(trek.difficulty)}>
-                                                        {trek.difficulty}
-                                                    </Badge>
-                                                )}
+                                                <p className="mt-2 text-xs text-[var(--muted)]">
+                                                    {(trek.max_altitude || 0).toLocaleString()} m ·{' '}
+                                                    {trek.duration_days || '—'} days
+                                                </p>
                                             </li>
                                         ))}
                                     </ul>
                                 </Card>
                             )}
 
-                            <Card className="overflow-hidden p-0">
-                                <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-muted)] px-5 py-3">
-                                    <h4 className="text-sm font-semibold">Packing checklist</h4>
-                                    <Badge variant="info">{result.recommended_gear.length} items</Badge>
-                                </div>
-                                <ul className="divide-y divide-[var(--border)]">
-                                    {(result.recommended_gear || []).map((gear, index) => (
-                                        <li key={index} className="flex gap-4 px-5 py-4">
-                                            <CatalogImage
-                                                src={gear.photo_url}
-                                                alt={gear.gear_name}
-                                                fallbackLabel={(gear.category || 'Gear').slice(0, 4)}
-                                                className="h-14 w-14 shrink-0 rounded-lg"
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <h5 className="font-semibold">{gear.gear_name}</h5>
-                                                    <div className="flex shrink-0 flex-col items-end gap-1">
-                                                        {gear.priority && (
-                                                            <Badge
-                                                                variant={getGearPriorityVariant(gear.priority)}
-                                                            >
-                                                                {gear.priority}
-                                                            </Badge>
-                                                        )}
-                                                        {gear.category && (
-                                                            <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-                                                                {gear.category}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {gear.quantity && (
-                                                    <p className="mt-1 text-xs font-medium">
-                                                        Pack: {gear.quantity}
-                                                    </p>
-                                                )}
-                                                {gear.reason && (
-                                                    <p className="mt-1 text-sm">{gear.reason}</p>
-                                                )}
-                                                {gear.rent_hint && (
-                                                    <p className="mt-1 text-sm text-[var(--muted)]">
-                                                        Nepal tip: {gear.rent_hint}
-                                                    </p>
-                                                )}
-                                                {gear.description && (
-                                                    <p className="mt-1 text-sm text-[var(--muted)]">
-                                                        {gear.description}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </Card>
+                            <PackingChecklistResults items={result.recommended_gear || []} />
 
                             {onRequestItinerary && (
                                 <Card className="border-[var(--accent)]/25 bg-[var(--accent-soft)] p-5">
@@ -389,7 +345,8 @@ export default function PrepareTrekPanel({
                                         Ready for a day-by-day plan?
                                     </p>
                                     <p className="mt-1 text-sm text-[var(--muted)]">
-                                        Carry these details into the full itinerary tab (permits, days, transport).
+                                        Carry these details into the full itinerary tab (permits, days,
+                                        transport).
                                     </p>
                                     <Button
                                         className="mt-4"
