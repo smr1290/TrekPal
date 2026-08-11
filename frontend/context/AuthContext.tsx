@@ -30,7 +30,17 @@ function cacheUser(setUser: (user: User | null) => void, userData: User) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const raw = localStorage.getItem(USER_KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw) as User;
+            return parsed?.id ? parsed : null;
+        } catch {
+            return null;
+        }
+    });
     const [isLoading, setIsLoading] = useState(true);
 
     const clearSession = () => {

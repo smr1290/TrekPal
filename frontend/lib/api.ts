@@ -43,12 +43,18 @@ function formatErrorDetail(detail: unknown): string {
     return 'Request failed';
 }
 
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+type FetchApiOptions = RequestInit & {
+    /** When true, a 401 does not clear the UI session (used for /auth/me probe). */
+    silent401?: boolean;
+};
+
+async function fetchApi<T>(endpoint: string, options: FetchApiOptions = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const method = (options.method || 'GET').toUpperCase();
+    const { silent401, ...fetchOptions } = options;
 
     const headers: Record<string, string> = {
-        ...(options.headers as Record<string, string> | undefined),
+        ...(fetchOptions.headers as Record<string, string> | undefined),
     };
     // Only set JSON content-type when sending a body — avoids extra CORS
     // preflights on simple GETs (flaky on some mobile browsers).
@@ -58,14 +64,16 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
     try {
         const response = await fetch(url, {
-            ...options,
+            ...fetchOptions,
             headers,
             credentials: 'include',
         });
 
         if (!response.ok) {
-            // Expired / invalid session — clear local profile cache so UI can recover.
-            if (response.status === 401 && typeof window !== 'undefined') {
+            // Expired session on a protected call — clear UI cache.
+            // /auth/me uses silent401 so a logged-out probe cannot wipe a
+            // signup/login that finished while me() was still in flight.
+            if (response.status === 401 && typeof window !== 'undefined' && !silent401) {
                 clearLegacyAccessToken();
                 localStorage.removeItem('trek_pal_user');
                 window.dispatchEvent(new Event('trekpal:auth-expired'));
@@ -130,7 +138,7 @@ export const authApi = {
             full_name: string;
             experience_level: string | null;
             email: string;
-        }>('/auth/me');
+        }>('/auth/me', { silent401: true });
     },
 
     updateMe: async (payload: { full_name?: string; experience_level?: string }) => {
