@@ -7,7 +7,6 @@ import Select from '@/components/Select';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
-import CatalogImage from '@/components/CatalogImage';
 import WeatherPanel from '@/components/WeatherPanel';
 import PackingChecklistResults from '@/components/PackingChecklistResults';
 import { EmptyState } from '@/components/ui';
