@@ -42,12 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         let cancelled = false;
         const hydrate = async () => {
-            // Drop any pre-M7 JWT so scripts cannot read it from localStorage.
             clearLegacyAccessToken();
 
             try {
-                // Cookie is sent automatically with credentials: 'include'.
-                // Timeout so a slow/unreachable API cannot leave phones on "Loading…".
                 const me = await Promise.race([
                     authApi.me(),
                     new Promise<never>((_, reject) =>
@@ -62,7 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     email: me.email,
                 });
             } catch {
-                if (!cancelled) clearSession();
+                if (cancelled) return;
+                // Don't wipe a user who signed up/logged in while /auth/me was in flight.
+                setUser((existing) => {
+                    if (existing) return existing;
+                    clearLegacyAccessToken();
+                    localStorage.removeItem(USER_KEY);
+                    return null;
+                });
             } finally {
                 if (!cancelled) setIsLoading(false);
             }
