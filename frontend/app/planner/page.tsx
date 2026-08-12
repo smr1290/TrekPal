@@ -14,6 +14,7 @@ import PageContainer from '@/components/PageContainer';
 import PrepareTrekPanel from '@/components/PrepareTrekPanel';
 import WeatherPanel from '@/components/WeatherPanel';
 import { PageHeader, EmptyState, LoadingBlock, SuccessBanner } from '@/components/ui';
+import TrustNotice from '@/components/TrustNotice';
 import { tripPlanApi } from '@/lib/api';
 import type { TripPlanContent, TripPlanDetail, TripPlanSummary } from '@/lib/types';
 import { getDifficultyVariant, getRiskVariant } from '@/lib/badgeHelpers';
@@ -181,6 +182,7 @@ function PlanTripInner() {
                 title="Plan your trek"
                 description="Packing checklists and day-by-day itineraries — with risk and weather context when you need it."
             />
+            <TrustNotice className="mb-8 -mt-6 max-w-2xl" />
 
             {justSaved ? (
                 <SuccessBanner message="Plan saved to My plans. You can reopen it anytime from History." />

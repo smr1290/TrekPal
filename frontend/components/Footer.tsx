@@ -38,9 +38,16 @@ export default function Footer() {
                         <Link href="/maps" className="hover:text-white">
                             Maps
                         </Link>
+                        <Link href="/privacy" className="hover:text-white">
+                            Privacy
+                        </Link>
+                        <Link href="/terms" className="hover:text-white">
+                            Terms
+                        </Link>
                     </div>
-                    <p className="text-xs tracking-wide text-white/45">
-                        &copy; {new Date().getFullYear()} TrekPal · Built for Nepal trails
+                    <p className="max-w-sm text-xs leading-relaxed tracking-wide text-white/45 sm:text-right">
+                        &copy; {new Date().getFullYear()} TrekPal · Built for Nepal trails ·
+                        Preparation only — verify permits and conditions before travel
                     </p>
                 </div>
             </div>

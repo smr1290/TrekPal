@@ -118,13 +118,17 @@ export default function MapsPage() {
             <div className="mb-6 rounded-[var(--radius)] border border-[var(--warning)]/40 bg-[var(--warning-bg)] px-4 py-3 text-sm text-[var(--warning)]">
                 Unverified hospital and emergency pins stay hidden by default. Even verified pins are
                 approximate public landmarks — always confirm locally with guides, lodges, or
-                official channels.{' '}
+                official channels. TrekPal does not provide live rescue or medical advice.{' '}
                 <Link href="/knowledge/nepal-emergency-contacts" className="font-semibold underline">
                     Emergency contacts guide
                 </Link>
                 {' · '}
                 <Link href="/knowledge/trail-safety-basics" className="font-semibold underline">
                     Trail safety
+                </Link>
+                {' · '}
+                <Link href="/terms" className="font-semibold underline">
+                    Terms
                 </Link>
             </div>
 

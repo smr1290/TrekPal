@@ -10,6 +10,7 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { EmptyState, LoadingBlock } from '@/components/ui';
+import TrustNotice from '@/components/TrustNotice';
 import { ApiError, chatApi } from '@/lib/api';
 import type { ChatAnswer, ChatResponse, ChatSource } from '@/lib/types';
 
@@ -105,8 +106,9 @@ export default function ChatPage() {
                     <h1 className="display-title mt-3 text-3xl sm:text-5xl">AI trek assistant</h1>
                     <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--muted)]">
                         Sign-in required. Answers are grounded in the knowledge base (limit 20
-                        questions/hour). Not medical or legal advice.
+                        questions/hour). Open linked sources to verify.
                     </p>
+                    <TrustNotice className="mt-3 max-w-2xl" />
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-[1fr_340px]">

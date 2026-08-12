@@ -176,6 +176,8 @@ Shell: `layout.tsx` → `AuthProvider` → `Navbar` → `PageTransition` → `ma
 | `/knowledge` | Client | No | Article list |
 | `/knowledge/[slug]` | Client | No | Article + sources/disclaimer |
 | `/maps` | Client | No | Leaflet + trust filters |
+| `/privacy` | Server | No | Privacy policy (accounts, cookies, AI, weather) |
+| `/terms` | Server | No | Terms of use (not medical/emergency; verify before travel) |
 | `/chat` | Client | Yes | Grounded AI Q&A |
 | `/profile` | Client | Yes | Edit name / experience |
 
@@ -357,7 +359,7 @@ Ship readiness: close laptop-MVP → public-internet gaps.
 | S4 | CI pipeline (tests + build on PR) | Done |
 | S5 | External AI & weather resilience | Done |
 | S6 | Observability (errors + uptime) | Done |
-| S7 | Legal & trust pages | Pending |
+| S7 | Legal & trust pages | Done |
 | S8 | Launch QA gate (phone + smoke) | Pending |
 
 Work **one at a time** from S1.

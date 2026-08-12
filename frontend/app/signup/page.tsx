@@ -162,6 +162,24 @@ export default function SignupPage() {
                         >
                             {isLoading ? 'Creating account…' : 'Create account'}
                         </Button>
+
+                        <p className="mt-4 text-center text-xs leading-relaxed text-[var(--muted)]">
+                            By creating an account you agree to our{' '}
+                            <Link
+                                href="/terms"
+                                className="font-semibold text-[var(--accent)] hover:underline"
+                            >
+                                Terms
+                            </Link>{' '}
+                            and{' '}
+                            <Link
+                                href="/privacy"
+                                className="font-semibold text-[var(--accent)] hover:underline"
+                            >
+                                Privacy
+                            </Link>
+                            . TrekPal is not medical or emergency advice.
+                        </p>
                     </form>
 
                     <p className="mt-8 border-t border-[var(--border)] pt-6 text-center text-sm text-[var(--muted)]">
