@@ -59,6 +59,8 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 
 **S7 (2026-08-12):** `/privacy` and `/terms` with honest indie-product copy; footer + signup links; TrustNotice on chat/planner; maps banner links Terms and repeats no live rescue / not medical advice.
 
+**S8 (in progress):** Launch checklist written in `docs/LAUNCH_QA.md`. Real mid-range phone pass + filled result table still required before S8 = Done / Phase 3 complete.
+
 
 Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
 
