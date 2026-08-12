@@ -159,10 +159,11 @@ function PlanTripInner() {
             await loadSaved();
             setJustSaved(true);
             window.setTimeout(() => setJustSaved(false), 4000);
-        } catch {
+        } catch (error) {
+            console.error('Trip plan generate failed:', error);
             setErrors({
                 general:
-                    'Could not generate a plan. Check that you are logged in and the API is running.',
+                    'Could not save a trip plan right now. Check your connection, or use the Checklist tab — packing lists work without AI.',
             });
         } finally {
             setIsGenerating(false);
@@ -383,7 +384,7 @@ function PlanTripInner() {
 
                     <section>
                         {isGenerating ? (
-                            <LoadingBlock label="Building your itinerary with AI…" />
+                            <LoadingBlock label="Building your itinerary…" />
                         ) : !plan ? (
                             <EmptyState
                                 title="No plan yet"

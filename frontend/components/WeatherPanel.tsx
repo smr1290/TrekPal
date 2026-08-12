@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
+import DependencyError from '@/components/DependencyError';
 import { LoadingBlock } from '@/components/ui';
 import { ApiError, weatherApi } from '@/lib/api';
 import type { WeatherForecast } from '@/lib/types';
@@ -20,10 +21,42 @@ function formatDay(date: string) {
     }
 }
 
+function weatherErrorMessage(err: unknown): string {
+    if (err instanceof ApiError) {
+        if (err.status === 404) {
+            return err.message;
+        }
+        if (err.status === 502) {
+            return (
+                err.message ||
+                'Open-Meteo weather service is temporarily unavailable. Your packing checklist still works without forecast data.'
+            );
+        }
+        return err.message;
+    }
+    return 'Could not reach Open-Meteo. Check your connection and try again.';
+}
+
 export default function WeatherPanel({ destination }: { destination: string }) {
     const [forecast, setForecast] = useState<WeatherForecast | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [reloadToken, setReloadToken] = useState(0);
+
+    const loadForecast = useCallback(async (query: string, cancelled: () => boolean) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await weatherApi.forecast(query, 7);
+            if (!cancelled()) setForecast(data);
+        } catch (err) {
+            if (cancelled()) return;
+            setForecast(null);
+            setError(weatherErrorMessage(err));
+        } finally {
+            if (!cancelled()) setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         const query = destination.trim();
@@ -34,34 +67,19 @@ export default function WeatherPanel({ destination }: { destination: string }) {
         }
 
         let cancelled = false;
-        const load = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await weatherApi.forecast(query, 7);
-                if (!cancelled) setForecast(data);
-            } catch (err) {
-                if (cancelled) return;
-                setForecast(null);
-                if (err instanceof ApiError) {
-                    setError(err.message);
-                } else {
-                    setError('Could not load weather. Check your connection.');
-                }
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        };
+        const isCancelled = () => cancelled;
 
         const timer = window.setTimeout(() => {
-            void load();
+            void loadForecast(query, isCancelled);
         }, 350);
 
         return () => {
             cancelled = true;
             window.clearTimeout(timer);
         };
-    }, [destination]);
+    }, [destination, reloadToken, loadForecast]);
+
+    const handleRetry = () => setReloadToken((n) => n + 1);
 
     if (!destination.trim()) return null;
 
@@ -86,12 +104,18 @@ export default function WeatherPanel({ destination }: { destination: string }) {
 
             {isLoading ? (
                 <div className="mt-4">
-                    <LoadingBlock label="Loading forecast…" />
+                    <LoadingBlock label="Loading forecast from Open-Meteo…" />
                 </div>
             ) : error ? (
-                <p className="state-error mt-4" role="status">
-                    {error}
-                </p>
+                <DependencyError
+                    title="Open-Meteo unavailable"
+                    message={error}
+                    onRetry={handleRetry}
+                    nextActions={[
+                        { label: 'Build packing checklist', href: '/planner?tab=checklist' },
+                        { label: 'Browse Knowledge', href: '/knowledge' },
+                    ]}
+                />
             ) : forecast ? (
                 <div className="mt-4 space-y-4">
                     <div>

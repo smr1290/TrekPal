@@ -38,7 +38,10 @@ async def get_forecast(
     except httpx.HTTPError:
         raise HTTPException(
             status_code=502,
-            detail="Weather provider unavailable. Try again in a moment.",
+            detail=(
+                "Open-Meteo weather service is temporarily unavailable. "
+                "Try again in a moment, or use Plan trip checklist and Knowledge guides meanwhile."
+            ),
         )
 
     summary = summarize_forecast(raw, place)

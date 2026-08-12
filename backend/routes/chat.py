@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import httpx
@@ -17,6 +16,10 @@ from services.rate_limit import CHAT_RATE_LIMIT_PER_HOUR, allow_chat
 
 
 router = APIRouter()
+
+
+class GroqUnavailableError(Exception):
+    """Groq missing, unreachable, or returned an error — safe to fall back."""
 
 
 def _truncate(text: str, max_chars: int) -> str:
@@ -113,12 +116,37 @@ def _build_prompt(message: str, articles: list[models.KnowledgeArticle]) -> list
     ]
 
 
+def _knowledge_fallback_answer(articles: list[models.KnowledgeArticle]) -> str:
+    """Rule-based answer when Groq is down — points user at retrieved articles."""
+    if not articles:
+        return (
+            "TrekPal's AI assistant (Groq) is temporarily unavailable, and I couldn't find "
+            "matching articles for your question.\n\n"
+            "Try browsing Knowledge for trail guides, or open Plan trip to build a packing checklist."
+        )
+
+    lines = [
+        "TrekPal's AI assistant (Groq) is temporarily unavailable. "
+        "Here are the closest articles from our knowledge base — open them for full guidance:",
+        "",
+    ]
+    for article in articles:
+        summary = _truncate(article.summary or "", 180)
+        lines.append(f"• {article.title}")
+        if summary:
+            lines.append(f"  {summary}")
+    lines.extend(
+        [
+            "",
+            "For a full AI-written answer, try again in a few minutes.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 async def _call_groq_chat(messages: list[dict[str, Any]]) -> str:
     if not GROQ_API_KEY:
-        raise HTTPException(
-            status_code=500,
-            detail="GROQ_API_KEY is not configured. Add it to backend/.env (or set env var in Docker).",
-        )
+        raise GroqUnavailableError("not_configured")
 
     url = "https://api.groq.com/openai/v1/chat/completions"
     payload: dict[str, Any] = {
@@ -132,26 +160,21 @@ async def _call_groq_chat(messages: list[dict[str, Any]]) -> str:
 
     from services.ext_logging import log_external_call
 
-    with log_external_call("groq", "chat", user_id=None, route="/chat/ask"):
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
+    try:
+        with log_external_call("groq", "chat", user_id=None, route="/chat/ask"):
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+    except httpx.HTTPError as exc:
+        raise GroqUnavailableError("network") from exc
 
-        if resp.status_code >= 400:
-            detail = "Groq API error. Check model name and API key."
-            try:
-                err = resp.json()
-                msg = err.get("error", {}).get("message") if isinstance(err, dict) else None
-                if msg:
-                    detail = f"Groq API error: {msg}"
-            except Exception:
-                pass
-            raise HTTPException(status_code=502, detail=detail)
+    if resp.status_code >= 400:
+        raise GroqUnavailableError(f"http_{resp.status_code}")
 
-        data = resp.json()
-        try:
-            return data["choices"][0]["message"]["content"]
-        except Exception:
-            raise HTTPException(status_code=502, detail="Groq response format unexpected.")
+    data = resp.json()
+    try:
+        return data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise GroqUnavailableError("bad_response") from exc
 
 
 @router.post("/ask", response_model=ChatResponse)
@@ -175,8 +198,13 @@ async def ask_chat(
 
     articles = _retrieve_relevant_articles(db, message, limit=4)
     prompt_messages = _build_prompt(message, articles)
-    answer = await _call_groq_chat(prompt_messages)
-
     sources = [ChatSource(slug=a.slug, title=a.title) for a in articles]
-    return ChatResponse(result={"answer": answer, "sources": sources})
 
+    try:
+        answer = await _call_groq_chat(prompt_messages)
+        source = "ai"
+    except GroqUnavailableError:
+        answer = _knowledge_fallback_answer(articles)
+        source = "knowledge_fallback"
+
+    return ChatResponse(result={"answer": answer, "sources": sources, "source": source})

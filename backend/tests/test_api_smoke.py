@@ -158,3 +158,46 @@ def test_weather_forecast_for_known_destination():
 def test_weather_forecast_unknown_destination():
     response = client.get("/weather/forecast", params={"destination": "Atlantis Ridge"})
     assert response.status_code == 404
+
+
+def test_health_deps_reports_dependencies():
+    response = client.get("/health/deps")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["status"] in {"ok", "degraded", "unhealthy"}
+    for key in ("db", "groq", "open_meteo"):
+        assert key in body
+        assert body[key]["status"] in {"ok", "unconfigured", "error"}
+    # Must not leak API keys in the payload.
+    raw = response.text.lower()
+    assert "gsk_" not in raw
+    assert "bearer " not in raw
+
+
+def test_chat_knowledge_fallback_when_groq_unconfigured(monkeypatch):
+    import routes.chat as chat_module
+
+    monkeypatch.setattr(chat_module, "GROQ_API_KEY", "")
+
+    email = f"s5_{uuid.uuid4().hex[:10]}@example.com"
+    signup = client.post(
+        "/auth/signup",
+        json={
+            "full_name": "S5 Tester",
+            "email": email,
+            "password": "TestPass123!",
+            "experience_level": "Beginner",
+        },
+    )
+    assert signup.status_code == 200, signup.text
+
+    response = client.post(
+        "/chat/ask",
+        json={"message": "What gear do I need for Everest Base Camp?"},
+    )
+    assert response.status_code == 200, response.text
+    result = response.json()["result"]
+    assert result["source"] == "knowledge_fallback"
+    assert "Groq" in result["answer"] or "AI assistant" in result["answer"]
+    assert isinstance(result["sources"], list)
+

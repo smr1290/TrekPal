@@ -273,6 +273,7 @@ Internal estimates: risk, difficulty, budget, recommend-treks, insights — all 
 
 ### Health
 | GET | `/` | Health message |
+| GET | `/health/deps` | DB + Groq + Open-Meteo status (no secrets) |
 
 ---
 
@@ -354,7 +355,7 @@ Ship readiness: close laptop-MVP → public-internet gaps.
 | S2 | Production auth cookies (cross-origin) | Done |
 | S3 | Production deploy (API + DB + frontend) | Done |
 | S4 | CI pipeline (tests + build on PR) | Done |
-| S5 | External AI & weather resilience | Pending |
+| S5 | External AI & weather resilience | Done |
 | S6 | Observability (errors + uptime) | Pending |
 | S7 | Legal & trust pages | Pending |
 | S8 | Launch QA gate (phone + smoke) | Pending |

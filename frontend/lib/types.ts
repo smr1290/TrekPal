@@ -177,6 +177,7 @@ export interface ChatSource {
 export interface ChatAnswer {
   answer: string;
   sources: ChatSource[];
+  source?: 'ai' | 'knowledge_fallback';
 }
 
 export interface ChatResponse {

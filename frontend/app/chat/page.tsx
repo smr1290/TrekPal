@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import Badge from '@/components/Badge';
 import Card from '@/components/Card';
 import PageContainer from '@/components/PageContainer';
 import Input from '@/components/Input';
@@ -12,7 +13,13 @@ import { EmptyState, LoadingBlock } from '@/components/ui';
 import { ApiError, chatApi } from '@/lib/api';
 import type { ChatAnswer, ChatResponse, ChatSource } from '@/lib/types';
 
-type ChatMessage = { role: 'user' | 'assistant'; content: string; id: string };
+type ChatMessage = {
+    role: 'user' | 'assistant';
+    content: string;
+    id: string;
+    source?: 'ai' | 'knowledge_fallback';
+    isError?: boolean;
+};
 
 function chatErrorMessage(error: unknown): string {
     if (error instanceof ApiError) {
@@ -22,13 +29,10 @@ function chatErrorMessage(error: unknown): string {
         if (error.status === 429) {
             return error.message || 'Rate limit reached (20 questions/hour). Try again later.';
         }
-        if (error.status === 502 || error.status === 500) {
-            return error.message || 'The AI provider is unavailable. Check GROQ_API_KEY on the API.';
-        }
         return error.message;
     }
     if (error instanceof Error && error.message) return error.message;
-    return 'Could not reach chat. Check that you are signed in and the API is running.';
+    return 'Could not reach TrekPal chat. Check your connection and try again.';
 }
 
 export default function ChatPage() {
@@ -73,6 +77,7 @@ export default function ChatPage() {
                     role: 'assistant',
                     content: answer.answer,
                     id: `a-${Date.now()}`,
+                    source: answer.source,
                 },
             ]);
             setSources(answer.sources || []);
@@ -84,6 +89,7 @@ export default function ChatPage() {
                     role: 'assistant',
                     content: chatErrorMessage(error),
                     id: `e-${Date.now()}`,
+                    isError: true,
                 },
             ]);
         } finally {
@@ -135,9 +141,32 @@ export default function ChatPage() {
                                                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
                                                     {m.role === 'user' ? 'You' : 'TrekPal'}
                                                 </p>
+                                                {m.role === 'assistant' && m.source === 'knowledge_fallback' ? (
+                                                    <div className="mt-2">
+                                                        <Badge variant="warning">
+                                                            Knowledge fallback (Groq unavailable)
+                                                        </Badge>
+                                                    </div>
+                                                ) : null}
                                                 <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
                                                     {m.content}
                                                 </p>
+                                                {m.isError ? (
+                                                    <div className="mt-3 flex flex-wrap gap-3 text-xs font-semibold">
+                                                        <Link
+                                                            href="/knowledge"
+                                                            className="text-[var(--accent)] hover:underline"
+                                                        >
+                                                            Browse Knowledge →
+                                                        </Link>
+                                                        <Link
+                                                            href="/planner?tab=checklist"
+                                                            className="text-[var(--accent)] hover:underline"
+                                                        >
+                                                            Build checklist →
+                                                        </Link>
+                                                    </div>
+                                                ) : null}
                                             </Card>
                                         </motion.div>
                                     ))}

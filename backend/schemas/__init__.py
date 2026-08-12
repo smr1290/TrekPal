@@ -149,6 +149,22 @@ class HealthResponse(BaseModel):
     message: str
 
 
+class DependencyStatus(BaseModel):
+    """Single external dependency probe result — never includes secrets."""
+
+    status: str  # ok | unconfigured | error
+    detail: str | None = None
+
+
+class HealthDepsResponse(BaseModel):
+    """Aggregate health for ops/uptime checks (S5)."""
+
+    status: str  # ok | degraded | unhealthy
+    db: DependencyStatus
+    groq: DependencyStatus
+    open_meteo: DependencyStatus
+
+
 # ---------- Knowledge base ----------
 
 
@@ -195,6 +211,7 @@ class ChatSource(BaseModel):
 class ChatAnswer(BaseModel):
     answer: str
     sources: list[ChatSource]
+    source: str = "ai"  # ai | knowledge_fallback
 
 
 class ChatResponse(BaseModel):
