@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Badge from '@/components/Badge';
 import CatalogImage from '@/components/CatalogImage';
 import type { RecommendedGearItem } from '@/lib/types';
@@ -27,11 +27,13 @@ export default function PackingChecklistResults({
 }) {
     const [filter, setFilter] = useState<PriorityFilter>('all');
     const [checked, setChecked] = useState<Record<string, boolean>>({});
+    const [prevItems, setPrevItems] = useState(items);
 
-    useEffect(() => {
+    if (items !== prevItems) {
+        setPrevItems(items);
         setChecked({});
         setFilter('all');
-    }, [items]);
+    }
 
     const sorted = useMemo(() => {
         return [...items].sort((a, b) => {

@@ -8,7 +8,7 @@ Nepal trekking preparation app — packing lists, risk bands, weather, knowledge
 
 → **[`CLAUDE.md`](./CLAUDE.md)** — complete architecture, routes, APIs, models, auth, design system, milestones, gaps, and prompt starters.
 
-Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) · [`docs/PRODUCTION_ENV.md`](./docs/PRODUCTION_ENV.md)
+Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) · [`docs/PRODUCTION_ENV.md`](./docs/PRODUCTION_ENV.md) · [`docs/CI.md`](./docs/CI.md)
 
 ---
 
@@ -37,4 +37,5 @@ npm run dev
 ## Status
 
 Phase 1–2 complete. Phase 3 (ship readiness) active — see `MILESTONES_PRODUCT.md`.
-Production deploy steps: [`docs/DEPLOY.md`](./docs/DEPLOY.md).
+Production deploy steps: [`docs/DEPLOY.md`](./docs/DEPLOY.md).  
+CI (pytest + lint + build on PR): [`docs/CI.md`](./docs/CI.md).

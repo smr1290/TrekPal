@@ -51,6 +51,8 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 
 **S3 (2026-08-07):** Public deploy live — Vercel frontend `https://trek-pal-delta.vercel.app` + Railway API `https://gracious-hope-production-acfe.up.railway.app` + Postgres; `docs/DEPLOY.md`; migrate-on-boot Dockerfile. Follow-up: knowledge trailing-slash + mobile layout polish.
 
+**S4 (2026-08-12):** GitHub Actions CI — backend `pytest` (Postgres service + migrations) + frontend ESLint + `next build` on every PR/push to `main`. Local mirror: `docs/CI.md`. Lint fixes for packing checklist reset + knowledge unused import.
+
 
 Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
 
@@ -59,7 +61,7 @@ Closes the gaps between “strong MVP on your laptop” and “safe to invite re
 | **S1** | Production env & secrets hardening | Backend/DevOps | Done | Weak/local secrets leaking to prod |
 | **S2** | Production auth cookies (cross-origin) | Backend/Security | Done | Cookies break or weaken off localhost |
 | **S3** | Production deploy (API + DB + frontend) | DevOps | Done | Only runs on one PC |
-| **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Pending | No automated regression gate |
+| **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Done | No automated regression gate |
 | **S5** | External AI & weather resilience | Backend/Reliability | Pending | Groq/Open-Meteo outages feel like “app broken” |
 | **S6** | Observability (errors + uptime) | Observability | Pending | Failures invisible until a user reports them |
 | **S7** | Legal & trust pages | Frontend/Content | Pending | No privacy/terms / launch hygiene |

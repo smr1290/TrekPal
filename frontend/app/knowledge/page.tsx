@@ -9,7 +9,7 @@ import PageContainer from '@/components/PageContainer';
 import { PageHeader, EmptyState, SkeletonGrid } from '@/components/ui';
 import { knowledgeApi } from '@/lib/api';
 import type { KnowledgeArticle } from '@/lib/types';
-import Reveal, { Stagger, StaggerItem } from '@/components/Reveal';
+import { Stagger, StaggerItem } from '@/components/Reveal';
 import {
     getKnowledgeCategoryLabel,
     getKnowledgeCategoryVariant,
