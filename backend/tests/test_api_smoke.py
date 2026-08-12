@@ -201,3 +201,15 @@ def test_chat_knowledge_fallback_when_groq_unconfigured(monkeypatch):
     assert "Groq" in result["answer"] or "AI assistant" in result["answer"]
     assert isinstance(result["sources"], list)
 
+
+def test_health_test_error_disabled_by_default():
+    response = client.get("/health/test-error")
+    assert response.status_code == 404
+
+
+def test_health_test_error_when_enabled(monkeypatch):
+    monkeypatch.setenv("ENABLE_OBSERVABILITY_TEST_ROUTES", "true")
+    # Route reads env at request time via observability_test_routes_enabled()
+    response = client.get("/health/test-error")
+    assert response.status_code == 500
+

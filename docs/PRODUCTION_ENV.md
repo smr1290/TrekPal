@@ -25,6 +25,8 @@ Bad config → **process exits** with a clear error (see `backend/config.py`).
 | `CHAT_RATE_LIMIT_PER_HOUR` | `20` | `20` or lower |
 | `GROQ_API_KEY` | optional | Recommended for chat / AI itinerary |
 | `GROQ_MODEL` | default OK | Keep known-good model id |
+| `SENTRY_DSN` | omit | Optional — Sentry error tracking (see `docs/OBSERVABILITY.md`) |
+| `ENABLE_OBSERVABILITY_TEST_ROUTES` | omit / `false` | **`true` only briefly** to verify Sentry via `/health/test-error` |
 | `ENABLE_INTERNAL_ML` | unset (on in dev) | **omit or `false`** |
 | `ALLOW_INTERNAL_ML_IN_PRODUCTION` | omit | **omit or `false`** unless you really need `/ml` |
 
@@ -34,6 +36,7 @@ Bad config → **process exits** with a clear error (see `backend/config.py`).
 |----------|-------|------------|
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | `/backend` (with `API_PROXY_TARGET` set to the Railway URL) |
 | `API_PROXY_TARGET` | omit | Railway API HTTPS URL (no trailing slash) |
+| `NEXT_PUBLIC_SENTRY_DSN` | omit | Optional Sentry DSN for client errors (`docs/OBSERVABILITY.md`) |
 
 Copy `frontend/.env.example` → `frontend/.env.local` for local Next.
 

@@ -1,0 +1,29 @@
+# S6: ping public API health every 15 minutes (GitHub Actions — free).
+name: Uptime
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: API health check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check /health/deps
+        env:
+          # Override in repo Settings → Variables → TREKPAL_API_URL if the API moves.
+          TREKPAL_API_URL: ${{ vars.TREKPAL_API_URL }}
+        run: |
+          API_URL="${TREKPAL_API_URL:-https://gracious-hope-production-acfe.up.railway.app}"
+          API_URL="${API_URL%/}"
+          echo "Pinging ${API_URL}/health/deps"
+          BODY=$(curl -sf --max-time 30 "${API_URL}/health/deps")
+          echo "$BODY"
+          STATUS=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))")
+          if [ "$STATUS" = "unhealthy" ]; then
+            echo "API reported unhealthy"
+            exit 1
+          fi
+          echo "Health status: ${STATUS:-unknown} — OK"

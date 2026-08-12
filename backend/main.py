@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -13,8 +13,19 @@ from services.health_deps import (
     check_open_meteo,
     overall_status,
 )
+from services.observability import (
+    RequestLoggingMiddleware,
+    configure_logging,
+    init_sentry,
+    observability_test_routes_enabled,
+)
+
+configure_logging()
+init_sentry()
 
 app = FastAPI(title="TrekPal API")
+
+app.add_middleware(RequestLoggingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,3 +60,15 @@ async def health_deps(db: Session = Depends(get_db)):
         groq=DependencyStatus(status=groq_status, detail=groq_detail),
         open_meteo=DependencyStatus(status=meteo_status, detail=meteo_detail),
     )
+
+
+@app.get("/health/test-error", include_in_schema=False)
+def health_test_error():
+    """
+    S6: Intentional 500 for Sentry/uptime verification.
+
+    Disabled unless ENABLE_OBSERVABILITY_TEST_ROUTES=true on the API host.
+    """
+    if not observability_test_routes_enabled():
+        raise HTTPException(status_code=404, detail="Not found")
+    raise RuntimeError("TrekPal observability test error (intentional — safe to ignore)")

@@ -8,7 +8,7 @@ Nepal trekking preparation app — packing lists, risk bands, weather, knowledge
 
 → **[`CLAUDE.md`](./CLAUDE.md)** — complete architecture, routes, APIs, models, auth, design system, milestones, gaps, and prompt starters.
 
-Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) · [`docs/PRODUCTION_ENV.md`](./docs/PRODUCTION_ENV.md) · [`docs/CI.md`](./docs/CI.md)
+Also useful: [`MILESTONES_PRODUCT.md`](./MILESTONES_PRODUCT.md) · [`docs/PRODUCTION_ENV.md`](./docs/PRODUCTION_ENV.md) · [`docs/CI.md`](./docs/CI.md) · [`docs/OBSERVABILITY.md`](./docs/OBSERVABILITY.md)
 
 ---
 

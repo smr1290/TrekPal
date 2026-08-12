@@ -55,6 +55,8 @@ Work **one at a time**. Do not start the next until the current one is confirmed
 
 **S5 (2026-08-12):** `GET /health/deps` reports DB + Groq + Open-Meteo status (no secrets). Chat falls back to knowledge articles when Groq is down; trip planner already used template fallback. Frontend names dependency failures with retry + checklist/knowledge links.
 
+**S6 (2026-08-12):** Optional Sentry (API + frontend), JSON request logging to host logs, GitHub Actions uptime ping every 15 min, gated `/health/test-error` for error verification. See `docs/OBSERVABILITY.md`.
+
 
 Closes the gaps between “strong MVP on your laptop” and “safe to invite real users on the public internet.”
 
@@ -65,7 +67,7 @@ Closes the gaps between “strong MVP on your laptop” and “safe to invite re
 | **S3** | Production deploy (API + DB + frontend) | DevOps | Done | Only runs on one PC |
 | **S4** | CI pipeline (tests + build on PR) | Engineering/DevOps | Done | No automated regression gate |
 | **S5** | External AI & weather resilience | Backend/Reliability | Done | Groq/Open-Meteo outages feel like “app broken” |
-| **S6** | Observability (errors + uptime) | Observability | Pending | Failures invisible until a user reports them |
+| **S6** | Observability (errors + uptime) | Observability | Done | Failures invisible until a user reports them |
 | **S7** | Legal & trust pages | Frontend/Content | Pending | No privacy/terms / launch hygiene |
 | **S8** | Launch QA gate (phone + smoke checklist) | QA/Product | Pending | Untested real-device / throttled funnel |
 

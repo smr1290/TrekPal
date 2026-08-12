@@ -356,7 +356,7 @@ Ship readiness: close laptop-MVP → public-internet gaps.
 | S3 | Production deploy (API + DB + frontend) | Done |
 | S4 | CI pipeline (tests + build on PR) | Done |
 | S5 | External AI & weather resilience | Done |
-| S6 | Observability (errors + uptime) | Pending |
+| S6 | Observability (errors + uptime) | Done |
 | S7 | Legal & trust pages | Pending |
 | S8 | Launch QA gate (phone + smoke) | Pending |
 
